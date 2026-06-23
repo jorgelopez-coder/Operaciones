@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cierre Diario de Ventas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #4f7bff;
+    --accent2: #00e5a0;
+    --warn: #ff6b4a;
+    --yellow: #ffd166;
+    --text: #e8eaf6;
+    --text2: #8891b4;
+    --text3: #555f8a;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    height: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { font-weight: 700; font-size: 15px; letter-spacing: -0.3px; color: var(--text); }
+  .nav-brand span { color: var(--accent); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .tab-btn {
+    background: none; border: none; padding: 7px 16px;
+    border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--text2); transition: all .2s;
+  }
+  .tab-btn.active { background: var(--accent); color: #fff; }
+  .tab-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
+
+  /* PAGES */
+  .page { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* FORM PAGE */
+  .form-header { margin-bottom: 28px; }
+  .form-header h1 { font-size: 22px; font-weight: 700; }
+  .form-header p { color: var(--text2); font-size: 13px; margin-top: 4px; }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .form-card h3 {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text3); margin-bottom: 16px;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 11px 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px;
+    font-family: inherit; transition: border .2s; outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent);
+  }
+  .field input[type="number"] { font-family: 'JetBrains Mono', monospace; }
+  .field select option { background: var(--surface2); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .submit-btn {
+    width: 100%; padding: 14px;
+    background: var(--accent); border: none;
+    border-radius: var(--radius); color: #fff;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: opacity .2s;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { opacity: .88; }
+  .submit-btn:disabled { opacity: .4; cursor: default; }
+
+  .wa-btn {
+    width: 100%; padding: 14px;
+    background: #25D366; border: none;
+    border-radius: var(--radius); color: #fff;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: opacity .2s;
+    margin-top: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .wa-btn:hover:not(:disabled) { opacity: .88; }
+  .wa-btn:disabled { opacity: .35; cursor: default; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--accent2); color: #0f1117;
+    padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;
+    opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+
+  /* DASHBOARD */
+  .dash-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+  }
+  .dash-header h1 { font-size: 22px; font-weight: 700; }
+  .date-badge {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px; font-size: 13px; color: var(--text2);
+  }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+  }
+  .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 8px; }
+  .kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 600; }
+  .kpi-value.green { color: var(--accent2); }
+  .kpi-value.blue { color: var(--accent); }
+  .kpi-value.yellow { color: var(--yellow); }
+  .kpi-delta { font-size: 12px; color: var(--text3); margin-top: 4px; }
+  .kpi-delta.up { color: var(--accent2); }
+  .kpi-delta.down { color: var(--warn); }
+
+  .section-title {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text3); margin: 24px 0 12px;
+  }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--surface); border-radius: var(--radius);
+    overflow: hidden; border: 1px solid var(--border);
+  }
+  th {
+    text-align: left; padding: 12px 16px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  td {
+    padding: 13px 16px; font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(79,123,255,.04); }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .badge {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .badge-ok { background: rgba(0,229,160,.12); color: var(--accent2); }
+  .badge-warn { background: rgba(255,107,74,.12); color: var(--warn); }
+  .badge-pending { background: rgba(255,209,102,.12); color: var(--yellow); }
+
+  /* BARS CHART */
+  .bars-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .bar-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; text-align: center;
+  }
+  .bar-name { font-size: 11px; font-weight: 600; color: var(--text3); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .8px; }
+  .bar-track {
+    height: 80px; display: flex; align-items: flex-end;
+    background: var(--surface2); border-radius: 6px; padding: 4px;
+    margin-bottom: 8px; position: relative;
+  }
+  .bar-fill {
+    width: 100%; border-radius: 4px;
+    background: linear-gradient(180deg, var(--accent) 0%, #2a4eff 100%);
+    transition: height .6s cubic-bezier(.22,1,.36,1);
+    min-height: 4px;
+  }
+  .bar-amount { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text); }
+  .bar-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* HISTORY */
+  .history-row {
+    display: flex; gap: 12px; align-items: center;
+    padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 8px;
+  }
+  .history-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .history-date { font-size: 12px; color: var(--text3); width: 80px; flex-shrink: 0; }
+  .history-pts { font-size: 13px; color: var(--text2); flex: 1; }
+  .history-total { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: var(--accent2); }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--text3); font-size: 14px;
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+
+  .refresh-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); padding: 7px 14px; border-radius: 8px;
+    font-size: 13px; cursor: pointer; transition: all .2s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* CUADRE DE CAJA */
+  .denom-table { width: 100%; border-collapse: collapse; }
+  .denom-table tr { border-bottom: 1px solid var(--border); }
+  .denom-table tr:last-child { border-bottom: none; }
+  .denom-table td { padding: 8px 4px; vertical-align: middle; }
+  .denom-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 600;
+  }
+  .denom-chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--text2); min-width: 80px; text-align: center;
+  }
+  .denom-chip.billete { border-color: #3a4a7a; color: var(--accent); }
+  .denom-chip.moneda { border-color: #3a5a4a; color: var(--accent2); }
+  .denom-input {
+    width: 70px; padding: 8px 10px; text-align: center;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 15px;
+    font-family: 'JetBrains Mono', monospace; outline: none;
+    transition: border .2s;
+  }
+  .denom-input:focus { border-color: var(--accent); }
+  .denom-subtotal {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--text2); text-align: right; min-width: 110px;
+  }
+  .cuadre-summary {
+    margin-top: 16px; padding: 16px;
+    background: var(--surface2); border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .cuadre-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; font-size: 14px;
+  }
+  .cuadre-row + .cuadre-row { border-top: 1px solid var(--border); }
+  .cuadre-row label { color: var(--text2); }
+  .cuadre-row .val { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .cuadre-total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 2px solid var(--border);
+    font-size: 16px; font-weight: 700;
+  }
+  .diff-ok { color: var(--accent2); }
+  .diff-warn { color: var(--warn); }
+  .diff-zero { color: var(--accent2); }
+
+
+
+  .turno-opt {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 10px; padding: 10px 20px; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: var(--text2);
+    transition: all .2s; user-select: none; flex: 1; justify-content: center;
+  }
+  .turno-opt input[type="radio"] { display: none; }
+  .turno-opt:hover { border-color: var(--accent); color: var(--text); }
+  .turno-opt.selected { border-color: var(--accent); background: rgba(79,123,255,.12); color: var(--text); }
+
+
+  /* PIN MODAL */
+  .pin-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999; backdrop-filter: blur(4px);
+  }
+  .pin-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px 28px; width: 300px;
+    text-align: center; box-shadow: var(--shadow);
+  }
+  .pin-box h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .pin-box p { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+  .pin-dots {
+    display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;
+  }
+  .pin-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--border); background: transparent;
+    transition: all .2s;
+  }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+  .pin-pad {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .pin-key {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; font-size: 18px; font-weight: 600;
+    cursor: pointer; color: var(--text); transition: all .2s;
+  }
+  .pin-key:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pin-key.del { font-size: 14px; color: var(--text2); }
+  .pin-error { color: var(--warn); font-size: 13px; margin-top: 12px; min-height: 18px; }
+
+  /* ADMIN PAGE */
+  .admin-section { margin-bottom: 28px; }
+  .admin-section h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .admin-section p { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+
+  .puntos-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .punto-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px;
+  }
+  .punto-item input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-size: 14px; font-family: inherit;
+  }
+  .punto-drag { color: var(--text3); cursor: grab; font-size: 16px; }
+  .del-btn {
+    background: none; border: none; color: var(--warn);
+    cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1;
+    opacity: .6; transition: opacity .2s;
+  }
+  .del-btn:hover { opacity: 1; }
+  .add-punto-btn {
+    background: var(--surface2); border: 1px dashed var(--border);
+    border-radius: 10px; padding: 10px; width: 100%;
+    color: var(--text2); font-size: 13px; cursor: pointer;
+    transition: all .2s; font-family: inherit;
+  }
+  .add-punto-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .save-admin-btn {
+    background: var(--accent); border: none; border-radius: var(--radius);
+    padding: 12px 28px; color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity .2s; margin-top: 8px;
+  }
+  .save-admin-btn:hover { opacity: .88; }
+
+  .tc-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .tc-row input {
+    width: 160px; padding: 11px 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 15px;
+    font-family: 'JetBrains Mono', monospace; outline: none; transition: border .2s;
+  }
+  .tc-row input:focus { border-color: var(--accent); }
+  .tc-hint { font-size: 12px; color: var(--text3); }
+
+  /* DOLAR FIELD */
+  .dolar-section { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
+  .dolar-section-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text3); margin-bottom: 12px;
+  }
+  .tc-display {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 12px;
+    color: var(--text2); margin-bottom: 12px; display: inline-block;
+  }
+  .tc-display span { color: var(--accent2); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+  @media (max-width: 700px) {
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .bars-grid { grid-template-columns: 1fr 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+    nav { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .denom-input { width: 56px; font-size: 14px; }
+    .denom-subtotal { min-width: 80px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><span>●</span> Cierre Diario</div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showPage('form')">📋 Registrar Cierre</button>
+    <button class="tab-btn" onclick="showPage('admin')">⚙️ Administración</button>
+  </div>
+</nav>
+
+<!-- FORM PAGE -->
+<div class="page active" id="page-form">
+  <div class="form-header">
+    <h1>Cierre del Día</h1>
+    <p>Completa este formulario al finalizar tu turno</p>
+  </div>
+
+  <div class="form-card">
+    <h3>Identificación</h3>
+    <div class="grid2">
+      <div class="field">
+        <label>Punto de Venta</label>
+        <select id="f-punto"><option value="">Seleccionar...</option></select>
+      </div>
+      <div class="field">
+        <label>Encargado</label>
+        <select id="f-encargado"><option value="">Seleccionar...</option></select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Fecha</label>
+      <input type="date" id="f-fecha" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border .2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Turno</label>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <label class="turno-opt" id="turno-opt-1">
+          <input type="radio" name="turno" value="Turno 1" onchange="selectTurno(this)">
+          <span>🌅 Turno 1</span>
+        </label>
+        <label class="turno-opt" id="turno-opt-2">
+          <input type="radio" name="turno" value="Turno 2" onchange="selectTurno(this)">
+          <span>🌙 Turno 2</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>Ventas del Día</h3>
+    <div class="grid2">
+      <div class="field">
+        <label>Ventas en Efectivo (₡)</label>
+        <input type="number" id="f-efectivo" placeholder="0" min="0" oninput="calcCuadre()">
+      </div>
+      <div class="field">
+        <label>Ventas con Tarjeta (₡)</label>
+        <input type="number" id="f-tarjeta" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Ventas Transferencia / SINPE (₡)</label>
+        <input type="number" id="f-sinpe" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Otras Ventas (₡)</label>
+        <input type="number" id="f-otras" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Ventas a Crédito (₡)</label>
+        <input type="number" id="f-credito" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Ventas por Plataformas (₡)</label>
+        <input type="number" id="f-plataformas" placeholder="0" min="0" style="margin-bottom:4px;">
+        <input type="text" id="f-plataformas-desc" placeholder="Ej: Uber Eats, Rappi, MercadoPago..." style="font-size:12px;padding:7px 12px;width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);outline:none;font-family:inherit;">
+      </div>
+      <div class="field">
+        <label>10% Servicio (₡)</label>
+        <input type="number" id="f-servicio" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="dolar-section">
+      <div class="dolar-section-title">💵 Ventas en Dólares</div>
+      <div id="tc-display-form" class="tc-display">Tipo de cambio: <span id="tc-form-val">—</span> ₡/$</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Ventas Efectivo ($)</label>
+          <input type="number" id="f-usd-efectivo" placeholder="0.00" min="0" step="0.01" oninput="calcDolares()">
+        </div>
+        <div class="field">
+          <label>Ventas Tarjeta ($)</label>
+          <input type="number" id="f-usd-tarjeta" placeholder="0.00" min="0" step="0.01" oninput="calcDolares()">
+        </div>
+        <div class="field">
+          <label>Total $ en colones</label>
+          <input type="text" id="f-usd-total-crc" placeholder="₡0" readonly style="opacity:.7;cursor:default;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>Datos de Caja</h3>
+    <div class="grid2">
+      <div class="field">
+        <label>Fondo de Caja Inicial (₡)</label>
+        <input type="number" id="f-fondo" placeholder="0" min="0" oninput="calcCuadre()">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>Cuadre de Caja — Conteo de Efectivo</h3>
+
+    <table class="denom-table">
+      <tbody>
+        <tr><td colspan="4" style="padding:6px 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3);">Billetes</td></tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip billete">₡50.000</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-50000" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-50000">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip billete">₡20.000</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-20000" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-20000">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip billete">₡10.000</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-10000" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-10000">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip billete">₡5.000</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-5000" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-5000">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip billete">₡2.000</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-2000" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-2000">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip billete">₡1.000</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-1000" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-1000">₡0</div></td>
+        </tr>
+        <tr><td colspan="4" style="padding:10px 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3);">Monedas</td></tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip moneda">₡500</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-500" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-500">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip moneda">₡100</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-100" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-100">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip moneda">₡50</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-50" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-50">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip moneda">₡25</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-25" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-25">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip moneda">₡10</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-10" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-10">₡0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip moneda">₡5</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-5" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-5">₡0</div></td>
+        </tr>
+        <tr><td colspan="4" style="padding:14px 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3);">💵 Billetes en Dólares</td></tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip" style="border-color:#4a5a3a;color:#7ecf6e;">$100</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-usd100" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-usd100">$0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip" style="border-color:#4a5a3a;color:#7ecf6e;">$50</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-usd50" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-usd50">$0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip" style="border-color:#4a5a3a;color:#7ecf6e;">$20</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-usd20" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-usd20">$0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip" style="border-color:#4a5a3a;color:#7ecf6e;">$10</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-usd10" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-usd10">$0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip" style="border-color:#4a5a3a;color:#7ecf6e;">$5</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-usd5" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-usd5">$0</div></td>
+        </tr>
+        <tr>
+          <td><div class="denom-label"><span class="denom-chip" style="border-color:#4a5a3a;color:#7ecf6e;">$1</span></div></td>
+          <td style="padding:0 8px;color:var(--text3);font-size:13px;">×</td>
+          <td><input class="denom-input" type="number" id="d-usd1" min="0" placeholder="0" oninput="calcCuadre()"></td>
+          <td><div class="denom-subtotal" id="s-usd1">$0</div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cuadre-summary" id="cuadre-summary">
+      <div class="cuadre-row">
+        <label>Total contado en caja</label>
+        <span class="val" id="cuadre-total">₡0</span>
+      </div>
+      <div class="cuadre-row">
+        <label>Fondo de caja inicial</label>
+        <span class="val" id="cuadre-fondo-lbl">₡0</span>
+      </div>
+      <div class="cuadre-row">
+        <label>Efectivo esperado (ventas)</label>
+        <span class="val" id="cuadre-esperado">₡0</span>
+      </div>
+      <div class="cuadre-row">
+        <label>💵 Total billetes USD contados</label>
+        <span class="val" id="cuadre-usd-total">$0.00</span>
+      </div>
+      <div class="cuadre-row">
+        <label>💵 USD reportado como ventas</label>
+        <span class="val" id="cuadre-usd-esperado">$0.00</span>
+      </div>
+      <div class="cuadre-row" id="cuadre-usd-diff-row">
+        <label>💵 Diferencia USD</label>
+        <span class="val" id="cuadre-usd-diff">$0.00</span>
+      </div>
+      <div class="cuadre-total-row">
+        <span>Diferencia de caja (₡)</span>
+        <span class="val" id="cuadre-diff">₡0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>Observaciones</h3>
+    <div class="field">
+      <textarea id="f-obs" rows="3" placeholder="Incidencias, devoluciones, notas importantes..."></textarea>
+    </div>
+  </div>
+
+  <button class="submit-btn" onclick="submitCierre()">Guardar Cierre del Día ✓</button>
+  <div id="wa-btns-container" style="display:none;margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
+</div>
+
+  <div id="dash-content"></div>
+</div>
+
+
+<!-- ADMIN PAGE -->
+<div class="page" id="page-admin">
+  <div class="form-header">
+    <h1>Administración</h1>
+    <p>Configuración general del sistema</p>
+  </div>
+
+  <div class="form-card admin-section">
+    <h3>Puntos de Venta</h3>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px;">Agregá, editá o eliminá los puntos de venta disponibles en el formulario de cierre.</p>
+    <div class="puntos-list" id="puntos-list"></div>
+    <button class="add-punto-btn" onclick="addPunto()">+ Agregar punto de venta</button>
+    <br>
+    <button class="save-admin-btn" onclick="savePuntos()">Guardar Cambios</button>
+  </div>
+
+  <div class="form-card admin-section">
+    <h3>Encargados</h3>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px;">Administrá la lista de encargados disponibles. En el formulario aparecerá un selector en lugar de texto libre.</p>
+    <div class="puntos-list" id="encargados-list"></div>
+    <button class="add-punto-btn" onclick="addEncargado()">+ Agregar encargado</button>
+    <br>
+    <button class="save-admin-btn" onclick="saveEncargados()">Guardar Cambios</button>
+  </div>
+
+  <div class="form-card admin-section">
+    <h3>Tipo de Cambio</h3>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px;">Ingresá el tipo de cambio del día (₡ por dólar). Se aplicará en el formulario de cierre para convertir ventas en dólares.</p>
+    <div class="tc-row">
+      <input type="number" id="admin-tc" placeholder="ej. 520" min="1" step="0.01">
+      <span class="tc-hint">₡ por cada $1</span>
+      <button class="save-admin-btn" onclick="saveTipoCambio()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBhuhZC1Ks3x0KIkkoQt68BGF-GJzQOH1vybZTUzAmMUAJIjJ9Us0k3V3-F6aLg-RuhA/exec';
+
+
+
+// ---- ENCARGADOS ----
+function populateEncargadoSelect() {
+  const sel = document.getElementById('f-encargado');
+  if (!sel) return;
+  const encargados = getEncargados();
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + encargados.map(e => `<option>${e}</option>`).join('');
+}
+
+let tempEncargados = null;
+
+function renderEncargadosList() {
+  const list = document.getElementById('encargados-list');
+  if (!list) return;
+  const encargados = tempEncargados || getEncargados();
+  list.innerHTML = encargados.length === 0
+    ? '<p style="color:var(--text3);font-size:13px;padding:8px 0;">Sin encargados configurados.</p>'
+    : encargados.map((e, i) => `
+    <div class="punto-item" data-i="${i}">
+      <span class="punto-drag">⠿</span>
+      <input type="text" value="${e}" oninput="updateEncargadoTemp(${i}, this.value)">
+      <button class="del-btn" onclick="deleteEncargado(${i})">×</button>
+    </div>`).join('');
+}
+
+function updateEncargadoTemp(i, val) {
+  if (!tempEncargados) tempEncargados = [...getEncargados()];
+  tempEncargados[i] = val;
+}
+
+function addEncargado() {
+  if (!tempEncargados) tempEncargados = [...getEncargados()];
+  tempEncargados.push('Nuevo Encargado');
+  _config.encargados = tempEncargados;
+  renderEncargadosList();
+  populateEncargadoSelect();
+}
+
+function deleteEncargado(i) {
+  if (!tempEncargados) tempEncargados = [...getEncargados()];
+  tempEncargados.splice(i, 1);
+  _config.encargados = tempEncargados;
+  renderEncargadosList();
+}
+
+async function saveEncargados() {
+  const items = document.querySelectorAll('#encargados-list .punto-item input');
+  const enc = [...items].map(i => i.value.trim()).filter(Boolean);
+  _config.encargados = enc;
+  tempEncargados = null;
+  await saveConfig();
+  populateEncargadoSelect();
+  showToast('✓ Encargados guardados');
+}
+
+
+// ---- PIN ACCESS ----
+const ADMIN_PIN = '2624';
+let pinBuffer = '';
+let adminUnlocked = false;
+
+function showPage(page) {
+  if (page === 'admin' && !adminUnlocked) {
+    document.getElementById('pin-overlay').style.display = 'flex';
+    pinBuffer = '';
+    updatePinDots();
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 150);
+  }
+}
+
+function pinClear() {
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('dot-' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === ADMIN_PIN) {
+    adminUnlocked = true;
+    document.getElementById('pin-overlay').style.display = 'none';
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-admin').classList.add('active');
+    document.querySelector('[onclick="showPage(\'admin\')"]').classList.add('active');
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN incorrecto, intentá de nuevo';
+    pinBuffer = '';
+    updatePinDots();
+    setTimeout(() => { document.getElementById('pin-error').textContent = ''; }, 2000);
+  }
+}
+
+// ---- TURNO ----
+function selectTurno(radio) {
+  document.querySelectorAll('.turno-opt').forEach(l => l.classList.remove('selected'));
+  radio.closest('.turno-opt').classList.add('selected');
+}
+function getTurno() {
+  const r = document.querySelector('input[name="turno"]:checked');
+  return r ? r.value : '';
+}
+function resetTurno() {
+  document.querySelectorAll('input[name="turno"]').forEach(r => r.checked = false);
+  document.querySelectorAll('.turno-opt').forEach(l => l.classList.remove('selected'));
+}
+
+// ---- GOOGLE SHEETS ----
+function buildPayload(record) {
+  return {
+    id: record.id,
+    fecha: record.fecha,
+    hora: record.hora,
+    punto: record.punto,
+    encargado: record.encargado,
+    turno: record.turno,
+    efectivo: record.efectivo||0,
+    tarjeta: record.tarjeta||0,
+    sinpe: record.sinpe||0,
+    otras: record.otras||0,
+    credito: record.credito||0,
+    plataformas: record.plataformas||0,
+    plataformasDesc: record.plataformasDesc||'',
+    servicio: record.servicio||0,
+    totalVentas: record.totalVentas||0,
+    fondo: record.fondo||0,
+    caja: record.caja||0,
+    diferencia: record.diferencia||0,
+    obs: record.obs||'',
+    d50000: (record.denomDetalle||{})[50000]||0,
+    d20000: (record.denomDetalle||{})[20000]||0,
+    d10000: (record.denomDetalle||{})[10000]||0,
+    d5000:  (record.denomDetalle||{})[5000]||0,
+    d2000:  (record.denomDetalle||{})[2000]||0,
+    d1000:  (record.denomDetalle||{})[1000]||0,
+    d500:   (record.denomDetalle||{})[500]||0,
+    d100:   (record.denomDetalle||{})[100]||0,
+    d50:    (record.denomDetalle||{})[50]||0,
+    d25:    (record.denomDetalle||{})[25]||0,
+    d10:    (record.denomDetalle||{})[10]||0,
+    d5:     (record.denomDetalle||{})[5]||0,
+    usdEfectivo: record.usdEfectivo||0,
+    usdTarjeta: record.usdTarjeta||0,
+    tc: record.tc||0,
+    usdTotalCrc: record.usdTotalCrc||0,
+    usdD100: (record.usdDenomDetalle||{}).usd100||0,
+    usdD50:  (record.usdDenomDetalle||{}).usd50||0,
+    usdD20:  (record.usdDenomDetalle||{}).usd20||0,
+    usdD10:  (record.usdDenomDetalle||{}).usd10||0,
+    usdD5:   (record.usdDenomDetalle||{}).usd5||0,
+    usdD1:   (record.usdDenomDetalle||{}).usd1||0,
+    usdCajaTotalContado: record.usdCajaTotalContado||0,
+    cajaTotalContada: record.caja||0,
+    fondoCajaInicial: record.fondo||0,
+    efectivoEsperado: (record.efectivo||0) + (record.fondo||0),
+    diferenciaColones: record.diferencia||0,
+    usdTotalContado: record.usdCajaTotalContado||0,
+    usdReportadoVentas: record.usdEfectivo||0,
+    diferenciaUsd: (record.usdCajaTotalContado||0) - (record.usdEfectivo||0),
+  };
+}
+
+async function saveRecord(record) {
+  const payload = buildPayload(record);
+  console.log('Enviando cierre:', payload);
+
+  try {
+    // Method 1: fetch with no-cors
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload),
+    });
+    console.log('Fetch enviado (no-cors)');
+  } catch(err) {
+    console.error('Fetch falló, intentando form POST:', err);
+    // Method 2: fallback form POST
+    await new Promise((resolve) => {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = SHEETS_URL;
+      form.target = 'hidden-iframe';
+      form.style.display = 'none';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'payload';
+      input.value = JSON.stringify(payload);
+      form.appendChild(input);
+      let iframe = document.getElementById('hidden-iframe');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.name = 'hidden-iframe';
+        iframe.id = 'hidden-iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      }
+      iframe.onload = () => resolve();
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+      setTimeout(resolve, 3000);
+    });
+  }
+}
+
+async function loadAll() {
+  try {
+    const resp = await fetch(SHEETS_URL + '?action=read');
+    const data = await resp.json();
+    return (data.records || []).map(r => ({
+      id: r[0], fecha: r[1], hora: r[2], punto: r[3], encargado: r[4],
+      efectivo: +r[5]||0, tarjeta: +r[6]||0, sinpe: +r[7]||0, otras: +r[8]||0,
+      totalVentas: +r[9]||0, fondo: +r[10]||0, gastos: +r[11]||0,
+      tickets: +r[12]||0, caja: +r[13]||0, diferencia: +r[14]||0, obs: r[15]||''
+    }));
+  } catch(e) {
+    console.warn('No se pudo leer Google Sheets:', e);
+    return [];
+  }
+}
+
+// ---- UI ----
+// showPage moved to PIN section below
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function fmt(n) {
+  return '₡' + Math.round(n || 0).toLocaleString('es-CR');
+}
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function todayLabel() {
+  return new Date().toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long' });
+}
+
+// ---- DENOMINACIONES ----
+const DENOMS = [50000,20000,10000,5000,2000,1000,500,100,50,25,10,5];
+const DENOMS_USD = [
+  {id:'usd100', val:100},
+  {id:'usd50',  val:50},
+  {id:'usd20',  val:20},
+  {id:'usd10',  val:10},
+  {id:'usd5',   val:5},
+  {id:'usd1',   val:1},
+];
+
+
+
+function calcCuadre() {
+  // ── Colones ──
+  let total = 0;
+  DENOMS.forEach(d => {
+    const qty = parseInt(document.getElementById('d-'+d)?.value) || 0;
+    const sub = qty * d;
+    total += sub;
+    const el = document.getElementById('s-'+d);
+    if (el) el.textContent = '₡' + sub.toLocaleString('es-CR');
+  });
+
+  const efectivo = parseFloat(document.getElementById('f-efectivo')?.value) || 0;
+  const fondo = parseFloat(document.getElementById('f-fondo')?.value) || 0;
+  const esperado = efectivo + fondo;
+  const diff = total - esperado;
+
+  document.getElementById('cuadre-total').textContent = '₡' + total.toLocaleString('es-CR');
+  document.getElementById('cuadre-fondo-lbl').textContent = '₡' + fondo.toLocaleString('es-CR');
+  document.getElementById('cuadre-esperado').textContent = '₡' + Math.max(0, esperado).toLocaleString('es-CR');
+
+  const diffEl = document.getElementById('cuadre-diff');
+  diffEl.textContent = (diff >= 0 ? '+' : '') + '₡' + diff.toLocaleString('es-CR');
+  diffEl.className = 'val ' + (diff === 0 ? 'diff-zero' : Math.abs(diff) <= 500 ? 'diff-ok' : 'diff-warn');
+
+  // ── Dólares ──
+  let totalUsd = 0;
+  DENOMS_USD.forEach(({id, val}) => {
+    const qty = parseInt(document.getElementById('d-'+id)?.value) || 0;
+    const sub = qty * val;
+    totalUsd += sub;
+    const el = document.getElementById('s-'+id);
+    if (el) el.textContent = '$' + sub.toFixed(0);
+  });
+
+  const usdEfectivo = parseFloat(document.getElementById('f-usd-efectivo')?.value) || 0;
+  const usdDiff = totalUsd - usdEfectivo;
+
+  document.getElementById('cuadre-usd-total').textContent = '$' + totalUsd.toFixed(2);
+  document.getElementById('cuadre-usd-esperado').textContent = '$' + usdEfectivo.toFixed(2);
+
+  const usdDiffEl = document.getElementById('cuadre-usd-diff');
+  const usdDiffRow = document.getElementById('cuadre-usd-diff-row');
+  if (usdEfectivo > 0 || totalUsd > 0) {
+    usdDiffRow.style.display = 'flex';
+    usdDiffEl.textContent = (usdDiff >= 0 ? '+' : '') + '$' + usdDiff.toFixed(2);
+    usdDiffEl.className = 'val ' + (usdDiff === 0 ? 'diff-zero' : Math.abs(usdDiff) <= 1 ? 'diff-ok' : 'diff-warn');
+  } else {
+    usdDiffRow.style.display = 'none';
+  }
+}
+
+// ---- SUBMIT ----
+async function submitCierre() {
+  const punto = document.getElementById('f-punto').value;
+  const encargado = document.getElementById('f-encargado').value.trim();
+  const turno = getTurno();
+  if (!punto || !encargado) { showToast('⚠️ Completa punto de venta y encargado'); return; }
+  if (!turno) { showToast('⚠️ Seleccioná el turno'); return; }
+
+  const efectivo = parseFloat(document.getElementById('f-efectivo').value) || 0;
+  const tarjeta = parseFloat(document.getElementById('f-tarjeta').value) || 0;
+  const sinpe = parseFloat(document.getElementById('f-sinpe').value) || 0;
+  const otras = parseFloat(document.getElementById('f-otras').value) || 0;
+  const credito = parseFloat(document.getElementById('f-credito').value) || 0;
+  const plataformas = parseFloat(document.getElementById('f-plataformas').value) || 0;
+  const plataformasDesc = document.getElementById('f-plataformas-desc').value.trim();
+  const servicio = parseFloat(document.getElementById('f-servicio').value) || 0;
+  const fondo = parseFloat(document.getElementById('f-fondo').value) || 0;
+  const obs = document.getElementById('f-obs').value.trim();
+  const usdEfectivo = parseFloat(document.getElementById('f-usd-efectivo').value) || 0;
+  const usdTarjeta = parseFloat(document.getElementById('f-usd-tarjeta').value) || 0;
+  const tc = getTC();
+  const usdTotalCrc = Math.round((usdEfectivo + usdTarjeta) * tc);
+
+  // Conteo de denominaciones
+  const denomDetalle = {};
+  let caja = 0;
+  DENOMS.forEach(d => {
+    const qty = parseInt(document.getElementById('d-'+d)?.value) || 0;
+    denomDetalle[d] = qty;
+    caja += qty * d;
+  });
+
+  const totalVentas = efectivo + tarjeta + sinpe + otras + credito + plataformas + usdTotalCrc;
+  const esperado = efectivo + fondo;
+  const diferencia = caja - esperado;
+
+  const record = {
+    id: Date.now(),
+    fecha: document.getElementById('f-fecha').value || today(),
+    hora: new Date().toLocaleTimeString('es-CR', { hour: '2-digit', minute: '2-digit' }),
+    punto, encargado, turno, efectivo, tarjeta, sinpe, otras, credito, plataformas, plataformasDesc, servicio, totalVentas,
+    usdEfectivo, usdTarjeta, tc, usdTotalCrc,
+    caja, fondo, diferencia, obs, denomDetalle,
+    usdDenomDetalle: Object.fromEntries(DENOMS_USD.map(({id,val}) => [id, parseInt(document.getElementById('d-'+id)?.value)||0])),
+    usdCajaTotalContado: DENOMS_USD.reduce((s,{id,val}) => s+(parseInt(document.getElementById('d-'+id)?.value)||0)*val, 0)
+  };
+
+  const btn = document.querySelector('.submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  await saveRecord(record);
+  btn.disabled = false;
+  btn.textContent = 'Enviar Cierre del Día ✓';
+
+  // reset
+  ['f-efectivo','f-tarjeta','f-sinpe','f-otras','f-credito','f-plataformas','f-plataformas-desc','f-servicio','f-usd-efectivo','f-usd-tarjeta','f-fondo','f-obs']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-punto').value = '';
+  const encEl = document.getElementById('f-encargado'); if(encEl) encEl.value = '';
+  document.getElementById('f-fecha').value = today();
+  resetTurno();
+  DENOMS.forEach(d => { const el = document.getElementById('d-'+d); if(el) el.value=''; });
+  DENOMS_USD.forEach(({id}) => { const el = document.getElementById('d-'+id); if(el) el.value=''; });
+  calcCuadre();
+
+  lastRecord = record;
+  renderWAButtons(record);
+  showToast('✓ Cierre registrado correctamente');
+}
+
+
+
+// ---- WHATSAPP ----
+const WA_NUMBER_DEFAULT = '50688301564';
+let lastRecord = null;
+
+function getWAsForPunto(puntoNombre) {
+  const puntos = getPuntos();
+  const p = puntos.find(p => p.nombre === puntoNombre);
+  const nums = p ? (p.whatsapps || [p.whatsapp]).filter(w => w && w.length > 5) : [];
+  return nums.length ? nums.map(w => w.replace(/[^0-9]/g,'')) : [WA_NUMBER_DEFAULT];
+}
+
+function buildWAMessage(r) {
+  const difSigno = r.diferencia >= 0 ? '+' : '';
+  const difEmoji = Math.abs(r.diferencia) <= 500 ? '✅' : '⚠️';
+  const fecha = new Date((r.fecha||today()) + 'T12:00:00').toLocaleDateString('es-CR', {day:'numeric', month:'long', year:'numeric'});
+
+  const msg =
+`📊 *Cierre del Día — ${r.punto}*
+📅 ${fecha} | 🕐 ${r.hora}
+👤 ${r.encargado} · ${r.turno || ''}
+
+💰 *Ventas del Día*
+• Efectivo: ₡${r.efectivo.toLocaleString('es-CR')}
+• Tarjeta: ₡${r.tarjeta.toLocaleString('es-CR')}
+• SINPE: ₡${r.sinpe.toLocaleString('es-CR')}
+${r.credito ? `• Crédito: ₡${r.credito.toLocaleString('es-CR')}` : ''}
+${r.plataformas ? `• Plataformas: ₡${r.plataformas.toLocaleString('es-CR')}${r.plataformasDesc ? ' ('+r.plataformasDesc+')' : ''}` : ''}
+${r.servicio ? `• 10% Servicio: ₡${r.servicio.toLocaleString('es-CR')}` : ''}
+• Otras: ₡${r.otras.toLocaleString('es-CR')}
+• *Total: ₡${r.totalVentas.toLocaleString('es-CR')}*
+${r.usdEfectivo||r.usdTarjeta ? `• 💵 Ventas en USD: $${((r.usdEfectivo||0)+(r.usdTarjeta||0)).toFixed(2)} (TC: ₡${(r.tc||0).toLocaleString('es-CR')})` : ''}
+
+🏧 *Cuadre de Caja*
+• Caja contada: ₡${r.caja.toLocaleString('es-CR')}
+• ${difEmoji} Diferencia: ${difSigno}₡${r.diferencia.toLocaleString('es-CR')}
+${r.obs ? `
+📝 *Observaciones:* ${r.obs}` : ''}`;
+
+  return msg;
+}
+
+function renderWAButtons(record) {
+  const container = document.getElementById('wa-btns-container');
+  if (!container) return;
+  const numbers = getWAsForPunto(record.punto);
+  const msg = buildWAMessage(record);
+  const WA_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.86L.057 23.428a.75.75 0 0 0 .916.916l5.569-1.475A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.694 9.694 0 0 1-4.953-1.356l-.355-.211-3.706.981.993-3.614-.23-.372A9.699 9.699 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>`;
+  container.style.display = 'flex';
+  container.innerHTML = numbers.map((num, idx) =>
+    `<button class="wa-btn" onclick="window.open('https://wa.me/${num}?text='+encodeURIComponent(buildWAMessage(lastRecord)),'_blank')">
+      ${WA_SVG} Enviar por WhatsApp${numbers.length > 1 ? ' — +' + num : ''}
+    </button>`
+  ).join('');
+}
+
+function enviarWhatsApp() {}
+
+
+// ---- STORAGE KEYS ----
+// ---- CONFIG EN GOOGLE SHEETS ----
+const DEFAULT_PUNTOS = [
+  {nombre:'Punto 1 — Central', whatsapps:['']},
+  {nombre:'Punto 2 — Norte', whatsapps:['']},
+  {nombre:'Punto 3 — Sur', whatsapps:['']},
+  {nombre:'Punto 4 — Este', whatsapps:['']},
+  {nombre:'Punto 5 — Oeste', whatsapps:['']}
+];
+const DEFAULT_ENCARGADOS_LIST = [];
+let _config = null; // cache en memoria
+
+async function loadConfig() {
+  try {
+    const resp = await fetch(SHEETS_URL + '?action=getConfig');
+    const data = await resp.json();
+    if (data.config) {
+      _config = data.config;
+    } else {
+      _config = { puntos: DEFAULT_PUNTOS, encargados: DEFAULT_ENCARGADOS_LIST, tc: 0 };
+    }
+  } catch(e) {
+    _config = { puntos: DEFAULT_PUNTOS, encargados: DEFAULT_ENCARGADOS_LIST, tc: 0 };
+  }
+}
+
+async function saveConfig() {
+  await new Promise((resolve) => {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = SHEETS_URL;
+    form.target = 'hidden-iframe';
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = JSON.stringify({ type: 'saveConfig', config: _config });
+    form.appendChild(input);
+
+    let iframe = document.getElementById('hidden-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.name = 'hidden-iframe';
+      iframe.id = 'hidden-iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+
+    iframe.onload = () => resolve();
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    setTimeout(resolve, 3000);
+  });
+}
+
+function getPuntos() {
+  const pts = _config ? _config.puntos : DEFAULT_PUNTOS;
+  // normalize: support both old string format and new object format
+  return pts.map(p => typeof p === 'string' ? {nombre: p, whatsapps: ['']} : (p.whatsapp !== undefined ? {nombre: p.nombre, whatsapps: [p.whatsapp]} : p));
+}
+function getEncargados() {
+  return _config ? (_config.encargados || []) : [];
+}
+function getTC() {
+  return _config ? (_config.tc || 0) : 0;
+}
+
+// ---- POPULATE SELECTS ----
+function populatePuntoSelect() {
+  const sel = document.getElementById('f-punto');
+  if (!sel) return;
+  const puntos = getPuntos();
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + puntos.map(p => `<option value="${p.nombre}">${p.nombre}</option>`).join('');
+}
+
+// ---- TIPO DE CAMBIO ----
+function updateTCDisplay() {
+  const tc = getTC();
+  const el = document.getElementById('tc-form-val');
+  if (el) el.textContent = tc > 0 ? tc.toLocaleString('es-CR') : 'No configurado';
+  const adminEl = document.getElementById('admin-tc');
+  if (adminEl && tc > 0) adminEl.value = tc;
+}
+
+async function saveTipoCambio() {
+  const val = parseFloat(document.getElementById('admin-tc').value);
+  if (!val || val < 1) { showToast('⚠️ Ingresá un tipo de cambio válido'); return; }
+  _config.tc = val;
+  await saveConfig();
+  updateTCDisplay();
+  showToast('✓ Tipo de cambio guardado: ₡' + val.toLocaleString('es-CR') + ' por $1');
+}
+
+function calcDolares() {
+  const tc = getTC();
+  const usdE = parseFloat(document.getElementById('f-usd-efectivo').value) || 0;
+  const usdT = parseFloat(document.getElementById('f-usd-tarjeta').value) || 0;
+  const total = (usdE + usdT) * tc;
+  document.getElementById('f-usd-total-crc').value = tc > 0 ? '₡' + Math.round(total).toLocaleString('es-CR') : 'Configure el tipo de cambio';
+}
+
+// ---- ADMIN PUNTOS ----
+function renderPuntosList() {
+  const puntos = getPuntos();
+  const list = document.getElementById('puntos-list');
+  if (!list) return;
+  list.innerHTML = puntos.length === 0
+    ? '<p style="color:var(--text3);font-size:13px;padding:8px 0;">Sin puntos configurados.</p>'
+    : puntos.map((p, i) => `
+    <div class="punto-item" style="flex-direction:column;align-items:stretch;gap:6px;" data-i="${i}">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="punto-drag">⠿</span>
+        <input type="text" value="${p.nombre}" placeholder="Nombre del punto" oninput="updatePuntoNombre(${i}, this.value)" style="flex:1;">
+        <button class="del-btn" onclick="deletePunto(${i})">×</button>
+      </div>
+      <div id="wa-fields-${i}" style="display:flex;flex-direction:column;gap:6px;padding-left:24px;">
+        ${(p.whatsapps||['']).map((wa, j) => `
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:var(--text3);white-space:nowrap;">📱</span>
+          <input type="tel" value="${wa}" placeholder="+506 8888-7777" oninput="updatePuntoWA(${i}, ${j}, this.value)" style="flex:1;font-size:13px;">
+          ${j > 0 ? `<button class="del-btn" style="font-size:14px;" onclick="removeWA(${i}, ${j})">×</button>` : ''}
+        </div>`).join('')}
+      </div>
+      <div style="padding-left:24px;">
+        <button onclick="addWA(${i})" style="background:none;border:1px dashed var(--border);border-radius:6px;padding:4px 10px;color:var(--text3);font-size:12px;cursor:pointer;">+ número</button>
+      </div>
+    </div>`).join('');
+}
+
+let tempPuntos = null;
+function updatePuntoNombre(i, val) {
+  if (!tempPuntos) tempPuntos = getPuntos().map(p => ({...p}));
+  tempPuntos[i].nombre = val;
+}
+function updatePuntoWA(i, j, val) {
+  if (!tempPuntos) tempPuntos = getPuntos().map(p => ({...p, whatsapps: [...(p.whatsapps||[''])]}));
+  tempPuntos[i].whatsapps[j] = val.replace(/[^0-9+]/g, '');
+}
+function addWA(i) {
+  if (!tempPuntos) tempPuntos = getPuntos().map(p => ({...p, whatsapps: [...(p.whatsapps||[''])]}));
+  tempPuntos[i].whatsapps.push('');
+  _config.puntos = tempPuntos;
+  renderPuntosList();
+}
+function removeWA(i, j) {
+  if (!tempPuntos) tempPuntos = getPuntos().map(p => ({...p, whatsapps: [...(p.whatsapps||[''])]}));
+  tempPuntos[i].whatsapps.splice(j, 1);
+  _config.puntos = tempPuntos;
+  renderPuntosList();
+}
+function addPunto() {
+  if (!tempPuntos) tempPuntos = [...getPuntos()];
+  tempPuntos.push({nombre: 'Nuevo Punto', whatsapps: ['']});
+  _config.puntos = tempPuntos;
+  renderPuntosList();
+  populatePuntoSelect();
+}
+function deletePunto(i) {
+  if (!tempPuntos) tempPuntos = [...getPuntos()];
+  if (tempPuntos.length <= 1) { showToast('⚠️ Debe haber al menos un punto'); return; }
+  tempPuntos.splice(i, 1);
+  _config.puntos = tempPuntos;
+  renderPuntosList();
+}
+async function savePuntos() {
+  const items = document.querySelectorAll('#puntos-list .punto-item');
+  const puntos = [...items].map(item => {
+    const nombreInput = item.querySelector('input[type="text"]');
+    const waInputs = item.querySelectorAll('input[type="tel"]');
+    const whatsapps = [...waInputs].map(i => i.value.trim().replace(/[^0-9+]/g,'')).filter(Boolean);
+    return { nombre: nombreInput.value.trim(), whatsapps: whatsapps.length ? whatsapps : [''] };
+  }).filter(p => p.nombre);
+  if (!puntos.length) { showToast('⚠️ Agregá al menos un punto'); return; }
+  _config.puntos = puntos;
+  tempPuntos = null;
+  await saveConfig();
+  populatePuntoSelect();
+  showToast('✓ Puntos de venta guardados');
+}
+
+// Init
+document.getElementById('f-fecha').value = today();
+(async () => {
+  await loadConfig();
+  populatePuntoSelect();
+  populateEncargadoSelect();
+  renderPuntosList();
+  renderEncargadosList();
+  updateTCDisplay();
+})();
+</script>
+
+<script>
+// Auto-report height to Google Sites parent iframe
+function reportHeight() {
+  const h = document.documentElement.scrollHeight;
+  window.parent.postMessage({ type: 'setHeight', height: h }, '*');
+}
+const ro = new ResizeObserver(reportHeight);
+ro.observe(document.body);
+window.addEventListener('load', reportHeight);
+</script>
+
+
+<!-- PIN MODAL -->
+<div class="pin-overlay" id="pin-overlay" style="display:none;">
+  <div class="pin-box">
+    <h2>🔒 Administración</h2>
+    <p>Ingresá el PIN para continuar</p>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key del" onclick="pinClear()">✕ Borrar</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <div></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+</body>
+</html>
