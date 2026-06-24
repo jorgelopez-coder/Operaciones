@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base de Personal · Grupo del Sol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #faf7f0;
+      --surface:    #f2ede2;
+      --card:       #ffffff;
+      --card-h:     #f5f9f6;
+      --border:     #c8ddd0;
+      --border-h:   #8ab89e;
+      --text:       #1c3a28;
+      --muted:      #5a8a6a;
+      --subtle:     #a0c8b0;
+
+      --rrhh:       #c84a20;
+      --rrhh-bg:    #fdf0eb;
+      --rrhh-border:#f0c0a8;
+
+      --green:      #1a7a4a;
+      --green-bg:   #e8f5ee;
+      --green-bd:   #b0dcc0;
+
+      --amber:      #e8a020;
+      --amber-bg:   #fdf6e3;
+      --amber-bd:   #f0d890;
+
+      --radius-sm:  8px;
+      --radius-md:  12px;
+      --radius-lg:  16px;
+      --font-d: 'Inter Tight', sans-serif;
+      --font-b: 'Inter', sans-serif;
+      --font-m: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-b);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER (exact from index) ── */
+    header {
+      height: 56px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 20;
+      box-shadow: 0 1px 0 var(--border);
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+
+    .logo-name {
+      font-family: var(--font-d);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .logo-sep { color: var(--subtle); margin: 0 4px; }
+
+    .logo-sub { font-size: 12px; color: var(--muted); }
+
+    .header-meta { display: flex; align-items: center; gap: 12px; }
+
+    .date-chip {
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .back-btn:hover { color: var(--text); border-color: var(--border-h); }
+    .back-btn svg { width: 13px; height: 13px; }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem;
+    }
+
+    /* ── GREETING ── */
+    .greeting { margin-bottom: 2rem; }
+
+    .greeting h1 {
+      font-family: var(--font-d);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+
+    .greeting p { font-size: 13px; color: var(--muted); }
+
+    /* ── STATS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.75rem;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-family: var(--font-d);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .stat-val.green  { color: var(--green); }
+    .stat-val.red    { color: var(--rrhh);  }
+    .stat-val.amber  { color: var(--amber); }
+    .stat-val.muted  { color: var(--muted); }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+
+    .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .search-icon svg { width: 14px; height: 14px; display: block; }
+
+    .search-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px 8px 32px;
+      font-family: var(--font-b);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.12s;
+    }
+    .search-input::placeholder { color: var(--subtle); }
+    .search-input:focus { border-color: var(--border-h); }
+
+    .filter-tabs {
+      display: flex;
+      gap: 3px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+    }
+
+    .filter-tab {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 11px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+      font-family: var(--font-b);
+    }
+    .filter-tab.active { background: var(--card); color: var(--text); }
+
+    .area-select {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font-family: var(--font-b);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ── GROUP HEADER ── */
+    .group-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.12s, border-color 0.12s;
+      margin-top: 1.5rem;
+    }
+    .group-header:first-child { margin-top: 0; }
+    .group-header:hover { background: var(--surface); border-color: var(--border-h); }
+
+    .group-header.activo-header  { background: var(--green-bg);  border-color: var(--green-bd);  }
+    .group-header.liq-header     { background: var(--amber-bg);  border-color: var(--amber-bd);  }
+    .group-header.inact-header   { background: var(--surface);   border-color: var(--border);    }
+
+    .group-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .group-label-text {
+      font-family: var(--font-d);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .activo-header  .group-label-text { color: var(--green); }
+    .liq-header     .group-label-text { color: var(--amber); }
+    .inact-header   .group-label-text { color: var(--muted); }
+
+    .group-count {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .group-chevron {
+      margin-left: auto;
+      color: var(--subtle);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .group-chevron svg { width: 14px; height: 14px; display: block; }
+    .group-header.collapsed .group-chevron { transform: rotate(-90deg); }
+
+    /* ── STAFF GRID ── */
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+
+    .group-body {
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    .group-body.collapsed { max-height: 0 !important; }
+
+    /* ── STAFF CARD (same .mod style from index) ── */
+    .staff-card {
+      background: var(--card);
+      padding: 1rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      cursor: pointer;
+      transition: background 0.12s;
+      position: relative;
+    }
+
+    .staff-card:hover { background: var(--card-h); }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-d);
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      letter-spacing: -0.01em;
+    }
+
+    .card-info { flex: 1; min-width: 0; }
+
+    .card-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-arrow {
+      color: var(--subtle);
+      flex-shrink: 0;
+      transition: color 0.12s, transform 0.12s;
+    }
+    .staff-card:hover .card-arrow { color: var(--text); transform: translateX(2px); }
+    .card-arrow svg { width: 14px; height: 14px; display: block; }
+
+    /* ── AREA BADGE ── */
+    .area-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .area-SALON   { background: #e0eeff; color: #1a4a8a; border: 1px solid #b0ccee; }
+    .area-BARRA   { background: var(--amber-bg); color: #8a4a00; border: 1px solid var(--amber-bd); }
+    .area-COCINA  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+    .area-ADMIN   { background: #f3eeff; color: #6a30c0; border: 1px solid #c8b0f0; }
+    .area-OPS     { background: #fde8e0; color: var(--rrhh); border: 1px solid var(--rrhh-border); }
+    .area-DEF     { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+    /* ── EMPTY ── */
+    .empty-state {
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    /* ── STATUS BAR (from index) ── */
+    .status-bar {
+      margin-top: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1.25rem;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status-item { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .dot.off { background: var(--muted); }
+    .status-sep { width: 1px; height: 14px; background: var(--border); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(28,58,40,0.35);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 1rem;
+      backdrop-filter: blur(3px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.18s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border-h);
+      border-radius: var(--radius-lg);
+      width: 100%; max-width: 580px;
+      max-height: 90vh; overflow-y: auto;
+      transform: translateY(10px);
+      transition: transform 0.18s;
+      box-shadow: 0 8px 40px rgba(28,58,40,0.18);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 20px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: var(--card); z-index: 1;
+    }
+
+    .modal-avatar {
+      width: 46px; height: 46px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-d); font-size: 15px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .modal-title-block { flex: 1; min-width: 0; }
+
+    .modal-name {
+      font-family: var(--font-d);
+      font-size: 16px; font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text); margin-bottom: 5px;
+    }
+
+    .modal-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+
+    .status-pill {
+      font-size: 10px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .pill-activo    { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+    .pill-inactivo  { background: var(--surface);  color: var(--muted); border: 1px solid var(--border); }
+    .pill-liq       { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+
+    .modal-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--muted); padding: 6px; cursor: pointer;
+      transition: color 0.12s, border-color 0.12s; flex-shrink: 0;
+    }
+    .modal-close:hover { color: var(--text); border-color: var(--border-h); }
+    .modal-close svg { width: 15px; height: 15px; display: block; }
+
+    .modal-body { padding: 14px 20px 24px; }
+
+    .m-section { margin-bottom: 18px; }
+
+    .m-section-title {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+      padding-bottom: 5px; border-bottom: 1px solid var(--border);
+    }
+
+    .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .m-field-label {
+      font-size: 10px; font-weight: 600;
+      color: var(--muted); margin-bottom: 2px;
+      letter-spacing: 0.03em;
+    }
+
+    .m-field-val {
+      font-size: 13px; color: var(--text);
+    }
+    .m-field-val.mono { font-family: var(--font-m); font-size: 11px; }
+    .m-field-val.empty { color: var(--subtle); font-style: italic; }
+
+    .check-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .chk {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 12px;
+    }
+    .chk.yes { color: var(--green); }
+    .chk.no  { color: var(--subtle); }
+    .chk svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .ant-chips { display: flex; gap: 8px; }
+
+    .ant-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px; text-align: center; min-width: 60px;
+    }
+    .ant-chip-val {
+      font-family: var(--font-d); font-size: 17px; font-weight: 700;
+      color: var(--text);
+    }
+    .ant-chip-label { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    .vac-chips { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 8px; }
+
+    .vac-bar-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; height: 6px; overflow: hidden; margin-top: 6px;
+    }
+    .vac-bar-fill { height: 100%; background: var(--green); border-radius: 6px; }
+    .vac-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-h); border-radius: 20px; }
+
+    @media (max-width: 640px) {
+      header { padding: 0 1rem; }
+      main   { padding: 1.5rem 1rem 3rem; }
+      .greeting h1 { font-size: 22px; }
+      .m-grid  { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .filter-tabs { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-name">Batanga Gastro Garden</span>
+    <span class="logo-sep">/</span>
+    <span class="logo-sub">Base de Personal · Grupo del Sol</span>
+  </div>
+  <div class="header-meta">
+    <span class="date-chip" id="date-chip"></span>
+    <a href="index.html" class="back-btn">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12L6 8l4-4"/></svg>
+      Portal
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="greeting">
+    <h1>Base de Personal</h1>
+    <p>Expedientes digitales del equipo · Grupo del Sol</p>
+  </div>
+
+  <div class="stats-row" id="stats-row"></div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/>
+        </svg>
+      </span>
+      <input class="search-input" id="search" type="search" placeholder="Buscar por nombre, puesto o cédula…">
+    </div>
+    <div class="filter-tabs" id="filter-tabs">
+      <button class="filter-tab active" data-filter="TODOS">Todos</button>
+      <button class="filter-tab" data-filter="ACTIVO">Activos</button>
+      <button class="filter-tab" data-filter="INACTIVO">Inactivos</button>
+      <button class="filter-tab" data-filter="LIQUIDACIÓN">Liquidación</button>
+    </div>
+    <select class="area-select" id="area-select">
+      <option value="">Todas las áreas</option>
+    </select>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loading-state" style="display:flex;align-items:center;gap:12px;padding:2rem 1.25rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--muted);font-size:13px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0">
+      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+    </svg>
+    Cargando datos desde Google Sheets…
+  </div>
+
+  <!-- Error state -->
+  <div id="error-state" style="display:none;padding:1.5rem 1.25rem;background:var(--rrhh-bg);border:1px solid var(--rrhh-border);border-radius:var(--radius-md);color:var(--rrhh);font-size:13px;">
+    <strong>No se pudo cargar la información.</strong><br>
+    <span style="color:var(--muted);font-size:12px;">Verificá tu conexión o que el Apps Script esté publicado correctamente.</span>
+    <button onclick="loadData()" style="display:block;margin-top:10px;padding:6px 14px;border:1px solid var(--rrhh-border);border-radius:6px;background:transparent;color:var(--rrhh);font-size:12px;cursor:pointer;">Reintentar</button>
+  </div>
+
+  <div id="list-container"></div>
+
+  <div class="status-bar">
+    <div class="status-item"><span class="dot" id="status-dot" style="background:var(--muted)"></span><span id="status-text">Conectando…</span></div>
+    <span class="status-sep"></span>
+    <div class="status-item"><span id="status-time"></span></div>
+    <span class="status-sep"></span>
+    <div class="status-item" style="margin-left:auto;">v1.0 · RRHH · Grupo del Sol</div>
+  </div>
+
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="modal-avatar" id="m-avatar"></div>
+      <div class="modal-title-block">
+        <div class="modal-name" id="m-name"></div>
+        <div class="modal-badges" id="m-badges"></div>
+      </div>
+      <button class="modal-close" id="modal-close" aria-label="Cerrar">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxut8XYgqBBN1Vmf6XZnfGztNY2exSXJsjTfVZYjKORQTzK6r7dIsYRKQHr5nXfkXNvWw/exec';
+
+let STAFF = [];
+
+/* ── JSONP loader (works with local file:// and no CORS issues) ── */
+function loadData() {
+  const loading = document.getElementById('loading-state');
+  const error   = document.getElementById('error-state');
+  const dot     = document.getElementById('status-dot');
+  const stText  = document.getElementById('status-text');
+  const stTime  = document.getElementById('status-time');
+
+  loading.style.display = 'flex';
+  error.style.display   = 'none';
+
+  const old = document.getElementById('jsonp-script');
+  if (old) old.remove();
+  if (window.__jsonpTimeout) clearTimeout(window.__jsonpTimeout);
+
+  window.__jsonpTimeout = setTimeout(() => {
+    loading.style.display = 'none';
+    error.style.display   = 'block';
+    dot.style.background  = 'var(--rrhh)';
+    stText.textContent    = 'Tiempo de espera agotado — revisá tu conexión';
+  }, 12000);
+
+  window.__staffCallback = function(data) {
+    clearTimeout(window.__jsonpTimeout);
+    STAFF = data;
+    loading.style.display = 'none';
+    dot.style.background  = '#1a7a4a';
+    stText.textContent    = STAFF.length + ' registros cargados desde Google Sheets';
+    const n = new Date();
+    stTime.textContent = 'Actualizado ' + n.toLocaleTimeString('es-CR', {hour:'2-digit', minute:'2-digit'});
+    renderStats();
+    populateAreas();
+    render();
+  };
+
+  const s = document.createElement('script');
+  s.id  = 'jsonp-script';
+  s.src = SCRIPT_URL + '?callback=__staffCallback';
+  s.onerror = () => {
+    clearTimeout(window.__jsonpTimeout);
+    loading.style.display = 'none';
+    error.style.display   = 'block';
+    dot.style.background  = 'var(--rrhh)';
+    stText.textContent    = 'Error al conectar con Google Sheets';
+  };
+  document.body.appendChild(s);
+}
+
+/* ── helpers ── */
+const AV = [
+  {bg:'#d0eedd',c:'#1a5a32'},{bg:'#fde0d0',c:'#8a2a10'},
+  {bg:'#e0eeff',c:'#1a3a8a'},{bg:'#f3eeff',c:'#5a20a0'},
+  {bg:'#fdf6e3',c:'#7a4a00'},{bg:'#e8f5ee',c:'#1a6040'},
+];
+function avColor(n){let h=0;for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))&0xffffffff;return AV[Math.abs(h)%AV.length];}
+function ini(n){const p=n.trim().split(' ').filter(Boolean);return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
+function fmt(n){return new Intl.NumberFormat('es-CR').format(n);}
+function areaKey(a){
+  const k=(a||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+  if(k.includes('SALON'))return'SALON';
+  if(k.includes('BARRA'))return'BARRA';
+  if(k.includes('COCINA'))return'COCINA';
+  if(k.includes('ADMIN'))return'ADMIN';
+  if(k.includes('OPERACI')||k.includes('MANTENIMIENTO'))return'OPS';
+  return'DEF';
+}
+
+let fEstado='TODOS', fArea='', fQ='';
+const collapseState={INACTIVO:true, ACTIVO:false, 'LIQUIDACIÓN':false};
+
+function render(){
+  const c=document.getElementById('list-container');
+  let data=STAFF.filter(p=>{
+    const q=fQ.toLowerCase();
+    return(!q||p.nombre.toLowerCase().includes(q)||p.puesto.toLowerCase().includes(q)||(p.cedula||'').includes(q))
+      &&(fEstado==='TODOS'||p.estado===fEstado)
+      &&(!fArea||(p.area||'').toUpperCase()===fArea.toUpperCase());
+  }).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+
+  const groups=[
+    {key:'ACTIVO',     label:'Activos',     cls:'activo-header', dot:'#1a7a4a', items:[]},
+    {key:'LIQUIDACIÓN',label:'Liquidación', cls:'liq-header',    dot:'#e8a020', items:[]},
+    {key:'INACTIVO',   label:'Inactivos',   cls:'inact-header',  dot:'#a0c8b0', items:[]},
+  ];
+
+  if(fEstado!=='TODOS'){
+    const g=groups.find(g=>g.key===fEstado);
+    if(g)g.items=data;
+  } else {
+    data.forEach(p=>{const g=groups.find(g=>g.key===p.estado);if(g)g.items.push(p);});
+  }
+
+  if(!data.length){
+    c.innerHTML='<div class="empty-state">No hay resultados para esta búsqueda.</div>';
+    return;
+  }
+
+  let html='';
+  groups.forEach(g=>{
+    if(!g.items.length)return;
+    const collapsed=collapseState[g.key];
+    html+=`
+    <div class="group-block" data-group="${g.key}">
+      <div class="group-header ${g.cls}${collapsed?' collapsed':''}">
+        <span class="group-dot" style="background:${g.dot}"></span>
+        <span class="group-label-text">${g.label}</span>
+        <span class="group-count">${g.items.length}</span>
+        <span class="group-chevron">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6l4 4 4-4"/>
+          </svg>
+        </span>
+      </div>
+      <div class="group-body${collapsed?' collapsed':''}" style="max-height:${collapsed?'0':g.items.length*70+'px'}">
+        <div class="staff-grid">`;
+
+    g.items.forEach(p=>{
+      const idx=STAFF.indexOf(p);
+      const av=avColor(p.nombre);
+      const ak=areaKey(p.area);
+      html+=`<div class="staff-card" data-idx="${idx}">
+        <div class="avatar" style="background:${av.bg};color:${av.c}">${ini(p.nombre)}</div>
+        <div class="card-info">
+          <div class="card-name">${p.nombre}</div>
+          <div class="card-meta">${p.puesto}${p.ingreso?' · '+p.ingreso:''}</div>
+        </div>
+        ${p.area?`<span class="area-badge area-${ak}">${p.area}</span>`:''}
+        <span class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+      </div>`;
+    });
+
+    html+=`</div></div></div>`;
+  });
+
+  c.innerHTML=html;
+
+  c.querySelectorAll('.group-header').forEach(hdr=>{
+    hdr.addEventListener('click',()=>{
+      const key=hdr.closest('.group-block').dataset.group;
+      collapseState[key]=!collapseState[key];
+      const body=hdr.nextElementSibling;
+      const collapsed=collapseState[key];
+      hdr.classList.toggle('collapsed',collapsed);
+      body.classList.toggle('collapsed',collapsed);
+      if(!collapsed){
+        const count=body.querySelectorAll('.staff-card').length;
+        body.style.maxHeight=count*70+'px';
+      }
+    });
+  });
+
+  c.querySelectorAll('.staff-card').forEach(el=>{
+    el.addEventListener('click',()=>openModal(+el.dataset.idx));
+  });
+}
+
+function renderStats(){
+  const a=STAFF.filter(p=>p.estado==='ACTIVO').length;
+  const i=STAFF.filter(p=>p.estado==='INACTIVO').length;
+  const l=STAFF.filter(p=>p.estado==='LIQUIDACIÓN').length;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val muted">${STAFF.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Activos</div><div class="stat-val green">${a}</div></div>
+    <div class="stat-card"><div class="stat-label">Inactivos</div><div class="stat-val red">${i}</div></div>
+    <div class="stat-card"><div class="stat-label">Liquidación</div><div class="stat-val amber">${l}</div></div>`;
+}
+
+function populateAreas(){
+  const areas=[...new Set(STAFF.map(p=>p.area).filter(Boolean))].sort();
+  const sel=document.getElementById('area-select');
+  sel.innerHTML='<option value="">Todas las áreas</option>';
+  areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);});
+}
+
+function openModal(idx){
+  const p=STAFF[idx];
+  if(!p)return;
+  const av=avColor(p.nombre);
+  const ak=areaKey(p.area);
+  const sClass=p.estado==='ACTIVO'?'pill-activo':p.estado==='LIQUIDACIÓN'?'pill-liq':'pill-inactivo';
+
+  document.getElementById('m-avatar').style.cssText=`background:${av.bg};color:${av.c}`;
+  document.getElementById('m-avatar').textContent=ini(p.nombre);
+  document.getElementById('m-name').textContent=p.nombre;
+  document.getElementById('m-badges').innerHTML=`
+    <span class="status-pill ${sClass}">${p.estado}</span>
+    ${p.area?`<span class="area-badge area-${ak}">${p.area}</span>`:''}
+    ${p.puesto?`<span style="font-size:12px;color:var(--muted)">${p.puesto}</span>`:''}`;
+
+  function fld(label,val,cls=''){
+    const empty=!val||val==='no';
+    return`<div><div class="m-field-label">${label}</div><div class="m-field-val ${cls}${empty?' empty':''}">${empty?'—':val}</div></div>`;
+  }
+  function chk(label,val){
+    return`<span class="chk ${val?'yes':'no'}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        ${val?'<polyline points="3 8 6 11 13 5"/>':'<path d="M4 4l8 8M12 4l-8 8"/>'}
+      </svg>${label}</span>`;
+  }
+
+  const ant=p.ant||{a:0,m:0,d:0};
+  const antOk=ant.a||ant.m||ant.d;
+  const antHtml=antOk?`<div class="ant-chips">
+    <div class="ant-chip"><div class="ant-chip-val">${ant.a}</div><div class="ant-chip-label">años</div></div>
+    <div class="ant-chip"><div class="ant-chip-val">${ant.m}</div><div class="ant-chip-label">meses</div></div>
+    <div class="ant-chip"><div class="ant-chip-val">${ant.d}</div><div class="ant-chip-label">días</div></div>
+  </div>`:`<div class="m-field-val empty">—</div>`;
+
+  const vac=p.vac||{t:0,d:0,s:0};
+  const vt=vac.t||0,vd=vac.d||0,vs=vac.s||0;
+  const vPct=vt>0?Math.min(100,Math.round(vd/vt*100)):0;
+  const vsColor=vs>0?'var(--green)':vs<0?'var(--rrhh)':'var(--muted)';
+  const vacHtml=`<div class="vac-chips">
+    <div class="ant-chip"><div class="ant-chip-val">${vt}</div><div class="ant-chip-label">acumulados</div></div>
+    <div class="ant-chip"><div class="ant-chip-val">${vd}</div><div class="ant-chip-label">disfrutados</div></div>
+    <div class="ant-chip" style="border-color:${vs>0?'var(--green-bd)':'var(--border)'}">
+      <div class="ant-chip-val" style="color:${vsColor}">${vs}</div>
+      <div class="ant-chip-label">saldo</div>
+    </div></div>
+    ${vt>0?`<div class="vac-bar-wrap"><div class="vac-bar-fill" style="width:${vPct}%"></div></div>
+    <div class="vac-labels"><span>${vPct}% disfrutado</span><span>${vs} días disponibles</span></div>`:''}`;
+
+  document.getElementById('m-body').innerHTML=`
+    <div class="m-section">
+      <div class="m-section-title">Información personal</div>
+      <div class="m-grid">
+        ${fld('Cédula / ID',p.cedula,'mono')}
+        ${fld('Fecha de nacimiento',p.nacimiento)}
+        ${fld('Nacionalidad',p.nacionalidad)}
+        ${fld('Teléfono',p.tel)}
+        ${fld('Correo electrónico',p.email)}
+      </div>
+    </div>
+    <div class="m-section">
+      <div class="m-section-title">Información laboral</div>
+      <div class="m-grid">
+        ${fld('Área',p.area)}
+        ${fld('Puesto',p.puesto)}
+        ${fld('Salario base',p.salario?'₡'+fmt(p.salario):'')}
+        ${fld('Fecha de ingreso',p.ingreso)}
+        ${fld('Fecha de salida',p.salida)}
+      </div>
+    </div>
+    <div class="m-section">
+      <div class="m-section-title">Antigüedad</div>
+      ${antHtml}
+    </div>
+    <div class="m-section">
+      <div class="m-section-title">Documentos y cumplimiento</div>
+      <div class="check-row">
+        ${chk('Contrato',p.contrato)}${chk('CCSS',p.ccss)}${chk('INS',p.ins)}${chk('Manipulación de alimentos',p.manipul)}
+      </div>
+      ${p.carnet?`<div style="margin-top:10px">${fld('Vence carnet',p.carnet)}</div>`:''}
+    </div>
+    <div class="m-section">
+      <div class="m-section-title">Datos bancarios</div>
+      ${fld('Número de cuenta',p.cuenta,'mono')}
+    </div>
+    <div class="m-section">
+      <div class="m-section-title">Vacaciones</div>
+      ${vacHtml}
+    </div>`;
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.getElementById('search').addEventListener('input',e=>{fQ=e.target.value;render();});
+document.getElementById('filter-tabs').addEventListener('click',e=>{
+  const b=e.target.closest('.filter-tab');if(!b)return;
+  document.querySelectorAll('.filter-tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');fEstado=b.dataset.filter;render();
+});
+document.getElementById('area-select').addEventListener('change',e=>{fArea=e.target.value;render();});
+
+const now=new Date();
+document.getElementById('date-chip').textContent=now.toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'});
+
+loadData();
+</script>
+</body>
+</html>
