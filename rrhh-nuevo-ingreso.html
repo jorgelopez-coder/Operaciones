@@ -448,23 +448,43 @@ document.getElementById('form-ingreso').addEventListener('submit', async e => {
 
   if (APPS_SCRIPT_URL) {
     try {
-      await fetch(APPS_SCRIPT_URL, {
-        method:'POST', mode:'no-cors',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify(registro)
+      // Usar formulario URL-encoded para evitar problemas de CORS con Apps Script
+      const formData = new FormData();
+      formData.append('data', JSON.stringify(registro));
+
+      const resp = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: new URLSearchParams({ data: JSON.stringify(registro) }),
       });
-      document.getElementById('conn-dot').classList.remove('off');
-      document.getElementById('conn-label').textContent = 'Guardado en Google Sheets';
-    } catch {
+
+      if (resp.ok) {
+        const result = await resp.json().catch(() => ({ ok: true }));
+        if (result.ok !== false) {
+          document.getElementById('conn-dot').classList.remove('off');
+          document.getElementById('conn-label').textContent = 'Guardado en Google Sheets ✓';
+          showToast(`${nombre} ${apellidos} registrado correctamente`, 'success');
+        } else {
+          throw new Error(result.error || 'Error del servidor');
+        }
+      } else {
+        throw new Error('Error HTTP ' + resp.status);
+      }
+    } catch(err) {
+      console.error('Error Apps Script:', err);
       document.getElementById('conn-dot').classList.add('off');
-      document.getElementById('conn-label').textContent = 'Error de conexión';
-      showToast('Sin conexión — revisá el Apps Script.', 'error');
+      document.getElementById('conn-label').textContent = 'Error: ' + err.message;
+      showToast('Error al guardar: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Registrar colaborador';
+      return;
     }
   } else {
-    document.getElementById('conn-label').textContent = 'Apps Script no configurado';
+    showToast('Configurá la URL del Apps Script primero.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Registrar colaborador';
+    return;
   }
 
-  showToast(`${nombre} ${apellidos} registrado correctamente`, 'success');
   document.getElementById('btn-clear').click();
   btn.disabled = false;
   btn.textContent = 'Registrar colaborador';
