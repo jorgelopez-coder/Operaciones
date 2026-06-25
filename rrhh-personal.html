@@ -269,9 +269,25 @@ function iniciales(nombre) {
 async function cargarDatos() {
   try {
     // Personal
-    const rP = await fetch(APPS_SCRIPT_URL + '?modulo=personal');
-    const dP  = await rP.json();
+    const [rP, rS] = await Promise.all([
+      fetch(APPS_SCRIPT_URL + '?modulo=personal'),
+      fetch(APPS_SCRIPT_URL + '?modulo=vacaciones').catch(() => ({ json: async () => ({ ok:true, registros:[] }) }))
+    ]);
+    const dP = await rP.json();
+    const dS = await rS.json();
     todosPersonal = dP.ok ? dP.registros : [];
+
+    // Normalizar solicitudes de vacaciones para calcVacExpediente
+    const delSheet = dS.ok ? dS.registros : [];
+    const locales  = JSON.parse(localStorage.getItem('solicitudes_vac') || '[]');
+    const normalizados = delSheet.map(s => ({
+      colaborador: s['Colaborador'] || s['colaborador'] || '',
+      dias:        parseFloat(s['Días'] || s['dias'] || 0) || 0,
+      estado:      s['Estado']      || s['estado']      || '',
+    }));
+    const idsSheet = new Set(normalizados.map(s => String(s.id || '')));
+    const localesFiltrados = locales.filter(l => !idsSheet.has(String(l.id)));
+    window._solicitudesVac = [...normalizados, ...localesFiltrados];
 
     // Acciones (amonestaciones, cambios)
     try {
@@ -359,15 +375,47 @@ function renderLista(lista) {
 }
 
 // ── CALCULAR VACACIONES PARA EXPEDIENTE ─────────────────────────
-// 1 día por mes completo + fracción > 20 días = mes extra
+// Misma lógica que control de vacaciones
+function parsearFechaExp(valor) {
+  if (!valor) return null;
+  const str = String(valor).trim().substring(0, 10);
+  const p   = str.split('-');
+  if (p.length < 3) return null;
+  const anio = parseInt(p[0]);
+  const mes  = parseInt(p[1]) - 1;
+  const dia  = parseInt(p[2]);
+  if (isNaN(anio) || isNaN(mes) || isNaN(dia)) return null;
+  return new Date(anio, mes, dia);
+}
+
 function calcVacExpediente(p) {
+  // Mismo cálculo que control de vacaciones:
+  // Ignorar saldo si parece año/serial (> 365)
+  const saldoRaw = p['Saldo vacaciones'];
+  const saldoNum = parseFloat(saldoRaw);
+  const saldoSheet = (!isNaN(saldoNum) && saldoNum > 0 && saldoNum <= 365) ? saldoNum : 0;
+
+  // Días tomados de solicitudes aprobadas
+  // (solicitudes viene del array global cargado en cargarDatos)
+  const nombre = p['Nombre completo'] || ((p['Nombre']||'') + ' ' + (p['Apellidos']||'')).trim();
+  const diasTomados = (window._solicitudesVac || [])
+    .filter(s => {
+      const colab  = (s.colaborador || s['Colaborador'] || '').toString().trim();
+      const estado = (s.estado      || s['Estado']      || '').toString().trim();
+      return colab.toLowerCase() === nombre.toLowerCase() &&
+             estado.toLowerCase() === 'aprobado';
+    })
+    .reduce((acc, s) => {
+      const d = parseFloat(s.dias || s['Días'] || s['DÍAS'] || 0);
+      return acc + (isNaN(d) ? 0 : d);
+    }, 0);
+
+  if (saldoSheet > 0) return Math.max(0, saldoSheet - diasTomados);
+
+  // Calcular desde fecha de ingreso
   const ingreso = p['Fecha ingreso'] || '';
-  if (!ingreso) return 0;
-  const str    = String(ingreso).substring(0, 10);
-  const partes = str.split('-');
-  if (partes.length < 3) return 0;
-  const dIng = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
-  if (isNaN(dIng)) return 0;
+  const dIng    = parsearFechaExp(ingreso);
+  if (!dIng) return 0;
 
   let anios = hoy.getFullYear() - dIng.getFullYear();
   let meses = hoy.getMonth()    - dIng.getMonth();
@@ -376,15 +424,15 @@ function calcVacExpediente(p) {
   if (meses < 0) { anios--; meses += 12; }
   const mesesCompletos = Math.max(0, anios * 12 + meses);
 
-  let diasMesActual;
+  let diasEnMesActual;
   if (dias >= 0) {
-    diasMesActual = dias;
+    diasEnMesActual = dias;
   } else {
-    const diasMesAnt = new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate();
-    diasMesActual = diasMesAnt + dias;
+    const diasEnMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate();
+    diasEnMesActual = diasEnMesAnterior + dias;
   }
-  const extra = diasMesActual > 20 ? 1 : 0;
-  return Math.max(0, mesesCompletos + extra);
+  const extra = diasEnMesActual > 20 ? 1 : 0;
+  return Math.max(0, mesesCompletos + extra - diasTomados);
 }
 
 // ── VER EXPEDIENTE ────────────────────────────────────────────────
@@ -402,11 +450,8 @@ function verExpediente(idx) {
   const depto     = p['Departamento'] || '—';
   const puesto    = p['Puesto']       || '—';
   const salario   = parseFloat(p['Salario'] || 0);
-  // Ignorar si el valor es un año/serial (> 365) — usar cálculo por antigüedad
-  const saldoRaw = parseFloat(p['Saldo vacaciones'] || 0);
-  const balance  = (!isNaN(saldoRaw) && saldoRaw > 0 && saldoRaw <= 365)
-    ? saldoRaw
-    : calcVacExpediente(p);
+  // calcVacExpediente maneja saldo manual y cálculo por antigüedad
+  const balance = calcVacExpediente(p);
   const ingreso   = p['Fecha ingreso'] || '';
   const [bgCol, txCol] = avatarColor(nombre);
 
