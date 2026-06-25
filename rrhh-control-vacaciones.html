@@ -334,9 +334,11 @@ function parsearFecha(valor) {
 }
 
 function calcularSaldo(p) {
-  // Saldo manual tiene prioridad — ignorar si parece un año (> 365) o no es número válido
-  const saldoRaw   = parseFloat(p['Saldo vacaciones'] || 0);
-  const saldoSheet = (!isNaN(saldoRaw) && saldoRaw > 0 && saldoRaw <= 365) ? saldoRaw : 0;
+  // Saldo manual tiene prioridad
+  // Ignorar si: es 0, es NaN, parece año (> 365), o parece número serial de fecha de Excel (> 40000)
+  const saldoRaw   = p['Saldo vacaciones'];
+  const saldoNum   = parseFloat(saldoRaw);
+  const saldoSheet = (!isNaN(saldoNum) && saldoNum > 0 && saldoNum <= 365) ? saldoNum : 0;
 
   const nombre = p['Nombre completo'] || ((p['Nombre']||'') + ' ' + (p['Apellidos']||'')).trim();
 
@@ -488,37 +490,78 @@ function renderSaldos() {
     return;
   }
 
-  const filas = lista.map(p => {
-    const nombre   = p['Nombre completo'] || `${p['Nombre']||''} ${p['Apellidos']||''}`;
-    const ingreso  = p['Fecha ingreso'] || '—';
-    const puesto   = p['Puesto'] || '—';
-    const saldo    = calcularSaldo(p);
-    const dIng     = new Date((p['Fecha ingreso']||'') + 'T00:00:00');
+  const filas = lista.map((p, idx) => {
+    const nombre  = p['Nombre completo'] || `${p['Nombre']||''} ${p['Apellidos']||''}`;
+    const ingreso = p['Fecha ingreso'] || '—';
+    const puesto  = p['Puesto'] || '—';
+    const saldo   = calcularSaldo(p);
+
+    // Antigüedad
+    const dIng = parsearFecha(p['Fecha ingreso'] || '');
     let antig = '—';
-    if (!isNaN(dIng)) {
+    if (dIng) {
       let a = hoy.getFullYear() - dIng.getFullYear();
-      let m = hoy.getMonth() - dIng.getMonth();
+      let m = hoy.getMonth()    - dIng.getMonth();
+      if (hoy.getDate() < dIng.getDate()) m--;
       if (m < 0) { a--; m += 12; }
       antig = a > 0 ? `${a}a ${m}m` : `${m} mes${m!==1?'es':''}`;
     }
 
-    const pct   = Math.min(100, (saldo / 14) * 100);
+    const pct   = Math.min(100, (saldo / 30) * 100);
     const color = saldo >= 10 ? 'var(--green)' : saldo >= 5 ? 'var(--amber)' : 'var(--red)';
     const cl    = saldo >= 10 ? 'bal-verde' : saldo >= 5 ? 'bal-ambar' : 'bal-rojo';
 
+    // Histórico de días tomados
+    const historial = solicitudes.filter(s => {
+      const colab  = (s.colaborador || s['Colaborador'] || '').toString().trim();
+      const estado = (s.estado      || s['Estado']      || '').toString().trim();
+      return colab.toLowerCase() === nombre.toLowerCase() &&
+             ['aprobado','rechazado','pendiente'].includes(estado.toLowerCase());
+    });
+
+    const diasTomados = historial
+      .filter(s => (s.estado||s['Estado']||'').toLowerCase() === 'aprobado')
+      .reduce((a,s) => a + (parseFloat(s.dias||s['Días']||0)||0), 0);
+
+    const histHtml = historial.length ? historial.map(s => {
+      const est  = (s.estado||s['Estado']||'Pendiente');
+      const cl2  = est.toLowerCase()==='aprobado' ? 'b-approved' : est.toLowerCase()==='rechazado' ? 'b-rejected' : 'b-pending';
+      const dias = parseFloat(s.dias||s['Días']||0)||0;
+      const desde= s.fecha_inicio||s['Fecha inicio']||'—';
+      const hasta= s.fecha_fin   ||s['Fecha fin']   ||'—';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <span style="color:var(--muted);min-width:80px;">${desde}</span>
+        <span style="color:var(--muted);">→ ${hasta}</span>
+        <span style="font-weight:500;margin-left:4px;">${dias} día${dias!==1?'s':''}</span>
+        <span class="badge ${cl2}" style="margin-left:auto;">${est}</span>
+      </div>`;
+    }).join('') : '<div style="font-size:12px;color:var(--subtle);padding:8px 0;">Sin solicitudes registradas.</div>';
+
+    const rowId = 'hist-' + idx;
     return `<tr>
-      <td style="font-weight:500;">${nombre}</td>
+      <td>
+        <div style="font-weight:500;">${nombre}</div>
+        ${historial.length ? `<button onclick="toggleHistorial('${rowId}')" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 0;display:flex;align-items:center;gap:4px;">
+          <svg id="${rowId}-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;transition:transform .2s;"><path d="M4 6l4 4 4-4"/></svg>
+          ${historial.length} solicitud${historial.length!==1?'es':''}
+          ${diasTomados > 0 ? `· <span style="color:var(--red);">-${diasTomados} días usados</span>` : ''}
+        </button>` : '<div style="font-size:11px;color:var(--subtle);">Sin solicitudes</div>'}
+        <div id="${rowId}" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+          ${histHtml}
+        </div>
+      </td>
       <td style="color:var(--muted);">${puesto}</td>
       <td style="color:var(--muted);">${ingreso}</td>
       <td>${antig}</td>
       <td>
-        <span class="${cl}" style="font-weight:700;font-size:15px;">${saldo}</span>
-        <div class="progress-bar" style="width:80px;">
+        <span class="${cl}" style="font-weight:700;font-size:18px;">${saldo}</span>
+        <div style="font-size:11px;color:var(--subtle);">días disponibles</div>
+        <div class="progress-bar" style="width:90px;margin-top:4px;">
           <div class="progress-fill" style="width:${pct}%;background:${color};"></div>
         </div>
       </td>
       <td>
-        <button class="btn-ap" onclick="abrirSolicitudPara('${nombre}')">Solicitar</button>
+        <button class="btn-ap" onclick="abrirSolicitudPara('${nombre.replace(/'/g,"\\'")}')">Solicitar</button>
       </td>
     </tr>`;
   }).join('');
@@ -531,6 +574,14 @@ function renderSaldos() {
       </tr></thead>
       <tbody>${filas}</tbody>
     </table>`;
+}
+
+function toggleHistorial(id) {
+  const el  = document.getElementById(id);
+  const ico = document.getElementById(id + '-ico');
+  const open = el.style.display === 'none';
+  el.style.display  = open ? 'block' : 'none';
+  if (ico) ico.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 // ── RENDER PENDIENTES ─────────────────────────────────────────────
