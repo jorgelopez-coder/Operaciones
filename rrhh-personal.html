@@ -358,6 +358,35 @@ function renderLista(lista) {
   window._listaFiltrada = lista;
 }
 
+// ── CALCULAR VACACIONES PARA EXPEDIENTE ─────────────────────────
+// 1 día por mes completo + fracción > 20 días = mes extra
+function calcVacExpediente(p) {
+  const ingreso = p['Fecha ingreso'] || '';
+  if (!ingreso) return 0;
+  const str    = String(ingreso).substring(0, 10);
+  const partes = str.split('-');
+  if (partes.length < 3) return 0;
+  const dIng = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+  if (isNaN(dIng)) return 0;
+
+  let anios = hoy.getFullYear() - dIng.getFullYear();
+  let meses = hoy.getMonth()    - dIng.getMonth();
+  let dias  = hoy.getDate()     - dIng.getDate();
+  if (dias  < 0) meses--;
+  if (meses < 0) { anios--; meses += 12; }
+  const mesesCompletos = Math.max(0, anios * 12 + meses);
+
+  let diasMesActual;
+  if (dias >= 0) {
+    diasMesActual = dias;
+  } else {
+    const diasMesAnt = new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate();
+    diasMesActual = diasMesAnt + dias;
+  }
+  const extra = diasMesActual > 20 ? 1 : 0;
+  return Math.max(0, mesesCompletos + extra);
+}
+
 // ── VER EXPEDIENTE ────────────────────────────────────────────────
 function verExpediente(idx) {
   const p = window._listaFiltrada[idx];
@@ -373,7 +402,11 @@ function verExpediente(idx) {
   const depto     = p['Departamento'] || '—';
   const puesto    = p['Puesto']       || '—';
   const salario   = parseFloat(p['Salario'] || 0);
-  const balance   = parseFloat(p['Saldo vacaciones'] || 0);
+  // Ignorar si el valor es un año/serial (> 365) — usar cálculo por antigüedad
+  const saldoRaw = parseFloat(p['Saldo vacaciones'] || 0);
+  const balance  = (!isNaN(saldoRaw) && saldoRaw > 0 && saldoRaw <= 365)
+    ? saldoRaw
+    : calcVacExpediente(p);
   const ingreso   = p['Fecha ingreso'] || '';
   const [bgCol, txCol] = avatarColor(nombre);
 
