@@ -3,939 +3,553 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Base de Personal · Grupo del Sol</title>
+  <title>Base de Personal · RRHH · Grupo del Sol</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
-      --bg:         #faf7f0;
-      --surface:    #f2ede2;
-      --card:       #ffffff;
-      --card-h:     #f5f9f6;
-      --border:     #c8ddd0;
-      --border-h:   #8ab89e;
-      --text:       #1c3a28;
-      --muted:      #5a8a6a;
-      --subtle:     #a0c8b0;
-
-      --rrhh:       #c84a20;
-      --rrhh-bg:    #fdf0eb;
-      --rrhh-border:#f0c0a8;
-
-      --green:      #1a7a4a;
-      --green-bg:   #e8f5ee;
-      --green-bd:   #b0dcc0;
-
-      --amber:      #e8a020;
-      --amber-bg:   #fdf6e3;
-      --amber-bd:   #f0d890;
-
-      --radius-sm:  8px;
-      --radius-md:  12px;
-      --radius-lg:  16px;
-      --font-d: 'Inter Tight', sans-serif;
-      --font-b: 'Inter', sans-serif;
-      --font-m: 'JetBrains Mono', monospace;
+      --bg:#faf7f0; --surface:#f2ede2; --card:#ffffff;
+      --border:#c8ddd0; --border-h:#8ab89e;
+      --text:#1c3a28; --muted:#5a8a6a; --subtle:#a0c8b0;
+      --green:#1a7a4a; --green-bg:#eef8f2; --green-lt:#d0eedd;
+      --red:#c84a20; --red-bg:#fdf0eb; --red-lt:#f0c0a8;
+      --amber:#c87820; --amber-bg:#fdf6e3; --amber-lt:#f0d890;
+      --blue:#185fa5; --blue-bg:#eef4fb; --blue-lt:#b8d0f0;
+      --purple:#6a3a9a; --purple-bg:#f3eefb; --purple-lt:#d0b8f0;
+      --radius:12px; --font-d:'Inter Tight',sans-serif; --font-b:'Inter',sans-serif;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-b);
-      font-size: 14px;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    /* ── HEADER (exact from index) ── */
-    header {
-      height: 56px;
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      z-index: 20;
-      box-shadow: 0 1px 0 var(--border);
-    }
-
-    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-
-    .logo-name {
-      font-family: var(--font-d);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--text);
-    }
-
-    .logo-sep { color: var(--subtle); margin: 0 4px; }
-
-    .logo-sub { font-size: 12px; color: var(--muted); }
-
-    .header-meta { display: flex; align-items: center; gap: 12px; }
-
-    .date-chip {
-      font-size: 11px;
-      color: var(--muted);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
-    }
-
-    .back-btn {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: var(--muted);
-      text-decoration: none;
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-      transition: color 0.12s, border-color 0.12s;
-    }
-    .back-btn:hover { color: var(--text); border-color: var(--border-h); }
-    .back-btn svg { width: 13px; height: 13px; }
-
-    /* ── MAIN ── */
-    main {
-      max-width: 1040px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem 5rem;
-    }
-
-    /* ── GREETING ── */
-    .greeting { margin-bottom: 2rem; }
-
-    .greeting h1 {
-      font-family: var(--font-d);
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      margin-bottom: 6px;
-    }
-
-    .greeting p { font-size: 13px; color: var(--muted); }
-
-    /* ── STATS ── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 10px;
-      margin-bottom: 1.75rem;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 12px 16px;
-    }
-
-    .stat-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .stat-val {
-      font-family: var(--font-d);
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--text);
-    }
-
-    .stat-val.green  { color: var(--green); }
-    .stat-val.red    { color: var(--rrhh);  }
-    .stat-val.amber  { color: var(--amber); }
-    .stat-val.muted  { color: var(--muted); }
-
-    /* ── TOOLBAR ── */
-    .toolbar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .search-wrap { position: relative; flex: 1; min-width: 200px; }
-
-    .search-icon {
-      position: absolute;
-      left: 10px; top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      pointer-events: none;
-    }
-    .search-icon svg { width: 14px; height: 14px; display: block; }
-
-    .search-input {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 8px 10px 8px 32px;
-      font-family: var(--font-b);
-      font-size: 13px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.12s;
-    }
-    .search-input::placeholder { color: var(--subtle); }
-    .search-input:focus { border-color: var(--border-h); }
-
-    .filter-tabs {
-      display: flex;
-      gap: 3px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 3px;
-    }
-
-    .filter-tab {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 11px;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: background 0.12s, color 0.12s;
-      white-space: nowrap;
-      font-family: var(--font-b);
-    }
-    .filter-tab.active { background: var(--card); color: var(--text); }
-
-    .area-select {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 7px 10px;
-      font-family: var(--font-b);
-      font-size: 13px;
-      color: var(--text);
-      outline: none;
-      cursor: pointer;
-    }
-
-    /* ── GROUP HEADER ── */
-    .group-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      margin-bottom: 10px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.12s, border-color 0.12s;
-      margin-top: 1.5rem;
-    }
-    .group-header:first-child { margin-top: 0; }
-    .group-header:hover { background: var(--surface); border-color: var(--border-h); }
-
-    .group-header.activo-header  { background: var(--green-bg);  border-color: var(--green-bd);  }
-    .group-header.liq-header     { background: var(--amber-bg);  border-color: var(--amber-bd);  }
-    .group-header.inact-header   { background: var(--surface);   border-color: var(--border);    }
-
-    .group-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .group-label-text {
-      font-family: var(--font-d);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .activo-header  .group-label-text { color: var(--green); }
-    .liq-header     .group-label-text { color: var(--amber); }
-    .inact-header   .group-label-text { color: var(--muted); }
-
-    .group-count {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-
-    .group-chevron {
-      margin-left: auto;
-      color: var(--subtle);
-      transition: transform 0.2s;
-      flex-shrink: 0;
-    }
-    .group-chevron svg { width: 14px; height: 14px; display: block; }
-    .group-header.collapsed .group-chevron { transform: rotate(-90deg); }
-
-    /* ── STAFF GRID ── */
-    .staff-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      margin-bottom: 0;
-    }
-
-    .group-body {
-      overflow: hidden;
-      transition: max-height 0.25s ease;
-    }
-
-    .group-body.collapsed { max-height: 0 !important; }
-
-    /* ── STAFF CARD (same .mod style from index) ── */
-    .staff-card {
-      background: var(--card);
-      padding: 1rem 1.1rem;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      cursor: pointer;
-      transition: background 0.12s;
-      position: relative;
-    }
-
-    .staff-card:hover { background: var(--card-h); }
-
-    .avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-d);
-      font-size: 12px;
-      font-weight: 700;
-      flex-shrink: 0;
-      letter-spacing: -0.01em;
-    }
-
-    .card-info { flex: 1; min-width: 0; }
-
-    .card-name {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-arrow {
-      color: var(--subtle);
-      flex-shrink: 0;
-      transition: color 0.12s, transform 0.12s;
-    }
-    .staff-card:hover .card-arrow { color: var(--text); transform: translateX(2px); }
-    .card-arrow svg { width: 14px; height: 14px; display: block; }
-
-    /* ── AREA BADGE ── */
-    .area-badge {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 1px 6px;
-      border-radius: 4px;
-      letter-spacing: 0.03em;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .area-SALON   { background: #e0eeff; color: #1a4a8a; border: 1px solid #b0ccee; }
-    .area-BARRA   { background: var(--amber-bg); color: #8a4a00; border: 1px solid var(--amber-bd); }
-    .area-COCINA  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
-    .area-ADMIN   { background: #f3eeff; color: #6a30c0; border: 1px solid #c8b0f0; }
-    .area-OPS     { background: #fde8e0; color: var(--rrhh); border: 1px solid var(--rrhh-border); }
-    .area-DEF     { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
-
-    /* ── EMPTY ── */
-    .empty-state {
-      padding: 2.5rem 1rem;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-    }
-
-    /* ── STATUS BAR (from index) ── */
-    .status-bar {
-      margin-top: 2.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 0.75rem 1.25rem;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .status-item { display: flex; align-items: center; gap: 5px; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .dot.off { background: var(--muted); }
-    .status-sep { width: 1px; height: 14px; background: var(--border); }
-
-    /* ── MODAL ── */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(28,58,40,0.35);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 200; padding: 1rem;
-      backdrop-filter: blur(3px);
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.18s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-    .modal {
-      background: var(--card);
-      border: 1px solid var(--border-h);
-      border-radius: var(--radius-lg);
-      width: 100%; max-width: 580px;
-      max-height: 90vh; overflow-y: auto;
-      transform: translateY(10px);
-      transition: transform 0.18s;
-      box-shadow: 0 8px 40px rgba(28,58,40,0.18);
-    }
-    .modal-overlay.open .modal { transform: translateY(0); }
-
-    .modal-header {
-      display: flex; align-items: flex-start; gap: 14px;
-      padding: 20px 20px 14px;
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 0;
-      background: var(--card); z-index: 1;
-    }
-
-    .modal-avatar {
-      width: 46px; height: 46px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-d); font-size: 15px; font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .modal-title-block { flex: 1; min-width: 0; }
-
-    .modal-name {
-      font-family: var(--font-d);
-      font-size: 16px; font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--text); margin-bottom: 5px;
-    }
-
-    .modal-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
-
-    .status-pill {
-      font-size: 10px; font-weight: 600;
-      padding: 2px 8px; border-radius: 20px;
-      letter-spacing: 0.04em;
-    }
-    .pill-activo    { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
-    .pill-inactivo  { background: var(--surface);  color: var(--muted); border: 1px solid var(--border); }
-    .pill-liq       { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
-
-    .modal-close {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--muted); padding: 6px; cursor: pointer;
-      transition: color 0.12s, border-color 0.12s; flex-shrink: 0;
-    }
-    .modal-close:hover { color: var(--text); border-color: var(--border-h); }
-    .modal-close svg { width: 15px; height: 15px; display: block; }
-
-    .modal-body { padding: 14px 20px 24px; }
-
-    .m-section { margin-bottom: 18px; }
-
-    .m-section-title {
-      font-size: 10px; font-weight: 700;
-      letter-spacing: 0.09em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 10px;
-      padding-bottom: 5px; border-bottom: 1px solid var(--border);
-    }
-
-    .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .m-field-label {
-      font-size: 10px; font-weight: 600;
-      color: var(--muted); margin-bottom: 2px;
-      letter-spacing: 0.03em;
-    }
-
-    .m-field-val {
-      font-size: 13px; color: var(--text);
-    }
-    .m-field-val.mono { font-family: var(--font-m); font-size: 11px; }
-    .m-field-val.empty { color: var(--subtle); font-style: italic; }
-
-    .check-row { display: flex; gap: 12px; flex-wrap: wrap; }
-
-    .chk {
-      display: flex; align-items: center; gap: 4px;
-      font-size: 12px;
-    }
-    .chk.yes { color: var(--green); }
-    .chk.no  { color: var(--subtle); }
-    .chk svg { width: 13px; height: 13px; flex-shrink: 0; }
-
-    .ant-chips { display: flex; gap: 8px; }
-
-    .ant-chip {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 7px 12px; text-align: center; min-width: 60px;
-    }
-    .ant-chip-val {
-      font-family: var(--font-d); font-size: 17px; font-weight: 700;
-      color: var(--text);
-    }
-    .ant-chip-label { font-size: 10px; color: var(--muted); margin-top: 1px; }
-
-    .vac-chips { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 8px; }
-
-    .vac-bar-wrap {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 6px; height: 6px; overflow: hidden; margin-top: 6px;
-    }
-    .vac-bar-fill { height: 100%; background: var(--green); border-radius: 6px; }
-    .vac-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 3px; }
-
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-h); border-radius: 20px; }
-
-    @media (max-width: 640px) {
-      header { padding: 0 1rem; }
-      main   { padding: 1.5rem 1rem 3rem; }
-      .greeting h1 { font-size: 22px; }
-      .m-grid  { grid-template-columns: 1fr; }
-      .stats-row { grid-template-columns: repeat(2,1fr); }
-      .filter-tabs { flex-wrap: wrap; }
+    body { background:var(--bg); color:var(--text); font-family:var(--font-b); font-size:14px; line-height:1.6; min-height:100vh; }
+
+    /* ── HEADER ── */
+    header { height:56px; border-bottom:1px solid var(--border); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; background:var(--bg); position:sticky; top:0; z-index:20; }
+    .nav-left { display:flex; align-items:center; gap:10px; }
+    .back-btn { display:flex; align-items:center; gap:5px; font-size:13px; color:var(--muted); text-decoration:none; padding:5px 10px; border-radius:7px; border:1px solid var(--border); background:var(--surface); transition:color .15s,border-color .15s; }
+    .back-btn:hover { color:var(--text); border-color:var(--border-h); }
+    .back-btn svg { width:13px; height:13px; }
+    .page-title { font-family:var(--font-d); font-size:14px; font-weight:700; }
+    .date-chip { font-size:11px; color:var(--muted); background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px 10px; }
+
+    /* ── LAYOUT ── */
+    main { max-width:1000px; margin:0 auto; padding:2rem 2rem 5rem; }
+    .page-header { margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .page-header h1 { font-family:var(--font-d); font-size:24px; font-weight:700; letter-spacing:-.02em; margin-bottom:4px; }
+    .page-header p { font-size:13px; color:var(--muted); }
+
+    /* ── BÚSQUEDA Y FILTROS ── */
+    .toolbar { display:flex; gap:10px; margin-bottom:1.25rem; flex-wrap:wrap; }
+    .search-wrap { position:relative; flex:1; min-width:200px; }
+    .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--subtle); pointer-events:none; }
+    .search-input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:9px; color:var(--text); font-family:var(--font-b); font-size:14px; padding:9px 12px 9px 36px; outline:none; transition:border-color .15s,box-shadow .15s; }
+    .search-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(26,122,74,.1); }
+    .search-input::placeholder { color:var(--subtle); }
+
+    .filter-tabs { display:flex; gap:3px; background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:3px; }
+    .ftab { font-size:12px; font-weight:500; padding:5px 12px; border-radius:7px; border:none; cursor:pointer; background:transparent; color:var(--muted); transition:background .12s,color .12s; white-space:nowrap; }
+    .ftab.active { background:var(--card); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,.07); }
+
+    .filter-area { font-size:13px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a8a6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:30px; }
+
+    /* ── LISTA DE COLABORADORES ── */
+    .lista-wrap { display:grid; grid-template-columns:300px 1fr; gap:16px; align-items:start; }
+
+    .lista-colaboradores { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .lista-header { padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .lista-title { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+    .lista-count { font-size:11px; color:var(--subtle); }
+
+    .colab-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--border); cursor:pointer; transition:background .12s; }
+    .colab-item:last-child { border-bottom:none; }
+    .colab-item:hover { background:var(--surface); }
+    .colab-item.selected { background:var(--green-bg); border-left:3px solid var(--green); }
+
+    .avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-d); font-size:13px; font-weight:700; flex-shrink:0; }
+    .colab-info { flex:1; min-width:0; }
+    .colab-nombre { font-size:13px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .colab-puesto { font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .estado-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .dot-activo     { background:var(--green); }
+    .dot-liquidacion{ background:var(--red); }
+    .dot-inactivo   { background:var(--subtle); }
+
+    .empty-lista { padding:2rem; text-align:center; color:var(--subtle); font-size:13px; }
+
+    /* ── EXPEDIENTE ── */
+    .expediente { display:none; }
+    .expediente.visible { display:block; }
+
+    .exp-placeholder { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:3rem; text-align:center; color:var(--subtle); }
+    .exp-placeholder svg { width:48px; height:48px; margin-bottom:12px; opacity:.3; }
+    .exp-placeholder p { font-size:13px; }
+
+    /* Header del expediente */
+    .exp-header { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; margin-bottom:12px; }
+    .exp-top { display:flex; align-items:flex-start; gap:16px; margin-bottom:1.25rem; }
+    .exp-avatar { width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-d); font-size:22px; font-weight:700; flex-shrink:0; }
+    .exp-nombre { font-family:var(--font-d); font-size:20px; font-weight:700; letter-spacing:-.01em; margin-bottom:3px; }
+    .exp-puesto { font-size:13px; color:var(--muted); margin-bottom:8px; }
+    .exp-badges { display:flex; gap:6px; flex-wrap:wrap; }
+    .badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; padding:3px 9px; border-radius:20px; }
+    .badge-activo     { background:var(--green-bg); color:var(--green); }
+    .badge-liquidacion{ background:var(--red-bg); color:var(--red); }
+    .badge-inactivo   { background:var(--surface); color:var(--muted); }
+    .badge-depto      { background:var(--blue-bg); color:var(--blue); }
+    .badge-dot        { width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+    /* KPIs */
+    .exp-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .kpi { background:var(--surface); border-radius:9px; padding:12px 14px; text-align:center; }
+    .kpi-valor { font-family:var(--font-d); font-size:22px; font-weight:700; letter-spacing:-.02em; color:var(--text); }
+    .kpi-label { font-size:11px; color:var(--muted); margin-top:2px; }
+    .kpi-valor.verde  { color:var(--green); }
+    .kpi-valor.rojo   { color:var(--red); }
+    .kpi-valor.ambar  { color:var(--amber); }
+
+    /* Secciones del expediente */
+    .exp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+
+    .exp-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; }
+    .exp-card-title { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem; display:flex; align-items:center; gap:7px; }
+    .exp-card-title svg { width:14px; height:14px; }
+
+    .dato-row { display:flex; justify-content:space-between; align-items:flex-start; padding:6px 0; border-bottom:1px solid var(--border); gap:12px; }
+    .dato-row:last-child { border-bottom:none; }
+    .dato-label { font-size:12px; color:var(--muted); flex-shrink:0; }
+    .dato-valor { font-size:13px; font-weight:500; color:var(--text); text-align:right; }
+
+    /* Documentos checks */
+    .doc-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .doc-item { display:flex; align-items:center; gap:8px; font-size:12px; padding:6px 8px; border-radius:7px; }
+    .doc-item.ok { background:var(--green-bg); color:var(--green); }
+    .doc-item.no { background:var(--surface); color:var(--muted); }
+    .doc-item svg { width:14px; height:14px; flex-shrink:0; }
+
+    /* Amonestaciones */
+    .amon-lista { display:flex; flex-direction:column; gap:8px; }
+    .amon-item { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); font-size:13px; }
+    .amon-icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .amon-icon svg { width:14px; height:14px; }
+    .amon-tipo { font-weight:500; color:var(--text); margin-bottom:2px; }
+    .amon-fecha { font-size:11px; color:var(--muted); }
+    .amon-empty { font-size:13px; color:var(--subtle); text-align:center; padding:1.5rem; }
+
+    /* Status bar */
+    .status-bar { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.7rem 1.25rem; font-size:12px; color:var(--muted); margin-top:1.5rem; }
+    .sdot { width:6px; height:6px; border-radius:50%; background:var(--green); }
+    .sdot.off { background:var(--subtle); }
+    .ssep { width:1px; height:14px; background:var(--border); }
+
+    /* Spinner */
+    .spinner { display:inline-block; width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media (max-width:760px) {
+      header { padding:0 1rem; }
+      main { padding:1.5rem 1rem 3rem; }
+      .lista-wrap { grid-template-columns:1fr; }
+      .exp-grid { grid-template-columns:1fr; }
+      .exp-kpis { grid-template-columns:1fr 1fr 1fr; }
+      .doc-grid { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <span class="logo-name">Batanga Gastro Garden</span>
-    <span class="logo-sep">/</span>
-    <span class="logo-sub">Base de Personal · Grupo del Sol</span>
-  </div>
-  <div class="header-meta">
-    <span class="date-chip" id="date-chip"></span>
+  <div class="nav-left">
     <a href="index.html" class="back-btn">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12L6 8l4-4"/></svg>
-      Portal
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4L6 8l4 4"/></svg>
+      Inicio
     </a>
+    <span class="page-title">Base de personal</span>
   </div>
+  <span class="date-chip" id="date-chip"></span>
 </header>
 
 <main>
-  <div class="greeting">
-    <h1>Base de Personal</h1>
-    <p>Expedientes digitales del equipo · Grupo del Sol</p>
+  <div class="page-header">
+    <div>
+      <h1>Expedientes digitales</h1>
+      <p>Información completa del equipo · Grupo del Sol</p>
+    </div>
+    <div id="status-carga" style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;">
+      <span class="spinner"></span> Cargando personal…
+    </div>
   </div>
 
-  <div class="stats-row" id="stats-row"></div>
-
+  <!-- Búsqueda y filtros -->
   <div class="toolbar">
     <div class="search-wrap">
-      <span class="search-icon">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/>
-        </svg>
-      </span>
-      <input class="search-input" id="search" type="search" placeholder="Buscar por nombre, puesto o cédula…">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="search-input" id="search" placeholder="Buscar por nombre, puesto o cédula…" oninput="filtrar()">
     </div>
-    <div class="filter-tabs" id="filter-tabs">
-      <button class="filter-tab active" data-filter="TODOS">Todos</button>
-      <button class="filter-tab" data-filter="ACTIVO">Activos</button>
-      <button class="filter-tab" data-filter="INACTIVO">Inactivos</button>
-      <button class="filter-tab" data-filter="LIQUIDACIÓN">Liquidación</button>
+    <div class="filter-tabs" id="filter-estado">
+      <button class="ftab active" data-estado="" onclick="setFiltroEstado('',this)">Todos</button>
+      <button class="ftab" data-estado="ACTIVO" onclick="setFiltroEstado('ACTIVO',this)">Activos</button>
+      <button class="ftab" data-estado="LIQUIDACIÓN" onclick="setFiltroEstado('LIQUIDACIÓN',this)">Liquidación</button>
     </div>
-    <select class="area-select" id="area-select">
+    <select class="filter-area" id="filter-area" onchange="filtrar()">
       <option value="">Todas las áreas</option>
+      <option>Administrativo</option>
+      <option>Cocina</option>
+      <option>Barra</option>
+      <option>Otro</option>
     </select>
   </div>
 
-  <!-- Loading state -->
-  <div id="loading-state" style="display:flex;align-items:center;gap:12px;padding:2rem 1.25rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--muted);font-size:13px;">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0">
-      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-    </svg>
-    Cargando datos desde Google Sheets…
-  </div>
+  <!-- Layout principal -->
+  <div class="lista-wrap">
 
-  <!-- Error state -->
-  <div id="error-state" style="display:none;padding:1.5rem 1.25rem;background:var(--rrhh-bg);border:1px solid var(--rrhh-border);border-radius:var(--radius-md);color:var(--rrhh);font-size:13px;">
-    <strong>No se pudo cargar la información.</strong><br>
-    <span style="color:var(--muted);font-size:12px;">Verificá tu conexión o que el Apps Script esté publicado correctamente.</span>
-    <button onclick="loadData()" style="display:block;margin-top:10px;padding:6px 14px;border:1px solid var(--rrhh-border);border-radius:6px;background:transparent;color:var(--rrhh);font-size:12px;cursor:pointer;">Reintentar</button>
-  </div>
+    <!-- Lista lateral -->
+    <div class="lista-colaboradores" id="lista-colaboradores">
+      <div class="lista-header">
+        <span class="lista-title">Colaboradores</span>
+        <span class="lista-count" id="lista-count">—</span>
+      </div>
+      <div id="lista-items">
+        <div class="empty-lista"><span class="spinner"></span></div>
+      </div>
+    </div>
 
-  <div id="list-container"></div>
+    <!-- Expediente -->
+    <div id="expediente-wrap">
+      <div class="exp-placeholder" id="exp-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <p>Seleccioná un colaborador<br>para ver su expediente</p>
+      </div>
+      <div class="expediente" id="expediente"></div>
+    </div>
+
+  </div>
 
   <div class="status-bar">
-    <div class="status-item"><span class="dot" id="status-dot" style="background:var(--muted)"></span><span id="status-text">Conectando…</span></div>
-    <span class="status-sep"></span>
-    <div class="status-item"><span id="status-time"></span></div>
-    <span class="status-sep"></span>
-    <div class="status-item" style="margin-left:auto;">v1.0 · RRHH · Grupo del Sol</div>
+    <div style="display:flex;align-items:center;gap:6px;"><span class="sdot" id="conn-dot"></span><span id="conn-label">Conectando…</span></div>
+    <span class="ssep"></span>
+    <span id="total-label">—</span>
+    <span class="ssep"></span>
+    <span style="margin-left:auto;">v1.0 · RRHH · Grupo del Sol</span>
   </div>
-
-  <style>
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
 </main>
 
-<!-- Modal -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal" role="dialog" aria-modal="true">
-    <div class="modal-header">
-      <div class="modal-avatar" id="m-avatar"></div>
-      <div class="modal-title-block">
-        <div class="modal-name" id="m-name"></div>
-        <div class="modal-badges" id="m-badges"></div>
-      </div>
-      <button class="modal-close" id="modal-close" aria-label="Cerrar">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-      </button>
-    </div>
-    <div class="modal-body" id="m-body"></div>
-  </div>
-</div>
-
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxut8XYgqBBN1Vmf6XZnfGztNY2exSXJsjTfVZYjKORQTzK6r7dIsYRKQHr5nXfkXNvWw/exec';
+// ─── CONFIGURACIÓN ─────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCj8GRj4rcvRgbSa6zulIP8tqULzh-i-uyCfu-FSSMI_ZZhPi6GYeBz_CKnlvzfOtAvA/exec';
+// ───────────────────────────────────────────────────────────────────
 
-let STAFF = [];
+let todosPersonal   = [];
+let todasAcciones   = [];
+let filtroEstado    = '';
+let colaboradorActivo = null;
 
-/* ── JSONP loader (works with local file:// and no CORS issues) ── */
-function loadData() {
-  const loading = document.getElementById('loading-state');
-  const error   = document.getElementById('error-state');
-  const dot     = document.getElementById('status-dot');
-  const stText  = document.getElementById('status-text');
-  const stTime  = document.getElementById('status-time');
+// Fecha
+const hoy = new Date();
+document.getElementById('date-chip').textContent =
+  hoy.toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long' });
 
-  loading.style.display = 'flex';
-  error.style.display   = 'none';
-
-  const old = document.getElementById('jsonp-script');
-  if (old) old.remove();
-  if (window.__jsonpTimeout) clearTimeout(window.__jsonpTimeout);
-
-  window.__jsonpTimeout = setTimeout(() => {
-    loading.style.display = 'none';
-    error.style.display   = 'block';
-    dot.style.background  = 'var(--rrhh)';
-    stText.textContent    = 'Tiempo de espera agotado — revisá tu conexión';
-  }, 12000);
-
-  window.__staffCallback = function(data) {
-    clearTimeout(window.__jsonpTimeout);
-    STAFF = data;
-    loading.style.display = 'none';
-    dot.style.background  = '#1a7a4a';
-    stText.textContent    = STAFF.length + ' registros cargados desde Google Sheets';
-    const n = new Date();
-    stTime.textContent = 'Actualizado ' + n.toLocaleTimeString('es-CR', {hour:'2-digit', minute:'2-digit'});
-    renderStats();
-    populateAreas();
-    render();
-  };
-
-  const s = document.createElement('script');
-  s.id  = 'jsonp-script';
-  s.src = SCRIPT_URL + '?callback=__staffCallback';
-  s.onerror = () => {
-    clearTimeout(window.__jsonpTimeout);
-    loading.style.display = 'none';
-    error.style.display   = 'block';
-    dot.style.background  = 'var(--rrhh)';
-    stText.textContent    = 'Error al conectar con Google Sheets';
-  };
-  document.body.appendChild(s);
-}
-
-/* ── helpers ── */
-const AV = [
-  {bg:'#d0eedd',c:'#1a5a32'},{bg:'#fde0d0',c:'#8a2a10'},
-  {bg:'#e0eeff',c:'#1a3a8a'},{bg:'#f3eeff',c:'#5a20a0'},
-  {bg:'#fdf6e3',c:'#7a4a00'},{bg:'#e8f5ee',c:'#1a6040'},
+// Colores de avatar por inicial
+const COLORES = [
+  ['#d0eedd','#1a7a4a'], ['#eef4fb','#185fa5'], ['#f3eefb','#6a3a9a'],
+  ['#fdf6e3','#c87820'], ['#fdf0eb','#c84a20'], ['#eaf6f6','#0e7a7a'],
 ];
-function avColor(n){let h=0;for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))&0xffffffff;return AV[Math.abs(h)%AV.length];}
-function ini(n){const p=n.trim().split(' ').filter(Boolean);return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
-function fmt(n){return new Intl.NumberFormat('es-CR').format(n);}
-function areaKey(a){
-  const k=(a||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
-  if(k.includes('SALON'))return'SALON';
-  if(k.includes('BARRA'))return'BARRA';
-  if(k.includes('COCINA'))return'COCINA';
-  if(k.includes('ADMIN'))return'ADMIN';
-  if(k.includes('OPERACI')||k.includes('MANTENIMIENTO'))return'OPS';
-  return'DEF';
+function avatarColor(nombre) {
+  const i = (nombre.charCodeAt(0) || 0) % COLORES.length;
+  return COLORES[i];
+}
+function iniciales(nombre) {
+  return nombre.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase();
 }
 
-let fEstado='TODOS', fArea='', fQ='';
-const collapseState={INACTIVO:true, ACTIVO:false, 'LIQUIDACIÓN':false};
+// ── CARGAR DATOS ──────────────────────────────────────────────────
+async function cargarDatos() {
+  try {
+    // Personal
+    const rP = await fetch(APPS_SCRIPT_URL + '?modulo=personal');
+    const dP  = await rP.json();
+    todosPersonal = dP.ok ? dP.registros : [];
 
-function render(){
-  const c=document.getElementById('list-container');
-  let data=STAFF.filter(p=>{
-    const q=fQ.toLowerCase();
-    return(!q||p.nombre.toLowerCase().includes(q)||p.puesto.toLowerCase().includes(q)||(p.cedula||'').includes(q))
-      &&(fEstado==='TODOS'||p.estado===fEstado)
-      &&(!fArea||(p.area||'').toUpperCase()===fArea.toUpperCase());
-  }).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+    // Acciones (amonestaciones, cambios)
+    try {
+      const rA = await fetch(APPS_SCRIPT_URL + '?modulo=acciones');
+      const dA  = await rA.json();
+      todasAcciones = dA.ok ? dA.registros : [];
+    } catch { todasAcciones = []; }
 
-  const groups=[
-    {key:'ACTIVO',     label:'Activos',     cls:'activo-header', dot:'#1a7a4a', items:[]},
-    {key:'LIQUIDACIÓN',label:'Liquidación', cls:'liq-header',    dot:'#e8a020', items:[]},
-    {key:'INACTIVO',   label:'Inactivos',   cls:'inact-header',  dot:'#a0c8b0', items:[]},
-  ];
+    document.getElementById('conn-dot').classList.remove('off');
+    document.getElementById('conn-label').textContent = 'Conectado a Google Sheets';
+    document.getElementById('total-label').textContent =
+      `${todosPersonal.length} colaborador${todosPersonal.length !== 1 ? 'es' : ''} registrado${todosPersonal.length !== 1 ? 's' : ''}`;
+    document.getElementById('status-carga').innerHTML =
+      `<span style="color:var(--green);">✓</span> ${todosPersonal.length} colaboradores cargados`;
 
-  if(fEstado!=='TODOS'){
-    const g=groups.find(g=>g.key===fEstado);
-    if(g)g.items=data;
-  } else {
-    data.forEach(p=>{const g=groups.find(g=>g.key===p.estado);if(g)g.items.push(p);});
+    filtrar();
+
+  } catch(err) {
+    document.getElementById('conn-dot').classList.add('off');
+    document.getElementById('conn-label').textContent = 'Error de conexión';
+    document.getElementById('status-carga').textContent = 'Error al cargar datos';
+    document.getElementById('lista-items').innerHTML =
+      '<div class="empty-lista">No se pudo conectar con Google Sheets.<br>Verificá el Apps Script.</div>';
   }
+}
 
-  if(!data.length){
-    c.innerHTML='<div class="empty-state">No hay resultados para esta búsqueda.</div>';
+// ── FILTRAR ───────────────────────────────────────────────────────
+function setFiltroEstado(estado, el) {
+  filtroEstado = estado;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  filtrar();
+}
+
+function filtrar() {
+  const busqueda = document.getElementById('search').value.toLowerCase().trim();
+  const area     = document.getElementById('filter-area').value;
+
+  let lista = todosPersonal.filter(p => {
+    const nombre  = (p['Nombre completo'] || `${p['Nombre']||''} ${p['Apellidos']||''}`).toLowerCase();
+    const cedula  = String(p['Cédula'] || '').toLowerCase();
+    const puesto  = (p['Puesto'] || '').toLowerCase();
+    const estado  = (p['Estado'] || 'ACTIVO').toUpperCase();
+    const depto   = p['Departamento'] || '';
+
+    const matchBusqueda = !busqueda || nombre.includes(busqueda) || cedula.includes(busqueda) || puesto.includes(busqueda);
+    const matchEstado   = !filtroEstado || estado === filtroEstado;
+    const matchArea     = !area || depto === area;
+
+    return matchBusqueda && matchEstado && matchArea;
+  });
+
+  document.getElementById('lista-count').textContent = `${lista.length} resultado${lista.length !== 1 ? 's' : ''}`;
+  renderLista(lista);
+}
+
+// ── RENDER LISTA ──────────────────────────────────────────────────
+function renderLista(lista) {
+  const cont = document.getElementById('lista-items');
+  if (!lista.length) {
+    cont.innerHTML = '<div class="empty-lista">No se encontraron colaboradores.</div>';
     return;
   }
 
-  let html='';
-  groups.forEach(g=>{
-    if(!g.items.length)return;
-    const collapsed=collapseState[g.key];
-    html+=`
-    <div class="group-block" data-group="${g.key}">
-      <div class="group-header ${g.cls}${collapsed?' collapsed':''}">
-        <span class="group-dot" style="background:${g.dot}"></span>
-        <span class="group-label-text">${g.label}</span>
-        <span class="group-count">${g.items.length}</span>
-        <span class="group-chevron">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 6l4 4 4-4"/>
-          </svg>
-        </span>
+  cont.innerHTML = lista.map((p, idx) => {
+    const nombre = p['Nombre completo'] || `${p['Nombre']||''} ${p['Apellidos']||''}`;
+    const puesto = p['Puesto'] || '—';
+    const estado = (p['Estado'] || 'ACTIVO').toUpperCase();
+    const [bgCol, txCol] = avatarColor(nombre);
+    const dotClass = estado === 'ACTIVO' ? 'dot-activo' : estado.includes('LIQUID') ? 'dot-liquidacion' : 'dot-inactivo';
+    const isSelected = colaboradorActivo && (p['Cédula'] === colaboradorActivo['Cédula']);
+
+    return `<div class="colab-item ${isSelected ? 'selected' : ''}" onclick="verExpediente(${idx})">
+      <div class="avatar" style="background:${bgCol};color:${txCol};">${iniciales(nombre)}</div>
+      <div class="colab-info">
+        <div class="colab-nombre">${nombre}</div>
+        <div class="colab-puesto">${puesto}</div>
       </div>
-      <div class="group-body${collapsed?' collapsed':''}" style="max-height:${collapsed?'0':g.items.length*70+'px'}">
-        <div class="staff-grid">`;
-
-    g.items.forEach(p=>{
-      const idx=STAFF.indexOf(p);
-      const av=avColor(p.nombre);
-      const ak=areaKey(p.area);
-      html+=`<div class="staff-card" data-idx="${idx}">
-        <div class="avatar" style="background:${av.bg};color:${av.c}">${ini(p.nombre)}</div>
-        <div class="card-info">
-          <div class="card-name">${p.nombre}</div>
-          <div class="card-meta">${p.puesto}${p.ingreso?' · '+p.ingreso:''}</div>
-        </div>
-        ${p.area?`<span class="area-badge area-${ak}">${p.area}</span>`:''}
-        <span class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-      </div>`;
-    });
-
-    html+=`</div></div></div>`;
-  });
-
-  c.innerHTML=html;
-
-  c.querySelectorAll('.group-header').forEach(hdr=>{
-    hdr.addEventListener('click',()=>{
-      const key=hdr.closest('.group-block').dataset.group;
-      collapseState[key]=!collapseState[key];
-      const body=hdr.nextElementSibling;
-      const collapsed=collapseState[key];
-      hdr.classList.toggle('collapsed',collapsed);
-      body.classList.toggle('collapsed',collapsed);
-      if(!collapsed){
-        const count=body.querySelectorAll('.staff-card').length;
-        body.style.maxHeight=count*70+'px';
-      }
-    });
-  });
-
-  c.querySelectorAll('.staff-card').forEach(el=>{
-    el.addEventListener('click',()=>openModal(+el.dataset.idx));
-  });
-}
-
-function renderStats(){
-  const a=STAFF.filter(p=>p.estado==='ACTIVO').length;
-  const i=STAFF.filter(p=>p.estado==='INACTIVO').length;
-  const l=STAFF.filter(p=>p.estado==='LIQUIDACIÓN').length;
-  document.getElementById('stats-row').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val muted">${STAFF.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Activos</div><div class="stat-val green">${a}</div></div>
-    <div class="stat-card"><div class="stat-label">Inactivos</div><div class="stat-val red">${i}</div></div>
-    <div class="stat-card"><div class="stat-label">Liquidación</div><div class="stat-val amber">${l}</div></div>`;
-}
-
-function populateAreas(){
-  const areas=[...new Set(STAFF.map(p=>p.area).filter(Boolean))].sort();
-  const sel=document.getElementById('area-select');
-  sel.innerHTML='<option value="">Todas las áreas</option>';
-  areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);});
-}
-
-function openModal(idx){
-  const p=STAFF[idx];
-  if(!p)return;
-  const av=avColor(p.nombre);
-  const ak=areaKey(p.area);
-  const sClass=p.estado==='ACTIVO'?'pill-activo':p.estado==='LIQUIDACIÓN'?'pill-liq':'pill-inactivo';
-
-  document.getElementById('m-avatar').style.cssText=`background:${av.bg};color:${av.c}`;
-  document.getElementById('m-avatar').textContent=ini(p.nombre);
-  document.getElementById('m-name').textContent=p.nombre;
-  document.getElementById('m-badges').innerHTML=`
-    <span class="status-pill ${sClass}">${p.estado}</span>
-    ${p.area?`<span class="area-badge area-${ak}">${p.area}</span>`:''}
-    ${p.puesto?`<span style="font-size:12px;color:var(--muted)">${p.puesto}</span>`:''}`;
-
-  function fld(label,val,cls=''){
-    const empty=!val||val==='no';
-    return`<div><div class="m-field-label">${label}</div><div class="m-field-val ${cls}${empty?' empty':''}">${empty?'—':val}</div></div>`;
-  }
-  function chk(label,val){
-    return`<span class="chk ${val?'yes':'no'}">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        ${val?'<polyline points="3 8 6 11 13 5"/>':'<path d="M4 4l8 8M12 4l-8 8"/>'}
-      </svg>${label}</span>`;
-  }
-
-  const ant=p.ant||{a:0,m:0,d:0};
-  const antOk=ant.a||ant.m||ant.d;
-  const antHtml=antOk?`<div class="ant-chips">
-    <div class="ant-chip"><div class="ant-chip-val">${ant.a}</div><div class="ant-chip-label">años</div></div>
-    <div class="ant-chip"><div class="ant-chip-val">${ant.m}</div><div class="ant-chip-label">meses</div></div>
-    <div class="ant-chip"><div class="ant-chip-val">${ant.d}</div><div class="ant-chip-label">días</div></div>
-  </div>`:`<div class="m-field-val empty">—</div>`;
-
-  const vac=p.vac||{t:0,d:0,s:0};
-  const vt=vac.t||0,vd=vac.d||0,vs=vac.s||0;
-  const vPct=vt>0?Math.min(100,Math.round(vd/vt*100)):0;
-  const vsColor=vs>0?'var(--green)':vs<0?'var(--rrhh)':'var(--muted)';
-  const vacHtml=`<div class="vac-chips">
-    <div class="ant-chip"><div class="ant-chip-val">${vt}</div><div class="ant-chip-label">acumulados</div></div>
-    <div class="ant-chip"><div class="ant-chip-val">${vd}</div><div class="ant-chip-label">disfrutados</div></div>
-    <div class="ant-chip" style="border-color:${vs>0?'var(--green-bd)':'var(--border)'}">
-      <div class="ant-chip-val" style="color:${vsColor}">${vs}</div>
-      <div class="ant-chip-label">saldo</div>
-    </div></div>
-    ${vt>0?`<div class="vac-bar-wrap"><div class="vac-bar-fill" style="width:${vPct}%"></div></div>
-    <div class="vac-labels"><span>${vPct}% disfrutado</span><span>${vs} días disponibles</span></div>`:''}`;
-
-  document.getElementById('m-body').innerHTML=`
-    <div class="m-section">
-      <div class="m-section-title">Información personal</div>
-      <div class="m-grid">
-        ${fld('Cédula / ID',p.cedula,'mono')}
-        ${fld('Fecha de nacimiento',p.nacimiento)}
-        ${fld('Nacionalidad',p.nacionalidad)}
-        ${fld('Teléfono',p.tel)}
-        ${fld('Correo electrónico',p.email)}
-      </div>
-    </div>
-    <div class="m-section">
-      <div class="m-section-title">Información laboral</div>
-      <div class="m-grid">
-        ${fld('Área',p.area)}
-        ${fld('Puesto',p.puesto)}
-        ${fld('Salario base',p.salario?'₡'+fmt(p.salario):'')}
-        ${fld('Fecha de ingreso',p.ingreso)}
-        ${fld('Fecha de salida',p.salida)}
-      </div>
-    </div>
-    <div class="m-section">
-      <div class="m-section-title">Antigüedad</div>
-      ${antHtml}
-    </div>
-    <div class="m-section">
-      <div class="m-section-title">Documentos y cumplimiento</div>
-      <div class="check-row">
-        ${chk('Contrato',p.contrato)}${chk('CCSS',p.ccss)}${chk('INS',p.ins)}${chk('Manipulación de alimentos',p.manipul)}
-      </div>
-      ${p.carnet?`<div style="margin-top:10px">${fld('Vence carnet',p.carnet)}</div>`:''}
-    </div>
-    <div class="m-section">
-      <div class="m-section-title">Datos bancarios</div>
-      ${fld('Número de cuenta',p.cuenta,'mono')}
-    </div>
-    <div class="m-section">
-      <div class="m-section-title">Vacaciones</div>
-      ${vacHtml}
+      <span class="estado-dot ${dotClass}"></span>
     </div>`;
+  }).join('');
 
-  document.getElementById('modal-overlay').classList.add('open');
+  // Guardar índices para referencia al hacer click
+  window._listaFiltrada = lista;
 }
 
-function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
-document.getElementById('modal-close').addEventListener('click',closeModal);
-document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-document.getElementById('search').addEventListener('input',e=>{fQ=e.target.value;render();});
-document.getElementById('filter-tabs').addEventListener('click',e=>{
-  const b=e.target.closest('.filter-tab');if(!b)return;
-  document.querySelectorAll('.filter-tab').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');fEstado=b.dataset.filter;render();
-});
-document.getElementById('area-select').addEventListener('change',e=>{fArea=e.target.value;render();});
+// ── VER EXPEDIENTE ────────────────────────────────────────────────
+function verExpediente(idx) {
+  const p = window._listaFiltrada[idx];
+  colaboradorActivo = p;
 
-const now=new Date();
-document.getElementById('date-chip').textContent=now.toLocaleDateString('es-CR',{weekday:'long',day:'numeric',month:'long'});
+  // Resaltar en lista
+  document.querySelectorAll('.colab-item').forEach((el, i) => {
+    el.classList.toggle('selected', i === idx);
+  });
 
-loadData();
+  const nombre    = p['Nombre completo'] || `${p['Nombre']||''} ${p['Apellidos']||''}`;
+  const estado    = (p['Estado'] || 'ACTIVO').toUpperCase();
+  const depto     = p['Departamento'] || '—';
+  const puesto    = p['Puesto']       || '—';
+  const salario   = parseFloat(p['Salario'] || 0);
+  const balance   = parseFloat(p['Saldo vacaciones'] || 0);
+  const ingreso   = p['Fecha ingreso'] || '';
+  const [bgCol, txCol] = avatarColor(nombre);
+
+  // Antigüedad
+  const antiguedad = calcularAntiguedad(ingreso);
+
+  // Estado badge
+  const badgeEstado = estado === 'ACTIVO'
+    ? '<span class="badge badge-activo"><span class="badge-dot"></span>Activo</span>'
+    : estado.includes('LIQUID')
+    ? '<span class="badge badge-liquidacion"><span class="badge-dot"></span>Liquidación</span>'
+    : '<span class="badge badge-inactivo"><span class="badge-dot"></span>Inactivo</span>';
+
+  // Documentos
+  const docs = [
+    { label:'Contrato',          key:'Contrato' },
+    { label:'CCSS',              key:'CCSS' },
+    { label:'INS RT',            key:'INS RT' },
+    { label:'Carnet alimentos',  key:'Carnet alimentos' },
+  ];
+  const docsHtml = docs.map(d => {
+    const val = String(p[d.key] || 'No').toLowerCase();
+    const ok  = val === 'sí' || val === 'si' || val === 'true';
+    return `<div class="doc-item ${ok ? 'ok' : 'no'}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        ${ok ? '<polyline points="3 8 7 12 13 4"/>' : '<line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/>'}
+      </svg>
+      ${d.label}${d.key === 'Carnet alimentos' && p['Vence carnet'] ? `<span style="margin-left:auto;font-size:10px;opacity:.7">Vence: ${p['Vence carnet']}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  // Amonestaciones de este colaborador
+  const amones = todasAcciones.filter(a => {
+    const tipo = (a['Tipo'] || a.tipo || '').toLowerCase();
+    return (a['Colaborador'] === nombre || a['colaborador'] === nombre) &&
+      (tipo.includes('amonest') || tipo.includes('suspen'));
+  });
+
+  const amonHtml = amones.length
+    ? amones.map(a => {
+        const tipo  = a['Tipo'] || a.tipo || 'Amonestación';
+        const fecha = a['Fecha'] || a.fecha || '';
+        const isEscrita = tipo.toLowerCase().includes('escrita');
+        const isSusp    = tipo.toLowerCase().includes('suspen');
+        const bg  = isSusp ? 'var(--red-bg)' : isEscrita ? 'var(--amber-bg)' : 'var(--surface)';
+        const col = isSusp ? 'var(--red)'    : isEscrita ? 'var(--amber)'    : 'var(--muted)';
+        return `<div class="amon-item">
+          <div class="amon-icon" style="background:${bg};color:${col};">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 2l1.5 4h4l-3.3 2.4 1.3 4L8 10l-3.5 2.4 1.3-4L2.5 6h4z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="amon-tipo">${tipo}</div>
+            <div class="amon-fecha">${fecha}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="amon-empty">Sin amonestaciones registradas</div>';
+
+  // KPI color según balance
+  const balClass = balance >= 15 ? 'verde' : balance >= 5 ? 'ambar' : 'rojo';
+
+  document.getElementById('exp-placeholder').style.display = 'none';
+  const exp = document.getElementById('expediente');
+  exp.className = 'expediente visible';
+
+  exp.innerHTML = `
+    <!-- Header -->
+    <div class="exp-header">
+      <div class="exp-top">
+        <div class="exp-avatar" style="background:${bgCol};color:${txCol};">${iniciales(nombre)}</div>
+        <div style="flex:1;">
+          <div class="exp-nombre">${nombre}</div>
+          <div class="exp-puesto">${puesto} · ${depto}</div>
+          <div class="exp-badges">
+            ${badgeEstado}
+            <span class="badge badge-depto">${depto}</span>
+            ${p['Nacionalidad'] ? `<span class="badge" style="background:var(--surface);color:var(--muted);">${p['Nacionalidad']}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <!-- KPIs -->
+      <div class="exp-kpis">
+        <div class="kpi">
+          <div class="kpi-valor">${antiguedad}</div>
+          <div class="kpi-label">Antigüedad</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-valor ${balClass}">${balance}</div>
+          <div class="kpi-label">Días de vacaciones</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-valor ${amones.length > 0 ? 'rojo' : 'verde'}">${amones.length}</div>
+          <div class="kpi-label">Amonestaciones</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos personales y laborales -->
+    <div class="exp-grid">
+
+      <div class="exp-card">
+        <div class="exp-card-title">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14a6 6 0 0 1 12 0"/></svg>
+          Datos personales
+        </div>
+        <div class="dato-row"><span class="dato-label">Cédula</span><span class="dato-valor">${p['Cédula'] || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Fecha nacimiento</span><span class="dato-valor">${p['Fecha nacimiento'] || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Edad</span><span class="dato-valor">${p['Edad'] || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Nacionalidad</span><span class="dato-valor">${p['Nacionalidad'] || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Teléfono</span><span class="dato-valor">${p['Teléfono'] || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Correo</span><span class="dato-valor" style="font-size:12px;">${p['Email'] || '—'}</span></div>
+      </div>
+
+      <div class="exp-card">
+        <div class="exp-card-title">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1"/><line x1="5" y1="7" x2="11" y2="7"/><line x1="5" y1="10" x2="9" y2="10"/></svg>
+          Datos laborales
+        </div>
+        <div class="dato-row"><span class="dato-label">Departamento</span><span class="dato-valor">${depto}</span></div>
+        <div class="dato-row"><span class="dato-label">Puesto</span><span class="dato-valor">${puesto}</span></div>
+        <div class="dato-row"><span class="dato-label">Salario base</span><span class="dato-valor">₡${salario.toLocaleString('es-CR')}</span></div>
+        <div class="dato-row"><span class="dato-label">Fecha ingreso</span><span class="dato-valor">${ingreso || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Antigüedad</span><span class="dato-valor">${p['Antigüedad'] || antiguedad}</span></div>
+        <div class="dato-row"><span class="dato-label">Estado</span><span class="dato-valor">${estado}</span></div>
+      </div>
+
+      <div class="exp-card">
+        <div class="exp-card-title">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><line x1="8" y1="8" x2="8" y2="10"/></svg>
+          Datos bancarios
+        </div>
+        <div class="dato-row"><span class="dato-label">Banco</span><span class="dato-valor">${p['Banco'] || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Cuenta / IBAN</span><span class="dato-valor" style="font-size:12px;">${p['Cuenta'] || '—'}</span></div>
+        <div class="dato-row"><span class="dato-label">Tipo</span><span class="dato-valor">${p['Tipo cuenta'] || '—'}</span></div>
+      </div>
+
+      <div class="exp-card">
+        <div class="exp-card-title">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/><polyline points="5 8 7 10 11 6"/></svg>
+          Documentos
+        </div>
+        <div class="doc-grid">${docsHtml}</div>
+      </div>
+
+    </div>
+
+    <!-- Amonestaciones -->
+    <div class="exp-card" style="margin-bottom:12px;">
+      <div class="exp-card-title" style="margin-bottom:${amones.length ? '1rem' : '0'};">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.5 4h4l-3.3 2.4 1.3 4L8 10l-3.5 2.4 1.3-4L2.5 6h4z"/></svg>
+        Amonestaciones y suspensiones
+        ${amones.length ? `<span class="badge" style="background:var(--red-bg);color:var(--red);margin-left:auto;">${amones.length}</span>` : ''}
+      </div>
+      <div class="amon-lista">${amonHtml}</div>
+    </div>
+  `;
+}
+
+// ── CALCULAR ANTIGÜEDAD ───────────────────────────────────────────
+function calcularAntiguedad(fechaIngreso) {
+  if (!fechaIngreso) return '—';
+  try {
+    const ing = new Date(fechaIngreso);
+    if (isNaN(ing)) return '—';
+    let anios = hoy.getFullYear() - ing.getFullYear();
+    let meses = hoy.getMonth() - ing.getMonth();
+    if (meses < 0) { anios--; meses += 12; }
+    if (anios < 0) return '—';
+    if (anios === 0) return `${meses} mes${meses !== 1 ? 'es' : ''}`;
+    return `${anios} año${anios !== 1 ? 's' : ''}`;
+  } catch { return '—'; }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+cargarDatos();
 </script>
 </body>
 </html>
