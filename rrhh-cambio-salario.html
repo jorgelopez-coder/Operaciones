@@ -177,32 +177,55 @@ document.getElementById('fecha-efectiva').value = fechaHoy;
 
 const fmt = n => '₡' + Number(n).toLocaleString('es-CR');
 
+// Cargar colaboradores desde Google Sheets
 async function cargarColaboradores() {
   const sel = document.getElementById('colaborador');
-  if (APPS_SCRIPT_URL) {
-    try {
-      const r = await fetch(APPS_SCRIPT_URL + '?modulo=personal');
-      const d = await r.json();
-      if (d.ok && d.registros.length) {
-        d.registros.forEach(p => {
+  sel.innerHTML = '<option value="" disabled selected>Cargando colaboradores…</option>';
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL + '?modulo=personal');
+    const data = await resp.json();
+
+    sel.innerHTML = '<option value="" disabled selected>Seleccioná un colaborador…</option>';
+
+    if (data.ok && data.registros && data.registros.length > 0) {
+      const activos = data.registros.filter(p => {
+        const estado = (p['Estado'] || p.estado || 'ACTIVO').toString().toUpperCase();
+        return estado === 'ACTIVO';
+      });
+
+      activos.forEach(p => {
+        const nombre  = p['Nombre completo'] || ((p['Nombre'] || p.nombre || '') + ' ' + (p['Apellidos'] || p.apellidos || '')).trim();
+        const salario = p['Salario']           || p.salario           || 0;
+        const balance = p['Saldo vacaciones']  || p.balance_vacaciones || 0;
+        const puesto  = p['Puesto']            || p.puesto            || '';
+        const depto   = p['Departamento']      || p.departamento      || '';
+        const ingreso = p['Fecha ingreso']     || p.fecha_ingreso     || '';
+
+        if (nombre.trim()) {
           const o = document.createElement('option');
-          o.value = p['Nombre completo'] || `${p.nombre} ${p.apellidos}`;
-          o.dataset.salario = p['Salario'] || p.salario || 0;
-          o.textContent = o.value;
+          o.value           = nombre;
+          o.dataset.salario = salario;
+          o.dataset.balance = balance;
+          o.dataset.puesto  = puesto;
+          o.dataset.depto   = depto;
+          o.dataset.ingreso = ingreso;
+          o.dataset.estado  = p['Estado'] || 'ACTIVO';
+          o.textContent     = nombre;
           sel.appendChild(o);
-        });
-        return;
+        }
+      });
+
+      if (activos.length === 0) {
+        sel.innerHTML = '<option value="" disabled selected>No hay colaboradores activos</option>';
       }
-    } catch {}
+    } else {
+      sel.innerHTML = '<option value="" disabled selected>Sin colaboradores registrados</option>';
+    }
+  } catch(err) {
+    console.error('Error cargando colaboradores:', err);
+    sel.innerHTML = '<option value="" disabled selected>Error al cargar — verificá conexión</option>';
   }
-  const personal = JSON.parse(localStorage.getItem('personal_local') || '[]');
-  personal.forEach(p => {
-    const o = document.createElement('option');
-    o.value = `${p.nombre} ${p.apellidos}`;
-    o.dataset.salario = p.salario || 0;
-    o.textContent = o.value;
-    sel.appendChild(o);
-  });
 }
 cargarColaboradores();
 
