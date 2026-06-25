@@ -138,10 +138,6 @@
       </div>
     </div>
     <div class="field">
-      <label for="registrado-por">Registrado por <span class="req">*</span></label>
-      <input type="text" id="registrado-por" placeholder="Tu nombre" required>
-    </div>
-    <div class="field">
       <label for="observaciones">Observaciones</label>
       <textarea id="observaciones" placeholder="Motivo detallado, acuerdos, pendientes de liquidación…"></textarea>
     </div>
@@ -238,7 +234,6 @@ function limpiar() {
   document.getElementById('colaborador').value = '';
   document.getElementById('tipo-term').value = '';
   document.getElementById('fecha-salida').value = '';
-  document.getElementById('registrado-por').value = '';
   document.getElementById('observaciones').value = '';
   document.getElementById('info-card').classList.remove('visible');
 }
@@ -247,18 +242,16 @@ async function confirmar() {
   const colaborador    = document.getElementById('colaborador').value;
   const tipoTerm       = document.getElementById('tipo-term').value;
   const fechaSalida    = document.getElementById('fecha-salida').value;
-  const registradoPor  = document.getElementById('registrado-por').value.trim();
   const observaciones  = document.getElementById('observaciones').value.trim();
 
   if (!colaborador)   { showToast('Seleccioná un colaborador.','error'); return; }
   if (!tipoTerm)      { showToast('Seleccioná el tipo de terminación.','error'); return; }
   if (!fechaSalida)   { showToast('Seleccioná la fecha de salida.','error'); return; }
-  if (!registradoPor) { showToast('Ingresá quién registra la acción.','error'); return; }
 
   const registro = {
     modulo:'terminacion', colaborador, tipo_terminacion:tipoTerm,
     fecha_salida:fechaSalida, nuevo_estado:'LIQUIDACIÓN',
-    registrado_por:registradoPor, observaciones,
+    observaciones,
     registrado_en: new Date().toISOString()
   };
 
