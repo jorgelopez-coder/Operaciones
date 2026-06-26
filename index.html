@@ -38,6 +38,11 @@
       --mkt-bg:     #fdf6e3;
       --mkt-border: #f0d890;
 
+
+      --costos:        #0e7a7a;
+      --costos-bg:     #eaf6f6;
+      --costos-border: #a8d8d8;
+
       --radius-sm:  8px;
       --radius-md:  12px;
       --radius-lg:  16px;
@@ -313,6 +318,13 @@
     .area--ops  .area-modules { background: var(--ops-border);  }
     .area--rrhh .area-modules { background: var(--rrhh-border); }
     .area--mkt  .area-modules { background: var(--mkt-border);  }
+
+    .area--costos { background: var(--costos-bg); border-color: var(--costos-border); }
+    .area--costos .area-header { border-color: var(--costos-border); }
+    .area--costos .area-icon { background: #c0e8e8; }
+    .area--costos .area-name { color: var(--costos); }
+    .area--costos .mod-dot { background: var(--costos); }
+    .area--costos .area-modules { background: var(--costos-border); }
 
     /* ── STATUS BAR ── */
     .status-bar {
@@ -624,6 +636,95 @@
             <div class="mod-tag">Fotos, videos, activos</div>
           </div>
           <span class="soon-badge">Próximo</span>
+        </a>
+
+      </div>
+    </div>
+
+
+    <!-- ── COSTOS Y RECETAS ── -->
+    <div class="area area--costos">
+      <div class="area-header">
+        <div class="area-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0e7a7a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <span class="area-name">Costos y Recetas</span>
+        <span class="area-desc">Ingredientes · Menú · Recetas</span>
+      </div>
+      <div class="area-modules">
+
+        <a href="costos-productos.html" class="mod">
+          <span class="mod-dot"></span>
+          <div class="mod-info">
+            <div class="mod-name">Base de productos</div>
+            <div class="mod-tag">Ingredientes y costos</div>
+          </div>
+          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+        </a>
+
+        <a href="costos-menu.html" class="mod">
+          <span class="mod-dot"></span>
+          <div class="mod-info">
+            <div class="mod-name">Menú</div>
+            <div class="mod-tag">Platos y categorías</div>
+          </div>
+          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+        </a>
+
+        <a href="costos-recetas.html" class="mod">
+          <span class="mod-dot"></span>
+          <div class="mod-info">
+            <div class="mod-name">Recetas</div>
+            <div class="mod-tag">Costos y subrecetas</div>
+          </div>
+          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+        </a>
+
+      </div>
+    </div>
+
+
+    <!-- ── COSTOS Y RECETAS ── -->
+    <div class="area" style="background:#f5f0fa;border-color:#d4b8f0;">
+      <div class="area-header" style="border-color:#d4b8f0;">
+        <div class="area-icon" style="background:#e8d8f8;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6a3a9a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <span class="area-name" style="color:#6a3a9a;">Costos y Recetas</span>
+        <span class="area-desc">Ingredientes · Menú · Recetas</span>
+      </div>
+      <div class="area-modules" style="background:#d4b8f0;">
+
+        <a href="costos-productos.html" class="mod">
+          <span class="mod-dot" style="background:#6a3a9a;"></span>
+          <div class="mod-info">
+            <div class="mod-name">Base de productos</div>
+            <div class="mod-tag">Ingredientes y costos</div>
+          </div>
+          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+        </a>
+
+        <a href="costos-menu.html" class="mod">
+          <span class="mod-dot" style="background:#6a3a9a;"></span>
+          <div class="mod-info">
+            <div class="mod-name">Menú</div>
+            <div class="mod-tag">Platos y categorías</div>
+          </div>
+          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+        </a>
+
+        <a href="costos-recetas.html" class="mod">
+          <span class="mod-dot" style="background:#6a3a9a;"></span>
+          <div class="mod-info">
+            <div class="mod-name">Recetas</div>
+            <div class="mod-tag">Recetas y subrecetas</div>
+          </div>
+          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
         </a>
 
       </div>
