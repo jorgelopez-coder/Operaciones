@@ -50,7 +50,7 @@
 
     /* Ingredientes dinámicos */
     .ing-lista { display:flex; flex-direction:column; gap:8px; }
-    .ing-row { display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:8px; align-items:end; }
+    .ing-row { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr auto; gap:8px; align-items:end; }
     .ing-row label { margin-bottom:4px; }
     .ing-costo { font-size:12px; color:var(--purple); font-weight:600; margin-top:4px; }
     .btn-rm { width:36px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; transition:color .15s,border-color .15s,background .15s; flex-shrink:0; }
@@ -203,26 +203,21 @@
         </div>
         <div class="field" id="unidad-wrap" style="display:none;">
           <label for="r-unidad">Unidad de producción final <span class="req">*</span></label>
-          <select id="r-unidad">
-            <option value="" disabled selected>Seleccioná la unidad…</option>
-            <optgroup label="Peso">
-              <option value="kg">kg — kilogramos</option>
-              <option value="g">g — gramos</option>
-              <option value="lb">lb — libras</option>
-            </optgroup>
-            <optgroup label="Volumen">
-              <option value="L">L — litros</option>
-              <option value="ml">ml — mililitros</option>
-              <option value="gal">gal — galones</option>
-            </optgroup>
-            <optgroup label="Unidad">
-              <option value="porciones">porciones</option>
-              <option value="unidades">unidades</option>
-              <option value="piezas">piezas</option>
-              <option value="tazas">tazas</option>
-            </optgroup>
-          </select>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Unidad en que se mide el rendimiento de esta subreceta (ej. 1 L de salsa, 500 g de masa)</div>
+          <input type="text" id="r-unidad" list="unidad-opciones" placeholder="Ej. Porción, gramos, mililitros…" autocomplete="off" oninput="recalcular()">
+          <datalist id="unidad-opciones">
+            <option value="Porción">
+            <option value="Porciones">
+            <option value="gramos">
+            <option value="kg">
+            <option value="mililitros">
+            <option value="litros">
+            <option value="tazas">
+            <option value="unidades">
+            <option value="piezas">
+            <option value="lata">
+            <option value="caja">
+          </datalist>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Escribí o seleccioná la unidad final (ej. 1 L de salsa, 500 g de masa)</div>
         </div>
       </div>
     </div>
@@ -426,22 +421,54 @@ function removeIng(btn) {
 function recalcular() {
   const fuentes   = getFuentes();
   const porciones = parseFloat(document.getElementById('r-porciones').value) || 1;
-  let total       = 0;
 
+  // Primera pasada: calcular todos los costos
+  const costos = [];
   document.querySelectorAll('.ing-row').forEach(row => {
     const id       = row.dataset.id;
     const fuenteId = document.getElementById(`ing-fuente-${id}`)?.value;
     const cantidad = parseFloat(document.getElementById(`ing-cant-${id}`)?.value) || 0;
     const fuente   = fuentes.find(f => f.id === fuenteId);
     const costoLin = calcularCostoIngrediente(fuente, cantidad);
-    total += costoLin;
-    const costoEl = document.getElementById(`ing-costo-${id}`);
-    if (costoEl) costoEl.textContent = fuente && cantidad ? `Costo: ${fmt(costoLin)}` : '';
+    costos.push({ id, costoLin, fuente, cantidad });
   });
 
-  document.getElementById('costo-total').textContent    = fmt(total);
+  const total = costos.reduce((a, c) => a + c.costoLin, 0);
+
+  // Segunda pasada: actualizar displays con costo y %
+  costos.forEach(({ id, costoLin, fuente, cantidad }) => {
+    const costoEl = document.getElementById(`ing-costo-${id}`);
+    const pctEl   = document.getElementById(`ing-pct-${id}`);
+    if (costoEl) {
+      if (fuente && cantidad) {
+        costoEl.textContent = fmt(costoLin);
+        costoEl.style.color = 'var(--purple)';
+        costoEl.style.fontWeight = '600';
+      } else {
+        costoEl.textContent = '—';
+        costoEl.style.color = 'var(--muted)';
+        costoEl.style.fontWeight = '400';
+      }
+    }
+    if (pctEl) {
+      if (total > 0 && costoLin > 0) {
+        const pct = (costoLin / total * 100).toFixed(1);
+        const col = pct > 30 ? 'var(--red)' : pct > 15 ? 'var(--amber)' : 'var(--muted)';
+        pctEl.textContent = pct + '%';
+        pctEl.style.color = col;
+        pctEl.style.fontWeight = '600';
+      } else {
+        pctEl.textContent = '—';
+        pctEl.style.color = 'var(--muted)';
+        pctEl.style.fontWeight = '400';
+      }
+    }
+  });
+
+  const unidad = document.getElementById('r-unidad').value || 'porción';
+  document.getElementById('costo-total').textContent = fmt(total);
   document.getElementById('costo-por-porcion').textContent =
-    `Por porción: ${fmt(total / porciones)}`;
+    `Por ${unidad}: ${fmt(total / porciones)}`;
 }
 
 // ── GUARDAR ───────────────────────────────────────────────────────
