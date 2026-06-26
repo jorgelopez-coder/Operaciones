@@ -269,12 +269,14 @@ function iniciales(nombre) {
 async function cargarDatos() {
   try {
     // Personal
-    const [rP, rS] = await Promise.all([
+    const [rP, rS, rA] = await Promise.all([
       fetch(APPS_SCRIPT_URL + '?modulo=personal'),
-      fetch(APPS_SCRIPT_URL + '?modulo=vacaciones').catch(() => ({ json: async () => ({ ok:true, registros:[] }) }))
+      fetch(APPS_SCRIPT_URL + '?modulo=vacaciones').catch(() => ({ json: async () => ({ ok:true, registros:[] }) })),
+      fetch(APPS_SCRIPT_URL + '?modulo=amonestaciones').catch(() => ({ json: async () => ({ ok:true, registros:[] }) }))
     ]);
     const dP = await rP.json();
     const dS = await rS.json();
+    const dA = await rA.json();
     todosPersonal = dP.ok ? dP.registros : [];
 
     // Normalizar solicitudes de vacaciones para calcVacExpediente
@@ -288,6 +290,21 @@ async function cargarDatos() {
     const idsSheet = new Set(normalizados.map(s => String(s.id || '')));
     const localesFiltrados = locales.filter(l => !idsSheet.has(String(l.id)));
     window._solicitudesVac = [...normalizados, ...localesFiltrados];
+
+    // Amonestaciones desde el Sheet + locales
+    const amonSheet  = dA.ok ? dA.registros : [];
+    const amonLocales = JSON.parse(localStorage.getItem('amonestaciones') || '[]');
+    // Normalizar encabezados del Sheet
+    const amonNorm = amonSheet.map(a => ({
+      fecha:        a['Fecha']            || a.fecha        || '',
+      colaborador:  a['Colaborador']      || a.colaborador  || '',
+      tipo:         a['Tipo']             || a.tipo         || '',
+      motivo:       a['Motivo']           || a.motivo       || '',
+      observaciones:a['Observaciones']    || a.observaciones|| '',
+      susp_desde:   a['Suspensión desde'] || a.susp_desde   || '',
+      susp_hasta:   a['Suspensión hasta'] || a.susp_hasta   || '',
+    }));
+    window._amonestaciones = [...amonNorm, ...amonLocales];
 
     // Acciones (amonestaciones, cambios)
     try {
@@ -483,11 +500,10 @@ function verExpediente(idx) {
     </div>`;
   }).join('');
 
-  // Amonestaciones de este colaborador
-  const amones = todasAcciones.filter(a => {
-    const tipo = (a['Tipo'] || a.tipo || '').toLowerCase();
-    return (a['Colaborador'] === nombre || a['colaborador'] === nombre) &&
-      (tipo.includes('amonest') || tipo.includes('suspen'));
+  // Amonestaciones de este colaborador desde la hoja Amonestaciones
+  const amones = (window._amonestaciones || []).filter(a => {
+    const colab = (a['Colaborador'] || a.colaborador || '').trim();
+    return colab.toLowerCase() === nombre.toLowerCase();
   });
 
   const amonHtml = amones.length
