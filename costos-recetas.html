@@ -202,10 +202,27 @@
           <input type="number" id="r-porciones" min="1" value="1" oninput="recalcular()">
         </div>
         <div class="field" id="unidad-wrap" style="display:none;">
-          <label for="r-unidad">Unidad de producción</label>
+          <label for="r-unidad">Unidad de producción final <span class="req">*</span></label>
           <select id="r-unidad">
-            <option>litros</option><option>kg</option><option>porciones</option><option>unidades</option>
+            <option value="" disabled selected>Seleccioná la unidad…</option>
+            <optgroup label="Peso">
+              <option value="kg">kg — kilogramos</option>
+              <option value="g">g — gramos</option>
+              <option value="lb">lb — libras</option>
+            </optgroup>
+            <optgroup label="Volumen">
+              <option value="L">L — litros</option>
+              <option value="ml">ml — mililitros</option>
+              <option value="gal">gal — galones</option>
+            </optgroup>
+            <optgroup label="Unidad">
+              <option value="porciones">porciones</option>
+              <option value="unidades">unidades</option>
+              <option value="piezas">piezas</option>
+              <option value="tazas">tazas</option>
+            </optgroup>
           </select>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Unidad en que se mide el rendimiento de esta subreceta (ej. 1 L de salsa, 500 g de masa)</div>
         </div>
       </div>
     </div>
