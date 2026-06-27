@@ -578,12 +578,15 @@ async function finalizarToma() {
 
   if (!confirm(`¿Finalizar la toma ${tomaActual.id}?\n\nSe generará el resumen y se enviará a ${EMAIL_GERENCIA}.\n\nProductos contados: ${lineasContadas}\nValorización: ${fmt(tomaActual.valor_total)}`)) return;
 
-  tomaActual.estado         = 'finalizada';
-  tomaActual.fecha_fin      = new Date().toISOString();
+  tomaActual.estado          = 'finalizada';
+  tomaActual.fecha_fin       = new Date().toISOString();
   tomaActual.lineas_contadas = lineasContadas;
   saveTomas(tomas);
 
-  // Generar PDF y enviar por correo (via Apps Script)
+  // Guardar en Drive
+  await guardarTemaEnDrive(tomaActual);
+
+  // Enviar por correo
   await enviarResumenPorCorreo(tomaActual);
 
   tomaActual = null;
@@ -591,7 +594,56 @@ async function finalizarToma() {
   switchTab('historial', document.querySelectorAll('.tab')[2]);
   renderListaTomas();
   renderHistorial();
-  showToast('Toma finalizada y enviada a gerencia ✓', 'success');
+  showToast('Toma finalizada, guardada en Drive y enviada a gerencia ✓', 'success');
+}
+
+async function guardarTemaEnDrive(toma) {
+  // Construir array de líneas con toda la info
+  const lineas = productos
+    .filter(p => toma.lineas[p.id])
+    .map(p => {
+      const l         = toma.lineas[p.id] || {};
+      const precioC   = parseFloat(p.precio_sin_iva) || 0;
+      const precioU   = parseFloat(p.costo) || 0;
+      const cerrado   = parseFloat(l.cerrado) || 0;
+      const abierto   = parseFloat(l.abierto) || 0;
+      const valC      = cerrado * precioC;
+      const valA      = abierto * precioU;
+      return {
+        nombre:       p.nombre,
+        area:         p.area || '',
+        categoria:    p.categoria || '',
+        unidad:       p.unidad || '',
+        presentacion: [p.presentacion, p.tamano].filter(Boolean).join(' '),
+        precio_sin_iva: precioC,
+        cerrado, abierto,
+        val_cerrado: valC,
+        val_abierto: valA,
+        valor: valC + valA,
+      };
+    });
+
+  const payload = {
+    modulo:           'inventario',
+    id:               toma.id,
+    fecha_toma:       toma.fecha_toma || '',
+    fecha_inicio:     toma.fecha_inicio || '',
+    fecha_fin:        toma.fecha_fin || '',
+    estado:           toma.estado,
+    lineas_contadas:  toma.lineas_contadas,
+    valor_total:      toma.valor_total || 0,
+    lineas,
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_COSTOS, {
+      method: 'POST',
+      body: new URLSearchParams({ data: JSON.stringify(payload) })
+    });
+    console.log('Inventario guardado en Drive ✓');
+  } catch(e) {
+    console.warn('No se pudo guardar en Drive:', e);
+  }
 }
 
 async function enviarResumenPorCorreo(toma) {
