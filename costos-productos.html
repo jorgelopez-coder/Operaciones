@@ -130,12 +130,16 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" class="search-input" id="search" placeholder="Buscar producto…" oninput="renderLista()">
         </div>
+        <select class="filter-sel" id="f-area" onchange="renderLista()">
+          <option value="">Todas las áreas</option>
+        </select>
         <select class="filter-sel" id="f-cat" onchange="renderLista()">
           <option value="">Todas las categorías</option>
-          <option>Carnes</option><option>Mariscos</option><option>Aves</option>
-          <option>Lácteos</option><option>Frutas y Verduras</option><option>Granos y Cereales</option>
-          <option>Bebidas</option><option>Condimentos y Especias</option><option>Aceites y Grasas</option>
-          <option>Panadería</option><option>Limpieza</option><option>Otros</option>
+        </select>
+        <select class="filter-sel" id="f-agrupar" onchange="renderLista()">
+          <option value="">Sin agrupar</option>
+          <option value="area">Agrupar por área</option>
+          <option value="categoria">Agrupar por categoría</option>
         </select>
       </div>
       <div class="tabla-wrap" id="tabla-lista">
@@ -684,6 +688,14 @@ function aplicarConfiguracion() {
       unis.map(u => `<option${u===valActual?' selected':''}>${u}</option>`).join('');
   }
 
+  // Actualizar filtro de área en lista
+  const fArea = document.getElementById('f-area');
+  if (fArea) {
+    const vA = fArea.value;
+    fArea.innerHTML = '<option value="">Todas las áreas</option>' +
+      getCfg('area').map(a => `<option${a===vA?' selected':''}>${a}</option>`).join('');
+  }
+
   // Actualizar select de área de negocio
   const areas = getCfg('area');
   const selArea = document.getElementById('p-area');
@@ -746,22 +758,95 @@ function catBadge(cat) {
   return `<span class="badge" style="background:${col}20;color:${col};">${label}</span>`;
 }
 
-// Render lista
-function renderLista() {
-  const busq = document.getElementById('search').value.toLowerCase();
-  const cat  = document.getElementById('f-cat').value;
-  let lista  = getProductos().filter(p => {
-    return (!busq || p.nombre.toLowerCase().includes(busq))
-        && (!cat  || p.categoria === cat);
+// Render agrupado
+function renderListaAgrupada(lista, campo) {
+  const grupos = {};
+  lista.forEach(p => {
+    const clave = (campo === 'area' ? p.area : p.categoria) || 'Sin clasificar';
+    if (!grupos[clave]) grupos[clave] = [];
+    grupos[clave].push(p);
   });
 
-  document.getElementById('status-msg').textContent = `${getProductos().length} productos`;
+  const thead = `<thead><tr>
+    <th>Producto</th><th>Categoría</th><th>Área</th><th>Unidad</th>
+    <th style="text-align:right;">Precio sin IVA</th>
+    <th style="text-align:right;">IVA</th>
+    <th style="text-align:right;">Costo/u</th>
+    <th style="text-align:right;">Rendimiento</th>
+    <th style="text-align:right;">Costo real/u</th>
+    <th>Proveedor</th><th></th>
+  </tr></thead>`;
+
+  const bloques = Object.keys(grupos).sort().map(clave => {
+    const items = grupos[clave];
+    const filas = items.map(p => buildFila(p)).join('');
+    const totalItems = items.length;
+    return `
+      <tr style="background:var(--surface);">
+        <td colspan="11" style="padding:8px 12px 8px 0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--purple);">${clave}</span>
+            <span style="font-size:11px;color:var(--muted);">${totalItems} producto${totalItems!==1?'s':''}</span>
+          </div>
+        </td>
+      </tr>
+      ${filas}`;
+  }).join('');
+
+  document.getElementById('tabla-lista').innerHTML =
+    `<table>${thead}<tbody>${bloques}</tbody></table>`;
+}
+
+function buildFila(p) {
+  const costoRaw  = parseFloat(p.costo) || 0;
+  const rendRaw   = parseFloat(p.rendimiento) || 100;
+  const costoReal = rendRaw > 0 ? costoRaw / (rendRaw / 100) : costoRaw;
+  return `<tr>
+    <td style="font-weight:500;">${p.nombre}</td>
+    <td>${catBadge(p.categoria)}</td>
+    <td style="color:var(--muted);font-size:12px;">${p.area||'—'}</td>
+    <td style="color:var(--muted);">${p.unidad}</td>
+    <td class="num">${fmt(parseFloat(p.precio_sin_iva||p.costo)||0)}</td>
+    <td class="num" style="color:var(--muted);">${p.iva || 0}%</td>
+    <td class="num" style="font-weight:600;color:var(--purple);">${fmt(parseFloat(p.costo)||0)}</td>
+    <td class="num" style="color:var(--muted);">${p.rendimiento||100}%</td>
+    <td class="num" style="font-weight:700;color:var(--green);">${fmt(costoReal)}</td>
+    <td style="color:var(--muted);font-size:12px;">${p.area||'—'}</td>
+    <td style="color:var(--muted);font-size:12px;">${p.presentacion ? p.presentacion + (p.tamano ? ' · ' + p.tamano : '') : '—'}</td>
+    <td><div style="display:flex;gap:4px;">
+      <button class="btn-edit" onclick="editar('${p.id}')">Editar</button>
+      <button class="btn-del" onclick="eliminar('${p.id}')">✕</button>
+    </div></td>
+  </tr>`;
+}
+
+// Render lista
+function renderLista() {
+  const busq    = document.getElementById('search').value.toLowerCase();
+  const cat     = document.getElementById('f-cat').value;
+  const area    = document.getElementById('f-area').value;
+  const agrupar = document.getElementById('f-agrupar').value;
+
+  let lista = getProductos().filter(p =>
+    (!busq || (p.nombre||'').toLowerCase().includes(busq))
+ && (!cat  || p.categoria === cat)
+ && (!area || p.area === area)
+  );
+
+  document.getElementById('status-msg').textContent =
+    `${lista.length} de ${getProductos().length} producto${getProductos().length!==1?'s':''}`;
   document.getElementById('conn-dot').classList.remove('off');
   document.getElementById('conn-label').textContent = 'Datos locales';
 
   if (!lista.length) {
     document.getElementById('tabla-lista').innerHTML =
-      '<div class="empty">No hay productos. Agregá el primero con "+ Nuevo producto".</div>';
+      '<div class="empty">No hay productos que coincidan con los filtros.</div>';
+    return;
+  }
+
+  // Si hay agrupación, renderizar con grupos
+  if (agrupar) {
+    renderListaAgrupada(lista, agrupar);
     return;
   }
 
