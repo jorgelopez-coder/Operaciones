@@ -161,12 +161,20 @@
         <select class="filter-sel" id="f-actual-area" onchange="renderActual()">
           <option value="">Todas las áreas</option>
         </select>
+        <select class="filter-sel" id="f-actual-grupo" onchange="renderActual()">
+          <option value="area">Agrupar por área</option>
+          <option value="categoria">Agrupar por categoría</option>
+          <option value="area_categoria">Área → Categoría</option>
+        </select>
       </div>
 
-      <!-- Totalizador live -->
-      <div class="valor-box">
-        <span style="font-size:13px;color:var(--teal);font-weight:500;">Valorización total del conteo</span>
-        <span id="valor-live" style="font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--teal);">₡0</span>
+      <!-- Totalizadores -->
+      <div style="border-bottom:1px solid var(--teal-lt);">
+        <div class="valor-box">
+          <span style="font-size:13px;color:var(--teal);font-weight:500;">Valorización total</span>
+          <span id="valor-live" style="font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--teal);">₡0</span>
+        </div>
+        <div id="totales-area" style="display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--teal-lt);"></div>
       </div>
 
       <div style="overflow-x:auto;" id="tabla-actual">
@@ -385,8 +393,9 @@ function guardarFechaToma() {
 function renderActual() {
   if (!tomaActual) { document.getElementById('tabla-actual').innerHTML = '<div class="empty">Sin toma activa.</div>'; return; }
 
-  const busq = document.getElementById('s-actual').value.toLowerCase();
-  const area = document.getElementById('f-actual-area').value;
+  const busq  = document.getElementById('s-actual').value.toLowerCase();
+  const area  = document.getElementById('f-actual-area').value;
+  const grupo = document.getElementById('f-actual-grupo').value;
 
   let lista = productos.filter(p =>
     (!busq || (p.nombre||'').toLowerCase().includes(busq))
@@ -398,34 +407,83 @@ function renderActual() {
     actualizarValorLive(); return;
   }
 
-  // Agrupar por área
-  const grupos = {};
-  lista.forEach(p => {
-    const k = p.area || 'Sin área';
-    if (!grupos[k]) grupos[k] = [];
-    grupos[k].push(p);
-  });
+  const thead = `<table><thead><tr>
+    <th>Producto</th>
+    <th>Presentación compra</th>
+    <th>Precio compra s/IVA</th>
+    <th style="text-align:right;">Cerrado / Completo</th>
+    <th style="text-align:right;">En uso / Abierto</th>
+    <th style="text-align:right;">Valorización</th>
+  </tr></thead><tbody>`;
 
-  let html = `<table>
-    <thead><tr>
-      <th>Producto</th>
-      <th>Presentación compra</th>
-      <th>Precio compra s/IVA</th>
-      <th style="text-align:right;">Cerrado / Completo</th>
-      <th style="text-align:right;">En uso / Abierto</th>
-      <th style="text-align:right;">Valorización</th>
-    </tr></thead><tbody>`;
+  let content = thead;
 
-  Object.keys(grupos).sort().forEach(area => {
-    html += `<tr class="grupo-header"><td colspan="6">${area} · ${grupos[area].length} productos</td></tr>`;
-    grupos[area].forEach(p => { html += buildFilaToma(p); });
-  });
+  if (grupo === 'area') {
+    const grupos = agruparLista(lista, p => p.area || 'Sin área');
+    Object.keys(grupos).sort().forEach(k => {
+      const sub = calcSubtotal(grupos[k]);
+      content += headerGrupo(k, grupos[k].length, sub, 6);
+      grupos[k].forEach(p => { content += buildFilaToma(p); });
+      content += footerSubtotal(sub, 6);
+    });
 
-  html += '</tbody></table>';
-  document.getElementById('tabla-actual').innerHTML = html;
+  } else if (grupo === 'categoria') {
+    const grupos = agruparLista(lista, p => p.categoria || 'Sin categoría');
+    Object.keys(grupos).sort().forEach(k => {
+      const sub = calcSubtotal(grupos[k]);
+      content += headerGrupo(k, grupos[k].length, sub, 6);
+      grupos[k].forEach(p => { content += buildFilaToma(p); });
+      content += footerSubtotal(sub, 6);
+    });
+
+  } else { // area_categoria
+    const porArea = agruparLista(lista, p => p.area || 'Sin área');
+    Object.keys(porArea).sort().forEach(areaKey => {
+      const subArea = calcSubtotal(porArea[areaKey]);
+      content += `<tr style="background:var(--teal-bg);"><td colspan="6" style="padding:9px 12px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);border-top:1px solid var(--teal-lt);border-bottom:1px solid var(--teal-lt);">
+        ${areaKey} · ${porArea[areaKey].length} productos &nbsp;·&nbsp; <span style="font-weight:400;">${fmt(subArea)}</span>
+      </td></tr>`;
+      const porCat = agruparLista(porArea[areaKey], p => p.categoria || 'Sin categoría');
+      Object.keys(porCat).sort().forEach(catKey => {
+        const subCat = calcSubtotal(porCat[catKey]);
+        content += `<tr style="background:#f7f2fd;"><td colspan="6" style="padding:6px 20px;font-size:11px;font-weight:600;color:var(--purple);border-bottom:1px solid var(--purple-lt);">
+          ${catKey} · ${porCat[catKey].length} productos &nbsp;·&nbsp; ${fmt(subCat)}
+        </td></tr>`;
+        porCat[catKey].forEach(p => { content += buildFilaToma(p); });
+      });
+      content += footerSubtotal(subArea, 6, 'Subtotal ' + areaKey);
+    });
+  }
+
+  content += '</tbody></table>';
+  document.getElementById('tabla-actual').innerHTML = content;
   actualizarValorLive();
 }
 
+function agruparLista(lista, fn) {
+  const g = {};
+  lista.forEach(p => { const k = fn(p); if (!g[k]) g[k]=[]; g[k].push(p); });
+  return g;
+}
+
+function calcSubtotal(lista) {
+  return lista.reduce((acc, p) => {
+    const l = (tomaActual.lineas||{})[p.id]||{};
+    return acc + (parseFloat(l.cerrado)||0)*(parseFloat(p.precio_sin_iva)||0)
+               + (parseFloat(l.abierto)||0)*(parseFloat(p.costo)||0);
+  }, 0);
+}
+
+function headerGrupo(titulo, n, subtotal, cols) {
+  return `<tr class="grupo-header"><td colspan="${cols}">${titulo} · ${n} producto${n!==1?'s':''} <span style="font-weight:400;font-size:11px;margin-left:8px;opacity:.8;">${fmt(subtotal)}</span></td></tr>`;
+}
+
+function footerSubtotal(val, cols, label='Subtotal') {
+  return `<tr style="background:var(--surface);">
+    <td colspan="${cols-1}" style="padding:7px 12px;font-size:12px;font-weight:600;color:var(--muted);text-align:right;">${label}</td>
+    <td style="padding:7px 12px;text-align:right;font-family:var(--font-d);font-size:14px;font-weight:700;color:var(--teal);">${fmt(val)}</td>
+  </tr>`;
+}
 function buildFilaToma(p) {
   const linea   = (tomaActual.lineas || {})[p.id] || {};
   const cerrado = linea.cerrado !== undefined ? linea.cerrado : '';
@@ -502,16 +560,37 @@ function onLinea(id, campo, input) {
 }
 
 function actualizarValorLive() {
-  let total = 0;
   if (!tomaActual) { document.getElementById('valor-live').textContent = '₡0'; return; }
+
+  let total = 0;
+  const porArea = {};
+
   productos.forEach(p => {
     const linea   = (tomaActual.lineas||{})[p.id] || {};
     const precioC = parseFloat(p.precio_sin_iva)||0;
     const precioU = parseFloat(p.costo)||0;
-    total += (parseFloat(linea.cerrado)||0) * precioC + (parseFloat(linea.abierto)||0) * precioU;
+    const valor   = (parseFloat(linea.cerrado)||0)*precioC + (parseFloat(linea.abierto)||0)*precioU;
+    total += valor;
+    if (valor > 0) {
+      const area = p.area || 'Sin área';
+      porArea[area] = (porArea[area]||0) + valor;
+    }
   });
+
   tomaActual.valor_total = total;
   document.getElementById('valor-live').textContent = fmt(total);
+
+  // Totales por área
+  const totalesEl = document.getElementById('totales-area');
+  if (totalesEl && Object.keys(porArea).length) {
+    totalesEl.innerHTML = Object.keys(porArea).sort().map(area => `
+      <div style="flex:1;min-width:140px;padding:8px 14px;border-right:1px solid var(--teal-lt);">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--teal);font-weight:600;">${area}</div>
+        <div style="font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--teal);">${fmt(porArea[area])}</div>
+      </div>`).join('');
+  } else if (totalesEl) {
+    totalesEl.innerHTML = '';
+  }
 }
 
 // ── IMPRIMIR FORMATO ─────────────────────────────────────────────
