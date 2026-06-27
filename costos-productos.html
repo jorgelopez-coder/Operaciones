@@ -102,12 +102,24 @@
       <h1>Base de productos</h1>
       <p>Ingredientes y materias primas para el cálculo de recetas.</p>
     </div>
-    <button class="btn-primary" style="width:auto;padding:10px 20px;font-size:13px;" onclick="switchTab('nuevo', document.querySelectorAll('.tab')[1])">+ Nuevo producto</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-primary" style="width:auto;padding:10px 20px;font-size:13px;" onclick="switchTab('nuevo', document.querySelectorAll('.tab')[1])">+ Nuevo producto</button>
+      <button onclick="triggerCargaMasiva()" style="padding:10px 16px;border-radius:9px;border:1px solid var(--purple-lt);background:var(--purple-bg);color:var(--purple);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M8 2v8M5 7l3 3 3-3"/><rect x="2" y="11" width="12" height="3" rx="1"/></svg>
+        Carga masiva (.xlsx)
+      </button>
+      <a href="plantilla_productos.xlsx" download style="padding:10px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M8 2v8M5 7l3 3 3-3"/><rect x="2" y="11" width="12" height="3" rx="1"/></svg>
+        Descargar plantilla
+      </a>
+      <input type="file" id="input-carga" accept=".xlsx,.csv" style="display:none;" onchange="procesarArchivo(event)">
+    </div>
   </div>
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('lista',this)">Productos</button>
     <button class="tab" onclick="switchTab('nuevo',this)">Nuevo producto</button>
+    <button class="tab" onclick="switchTab('config',this)">⚙ Configuración</button>
   </div>
 
   <!-- LISTA -->
@@ -134,138 +146,35 @@
 
   <!-- NUEVO / EDITAR -->
   <div id="tab-nuevo" style="display:none;">
-    <div class="card">
-      <p class="card-title" id="form-title">Nuevo producto</p>
-      <input type="hidden" id="edit-id">
+    <input type="hidden" id="edit-id">
 
-      <div class="field-row">
+    <!-- SECCIÓN 1: Identificación -->
+    <div class="card" style="margin-bottom:12px;">
+      <p class="card-title" id="form-title" style="margin-bottom:1.1rem;">Nuevo producto</p>
+      <div class="field-row-3">
         <div class="field">
-          <label for="p-nombre">Nombre del producto <span class="req">*</span></label>
-          <input type="text" id="p-nombre" placeholder="Escribí o seleccioná de la lista…" list="sugerencias-productos" autocomplete="off">
-          <datalist id="sugerencias-productos">
-          <option value="Aceite de ajonjolí">Aceite de ajonjolí</option>
-          <option value="Aceite de oleína de palma">Aceite de oleína de palma</option>
-          <option value="Aceite de Oliva">Aceite de Oliva</option>
-          <option value="Aceite para Freír">Aceite para Freír</option>
-          <option value="Agua Embotellada Pack 12">Agua Embotellada Pack 12</option>
-          <option value="Agua Tónica">Agua Tónica</option>
-          <option value="Aguacate Hass">Aguacate Hass</option>
-          <option value="Apio Verde">Apio Verde</option>
-          <option value="Arrachera">Arrachera</option>
-          <option value="Bandeja desechable 9x9">Bandeja desechable 9x9</option>
-          <option value="Bolsa de Basura Negra Tamaño Estañón 50 unidades">Bolsa de Basura Negra Tamaño Estañón 50 unidades</option>
-          <option value="Camarón Cultivo PYD 26/30">Camarón Cultivo PYD 26/30</option>
-          <option value="Camarón PYD Tail On Crudo 26/30">Camarón PYD Tail On Crudo 26/30</option>
-          <option value="Camote">Camote</option>
-          <option value="Canada Dry 354ml Lata">Canada Dry 354ml Lata</option>
-          <option value="Canada Dry Ginger Ale 350ml Vidrio">Canada Dry Ginger Ale 350ml Vidrio</option>
-          <option value="Carne Molida de Res Angus">Carne Molida de Res Angus</option>
-          <option value="Cas">Cas</option>
-          <option value="Cebolla Morada">Cebolla Morada</option>
-          <option value="Cebolla Seca">Cebolla Seca</option>
-          <option value="Cheesecake Original">Cheesecake Original</option>
-          <option value="Chile Dulce">Chile Dulce</option>
-          <option value="Chile jalapeño mitades">Chile jalapeño mitades</option>
-          <option value="Cloro Duty 1 Galón">Cloro Duty 1 Galón</option>
-          <option value="Coca-Cola 350ml Vidrio">Coca-Cola 350ml Vidrio</option>
-          <option value="Coca-Cola 355ml PET">Coca-Cola 355ml PET</option>
-          <option value="Coca-Cola Sin Azúcar 350ml Vidrio">Coca-Cola Sin Azúcar 350ml Vidrio</option>
-          <option value="Crema Lavaplatos Duty 1kg">Crema Lavaplatos Duty 1kg</option>
-          <option value="Culantro Castilla">Culantro Castilla</option>
-          <option value="Desengrasante Duty 1 Galón">Desengrasante Duty 1 Galón</option>
-          <option value="Detergente en Polvo Blanco 5kg">Detergente en Polvo Blanco 5kg</option>
-          <option value="Empanizador Panko">Empanizador Panko</option>
-          <option value="Esponja Doble Propósito">Esponja Doble Propósito</option>
-          <option value="Frijol Tierno">Frijol Tierno</option>
-          <option value="Garbanzos">Garbanzos</option>
-          <option value="Ginger Beer">Ginger Beer</option>
-          <option value="Ginger Beer Britvic">Ginger Beer Britvic</option>
-          <option value="Guante de Látex con Polvo Talla M 100 unidades">Guante de Látex con Polvo Talla M 100 unidades</option>
-          <option value="Harina Nacarina">Harina Nacarina</option>
-          <option value="Hielo en bolsa 10kg">Hielo en bolsa 10kg</option>
-          <option value="Hierba Buena">Hierba Buena</option>
-          <option value="Hongo Champiñón">Hongo Champiñón</option>
-          <option value="Huevo">Huevo</option>
-          <option value="Huevo Cartón 30 Unidades">Huevo Cartón 30 Unidades</option>
-          <option value="JP Chenet Espumoso">JP Chenet Espumoso</option>
-          <option value="Jugo natural de limón">Jugo natural de limón</option>
-          <option value="Jugo natural de naranja">Jugo natural de naranja</option>
-          <option value="Ketchup">Ketchup</option>
-          <option value="Kitty Torres">Kitty Torres</option>
-          <option value="Lechuga Americana">Lechuga Americana</option>
-          <option value="Lechuga Lollorosa">Lechuga Lollorosa</option>
-          <option value="Lechuga Romana">Lechuga Romana</option>
-          <option value="Limón Mandarino">Limón Mandarino</option>
-          <option value="Limón Mesino">Limón Mesino</option>
-          <option value="Lomito de Res Fresco">Lomito de Res Fresco</option>
-          <option value="Mango Tommy">Mango Tommy</option>
-          <option value="Manzana Gala">Manzana Gala</option>
-          <option value="Maracuyá">Maracuyá</option>
-          <option value="Maíz Dulce">Maíz Dulce</option>
-          <option value="Mejillón Media Concha">Mejillón Media Concha</option>
-          <option value="Mora">Mora</option>
-          <option value="Nachos">Nachos</option>
-          <option value="Naranja Importada">Naranja Importada</option>
-          <option value="Naranja Nacional">Naranja Nacional</option>
-          <option value="On top vainilla">On top vainilla</option>
-          <option value="Pan Hamburguesa Brioche">Pan Hamburguesa Brioche</option>
-          <option value="Pan Mediterráneo">Pan Mediterráneo</option>
-          <option value="Panameño">Panameño</option>
-          <option value="Papa Amarilla">Papa Amarilla</option>
-          <option value="Papa corte recto">Papa corte recto</option>
-          <option value="Papa Mini Amarilla">Papa Mini Amarilla</option>
-          <option value="Papel Higiénico Jumbo Roll Scott 400m">Papel Higiénico Jumbo Roll Scott 400m</option>
-          <option value="Papel Jumbo Roll Kleenex 2 Plys 250m">Papel Jumbo Roll Kleenex 2 Plys 250m</option>
-          <option value="Paprika">Paprika</option>
-          <option value="Pastilla para Orinal">Pastilla para Orinal</option>
-          <option value="Pechuga de pollo">Pechuga de pollo</option>
-          <option value="Pepino">Pepino</option>
-          <option value="Perejil">Perejil</option>
-          <option value="Piña Jumbo">Piña Jumbo</option>
-          <option value="Plátano Maduro">Plátano Maduro</option>
-          <option value="Posta de cerdo">Posta de cerdo</option>
-          <option value="Puerro">Puerro</option>
-          <option value="Queso Crema">Queso Crema</option>
-          <option value="Queso Mozzarella Rallado">Queso Mozzarella Rallado</option>
-          <option value="Queso Parmesano">Queso Parmesano</option>
-          <option value="Romero">Romero</option>
-          <option value="Sal fina">Sal fina</option>
-          <option value="Sal molida">Sal molida</option>
-          <option value="Salchicha Frankfurt">Salchicha Frankfurt</option>
-          <option value="Salsa Barbacoa">Salsa Barbacoa</option>
-          <option value="Salsa Búfalo">Salsa Búfalo</option>
-          <option value="Sandía">Sandía</option>
-          <option value="Soda Canada Dry 350ml Vidrio">Soda Canada Dry 350ml Vidrio</option>
-          <option value="Tallarín">Tallarín</option>
-          <option value="Tamarindo">Tamarindo</option>
-          <option value="Toalla de Papel Scott 1 Ply 150 unidades">Toalla de Papel Scott 1 Ply 150 unidades</option>
-          <option value="Tocineta Ahumada Rebanada">Tocineta Ahumada Rebanada</option>
-          <option value="Tomate">Tomate</option>
-          <option value="Tomate Cherry">Tomate Cherry</option>
-          <option value="Tomate Grande">Tomate Grande</option>
-          <option value="Tomillo">Tomillo</option>
-          <option value="Tortilla sal">Tortilla sal</option>
-          <option value="Vaso Desechable 16oz">Vaso Desechable 16oz</option>
-          <option value="Vinagre">Vinagre</option>
-          <option value="Vino Tinto Clos">Vino Tinto Clos</option>
-          <option value="Zanahoria">Zanahoria</option>
-          <option value="Zucchini">Zucchini</option>
-          </datalist>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Sugerencias basadas en facturas registradas. Podés escribir cualquier nombre.</div>
+          <label for="p-nombre">Nombre <span class="req">*</span></label>
+          <input type="text" id="p-nombre" list="sugerencias-productos" placeholder="Escribí o seleccioná…" autocomplete="off">
+          <datalist id="sugerencias-productos"></datalist>
+        </div>
+        <div class="field">
+          <label for="p-area">Área de negocio <span class="req">*</span></label>
+          <select id="p-area">
+            <option value="" disabled selected>Seleccioná…</option>
+          </select>
         </div>
         <div class="field">
           <label for="p-categoria">Categoría <span class="req">*</span></label>
           <select id="p-categoria">
             <option value="" disabled selected>Seleccioná…</option>
-            <option>Carnes</option><option>Mariscos</option><option>Aves</option>
-            <option>Lácteos</option><option>Frutas y Verduras</option><option>Granos y Cereales</option>
-            <option>Bebidas</option><option>Condimentos y Especias</option><option>Aceites y Grasas</option>
-            <option>Panadería</option><option>Limpieza</option><option>Otros</option>
           </select>
         </div>
       </div>
+    </div>
 
-      <!-- Precio de compra e IVA -->
+    <!-- SECCIÓN 2: Precio -->
+    <div class="card" style="margin-bottom:12px;">
+      <p class="card-title" style="margin-bottom:1rem;">Precio de compra</p>
       <div class="field-row">
         <div class="field">
           <label for="p-precio-sin-iva">Precio de compra sin impuestos (₡) <span class="req">*</span></label>
@@ -281,78 +190,128 @@
           </select>
         </div>
       </div>
+    </div>
 
-      <!-- Presentación de compra -->
+    <!-- SECCIÓN 3: Información de compra -->
+    <div class="card" style="margin-bottom:12px;">
+      <p class="card-title" style="margin-bottom:1rem;">Información de compra</p>
       <div class="field-row-3">
         <div class="field">
-          <label for="p-unidad">Unidad de medida <span class="req">*</span></label>
-          <select id="p-unidad">
-            <option value="" disabled selected>Seleccioná…</option>
-            <option>kg</option><option>g</option><option>L</option><option>ml</option>
-            <option>unidad</option><option>paquete</option><option>caja</option><option>lata</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="p-cantidad-presentacion">Cantidad en presentación</label>
-          <input type="number" id="p-cantidad-presentacion" min="0" step="0.001" placeholder="Ej. 1, 12, 2.5" value="1" oninput="calcularCostos()">
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Cuántas unidades de medida trae la presentación</div>
-        </div>
-        <div class="field">
-          <label>Costo por unidad de medida</label>
-          <div id="p-costo-display" style="background:var(--purple-bg);border:1px solid var(--purple-lt);border-radius:8px;padding:9px 12px;font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--purple);">₡0.00</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Precio sin IVA ÷ cantidad presentación</div>
-        </div>
-      </div>
-      <!-- Campo oculto para compatibilidad con el resto del sistema -->
-      <input type="hidden" id="p-costo">
-
-      <div class="field-row">
-        <div class="field">
-          <label for="p-rendimiento">Rendimiento (%)</label>
-          <input type="number" id="p-rendimiento" min="1" max="100" step="1" placeholder="100" value="100" oninput="calcularCostos()">
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Porcentaje utilizable tras limpieza</div>
-        </div>
-        <div class="field">
-          <label>Costo real por unidad (con rendimiento)</label>
-          <div id="p-costo-real-display" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-weight:600;color:var(--text);">₡0.00</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Costo/u ÷ rendimiento</div>
-        </div>
-      </div>
-
-      <div class="field-row">
-        <div class="field">
           <label for="p-presentacion">Presentación del proveedor</label>
-          <input type="text" id="p-presentacion" list="presentacion-opciones" placeholder="Ej. Caja, Bolsa, Bandeja, Botella…" autocomplete="off">
-          <datalist id="presentacion-opciones">
-            <option value="Caja">
-            <option value="Bolsa">
-            <option value="Bandeja">
-            <option value="Botella">
-            <option value="Lata">
-            <option value="Paquete">
-            <option value="Frasco">
-            <option value="Balde">
-            <option value="Galón">
-            <option value="Saco">
-            <option value="Unidad">
-            <option value="Rollo">
-          </datalist>
+          <input type="text" id="p-presentacion" list="presentacion-opciones" placeholder="Ej. Bolsa, Caja, Botella…" autocomplete="off">
+          <datalist id="presentacion-opciones"></datalist>
         </div>
         <div class="field">
           <label for="p-tamano">Tamaño / Peso por presentación</label>
-          <input type="text" id="p-tamano" placeholder="Ej. 1 kg, 500 ml, 12 unidades, 25 lb…">
+          <input type="text" id="p-tamano" placeholder="Ej. 1 kg, 500 ml, 12 u…" oninput="sugerirConversion()">
+        </div>
+        <div class="field">
+          <label for="p-proveedor">Proveedor habitual</label>
+          <input type="text" id="p-proveedor" placeholder="Nombre del proveedor">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: Información para recetas -->
+    <div class="card" style="margin-bottom:12px;">
+      <p class="card-title" style="margin-bottom:1rem;">Información para recetas</p>
+
+      <div class="field-row" style="margin-bottom:1rem;">
+        <div class="field">
+          <label for="p-unidad">Unidad de medida para receta <span class="req">*</span></label>
+          <select id="p-unidad" onchange="sugerirConversion(); calcularCostos()">
+            <option value="" disabled selected>Seleccioná…</option>
+          </select>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">La unidad con la que medís el ingrediente en tus recetas</div>
+        </div>
+        <div class="field">
+          <label for="p-cantidad-presentacion">
+            Cantidad en presentación
+            <span id="lbl-cantidad-hint" style="font-weight:400;color:var(--muted);"></span>
+          </label>
+          <input type="number" id="p-cantidad-presentacion" min="0" step="0.001" placeholder="0" value="1" oninput="calcularCostos()">
+          <div id="conversion-sugerida" style="font-size:11px;color:var(--purple);margin-top:4px;display:none;"></div>
         </div>
       </div>
 
-      <div class="field">
-        <label for="p-proveedor">Proveedor habitual</label>
-        <input type="text" id="p-proveedor" placeholder="Nombre del proveedor">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="field">
+          <label>Costo por unidad de medida</label>
+          <div id="p-costo-display" style="background:var(--purple-bg);border:1px solid var(--purple-lt);border-radius:8px;padding:9px 12px;font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--purple);">₡0.00</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Precio sin IVA ÷ cantidad</div>
+          <input type="hidden" id="p-costo">
+        </div>
+        <div class="field">
+          <label for="p-rendimiento">Rendimiento (%)</label>
+          <input type="number" id="p-rendimiento" min="1" max="100" step="1" placeholder="100" value="100" oninput="calcularCostos()">
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">% utilizable tras limpieza/merma</div>
+        </div>
+        <div class="field">
+          <label>Costo real por unidad</label>
+          <div id="p-costo-real-display" style="background:var(--green-bg);border:1px solid var(--green-lt);border-radius:8px;padding:9px 12px;font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--green);">₡0.00</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Costo/u ÷ rendimiento</div>
+        </div>
       </div>
     </div>
 
     <div class="submit-area">
       <button class="btn-secondary" onclick="limpiarForm()">Cancelar</button>
       <button class="btn-primary" id="btn-guardar" onclick="guardar()">Guardar producto</button>
+    </div>
+  </div>
+
+  <!-- CONFIGURACIÓN -->
+  <div id="tab-config" style="display:none;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+
+      <div class="card">
+        <p class="card-title">Categorías</p>
+        <div id="cfg-cat-lista" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="cfg-cat-nueva" placeholder="Nueva categoría…" style="font-size:13px;padding:7px 10px;" onkeydown="if(event.key==='Enter')addItem('cat')">
+          <button onclick="addItem('cat')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--purple-lt);background:var(--purple-bg);color:var(--purple);cursor:pointer;font-weight:600;white-space:nowrap;">+ Agregar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Unidades de medida</p>
+        <div id="cfg-uni-lista" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="cfg-uni-nueva" placeholder="Nueva unidad…" style="font-size:13px;padding:7px 10px;" onkeydown="if(event.key==='Enter')addItem('uni')">
+          <button onclick="addItem('uni')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--purple-lt);background:var(--purple-bg);color:var(--purple);cursor:pointer;font-weight:600;white-space:nowrap;">+ Agregar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Áreas de negocio</p>
+        <div id="cfg-area-lista" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="cfg-area-nueva" placeholder="Nueva área…" style="font-size:13px;padding:7px 10px;" onkeydown="if(event.key==='Enter')addItem('area')">
+          <button onclick="addItem('area')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--purple-lt);background:var(--purple-bg);color:var(--purple);cursor:pointer;font-weight:600;white-space:nowrap;">+ Agregar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Presentaciones del proveedor</p>
+        <div id="cfg-pre-lista" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="cfg-pre-nueva" placeholder="Nueva presentación…" style="font-size:13px;padding:7px 10px;" onkeydown="if(event.key==='Enter')addItem('pre')">
+          <button onclick="addItem('pre')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--purple-lt);background:var(--purple-bg);color:var(--purple);cursor:pointer;font-weight:600;white-space:nowrap;">+ Agregar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL CARGA MASIVA -->
+  <div id="modal-carga" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--card);border-radius:var(--radius);padding:2rem;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.2);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h2 style="font-family:var(--font-d);font-size:18px;font-weight:700;">Carga masiva de productos</h2>
+        <button onclick="cerrarModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);">×</button>
+      </div>
+      <div id="modal-contenido"></div>
+      <div id="modal-acciones" style="display:flex;gap:8px;margin-top:1rem;"></div>
     </div>
   </div>
 
@@ -379,6 +338,64 @@ document.getElementById('date-chip').textContent =
 
 const fmt = n => '₡' + Number(n).toLocaleString('es-CR', {minimumFractionDigits:2});
 
+
+// ── CONVERSIÓN AUTOMÁTICA DE UNIDADES ────────────────────────────
+// Mapa de conversiones: presentación → unidad de receta → cantidad
+const CONVERSIONES = {
+  // Peso
+  'kg':   { 'g': 1000, 'kg': 1, 'lb': 2.20462 },
+  'lb':   { 'g': 453.592, 'kg': 0.453592, 'lb': 1 },
+  'g':    { 'g': 1, 'kg': 0.001 },
+  // Volumen
+  'L':    { 'ml': 1000, 'L': 1, 'litros': 1 },
+  'litros':{ 'ml': 1000, 'L': 1, 'litros': 1 },
+  'ml':   { 'ml': 1, 'L': 0.001 },
+  'gal':  { 'ml': 3785.41, 'L': 3.78541, 'litros': 3.78541 },
+  'galón':{ 'ml': 3785.41, 'L': 3.78541, 'litros': 3.78541 },
+  // Unidad sin conversión
+  'unidad': { 'unidad': 1, 'unidades': 1, 'piezas': 1 },
+  'unidades': { 'unidad': 1, 'unidades': 1, 'piezas': 1 },
+  'piezas': { 'unidad': 1, 'unidades': 1, 'piezas': 1 },
+};
+
+function sugerirConversion() {
+  const tamano   = document.getElementById('p-tamano').value.trim().toLowerCase();
+  const unidadR  = document.getElementById('p-unidad').value.toLowerCase();
+  const convDiv  = document.getElementById('conversion-sugerida');
+  const lbl      = document.getElementById('lbl-cantidad-hint');
+
+  if (!tamano || !unidadR) { convDiv.style.display = 'none'; lbl.textContent = ''; return; }
+
+  // Extraer número y unidad del campo tamaño (ej "1 kg", "500 ml", "2.5 lb")
+  const match = tamano.match(/^([\d.,]+)\s*([a-záéíóúü]+)$/i);
+  if (!match) { convDiv.style.display = 'none'; lbl.textContent = ''; return; }
+
+  const cantidad   = parseFloat(match[1].replace(',', '.'));
+  const unidadComp = match[2].toLowerCase();
+
+  const mapa = CONVERSIONES[unidadComp];
+  if (!mapa || !mapa[unidadR]) {
+    convDiv.style.display = 'none';
+    lbl.textContent = '';
+    return;
+  }
+
+  const resultado = Math.round(cantidad * mapa[unidadR] * 10000) / 10000;
+  lbl.textContent = '';
+  convDiv.style.display = 'block';
+  convDiv.innerHTML = `💡 Conversión sugerida: ${cantidad} ${unidadComp} = <strong>${resultado} ${unidadR}</strong>
+    <button type="button" onclick="aplicarConversion(${resultado})"
+      style="margin-left:8px;font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid var(--purple-lt);background:var(--purple-bg);color:var(--purple);cursor:pointer;">
+      Usar este valor
+    </button>`;
+}
+
+function aplicarConversion(val) {
+  document.getElementById('p-cantidad-presentacion').value = val;
+  calcularCostos();
+  document.getElementById('conversion-sugerida').style.display = 'none';
+}
+
 // ── CÁLCULO EN TIEMPO REAL ────────────────────────────────────────
 function calcularCostos() {
   const precioSinIva  = parseFloat(document.getElementById('p-precio-sin-iva').value) || 0;
@@ -391,6 +408,319 @@ function calcularCostos() {
   document.getElementById('p-costo').value = costoU.toFixed(4);
   document.getElementById('p-costo-display').textContent     = fmt(costoU);
   document.getElementById('p-costo-real-display').textContent = fmt(costoReal);
+}
+
+
+
+// ── CARGA MASIVA ──────────────────────────────────────────────────
+function triggerCargaMasiva() { document.getElementById('input-carga').click(); }
+
+function cerrarModal() {
+  document.getElementById('modal-carga').style.display = 'none';
+}
+
+async function procesarArchivo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  document.getElementById('modal-carga').style.display = 'flex';
+  document.getElementById('modal-contenido').innerHTML =
+    '<div class="empty"><span class="spinner"></span> Leyendo archivo…</div>';
+  document.getElementById('modal-acciones').innerHTML = '';
+  e.target.value = ''; // reset para permitir subir el mismo archivo
+
+  try {
+    let productos = [];
+
+    if (file.name.endsWith('.csv')) {
+      productos = await leerCSV(file);
+    } else {
+      productos = await leerXLSX(file);
+    }
+
+    mostrarPrevia(productos);
+  } catch(err) {
+    document.getElementById('modal-contenido').innerHTML =
+      `<div style="color:var(--red);padding:1rem;">Error al leer el archivo: ${err.message}</div>`;
+  }
+}
+
+// Leer CSV
+async function leerCSV(file) {
+  const text = await file.text();
+  const rows = text.split('\n').filter(r => r.trim());
+  const headers = rows[0].split(',').map(h => h.trim().replace(/"/g,''));
+  return rows.slice(1).map(row => {
+    const vals = row.split(',').map(v => v.trim().replace(/"/g,''));
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    return obj;
+  }).filter(p => p['Nombre *'] || p['Nombre']);
+}
+
+// Leer XLSX usando FileReader + parseo manual de zip/xml
+async function leerXLSX(file) {
+  // Usar SheetJS via CDN
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = () => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const wb  = XLSX.read(e.target.result, { type: 'array' });
+          const ws  = wb.Sheets[wb.SheetNames[0]]; // primera hoja
+          const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+          resolve(rows);
+        } catch(err) { reject(err); }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    };
+    script.onerror = () => reject(new Error('No se pudo cargar el lector de Excel.'));
+    if (!window.XLSX) document.head.appendChild(script);
+    else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const wb  = XLSX.read(e.target.result, { type: 'array' });
+          const ws  = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+          resolve(rows);
+        } catch(err) { reject(err); }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  });
+}
+
+// Mapear columnas del Excel/CSV al formato interno
+function mapearProducto(row) {
+  const nombre = (row['Nombre *'] || row['Nombre'] || '').toString().trim();
+  if (!nombre) return null;
+  const costo = parseFloat(row['Precio sin IVA *'] || row['Precio sin IVA'] || 0);
+  const cantidad = parseFloat(row['Cantidad presentación'] || 1) || 1;
+  const costoU  = costo / cantidad;
+  return {
+    id:                    'PRD-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+    nombre,
+    categoria:             (row['Categoría *'] || row['Categoría'] || '').toString().trim(),
+    area:                  (row['Área de negocio *'] || row['Área de negocio'] || '').toString().trim(),
+    unidad:                (row['Unidad *'] || row['Unidad'] || '').toString().trim(),
+    presentacion:          (row['Presentación'] || '').toString().trim(),
+    tamano:                (row['Tamaño'] || '').toString().trim(),
+    precio_sin_iva:        costo,
+    iva:                   parseFloat(row['IVA (%)'] || 13),
+    cantidad_presentacion: cantidad,
+    costo:                 costoU,
+    rendimiento:           parseFloat(row['Rendimiento (%)'] || 100) || 100,
+    proveedor:             (row['Proveedor'] || '').toString().trim(),
+  };
+}
+
+function mostrarPrevia(rows) {
+  const productos = rows.map(mapearProducto).filter(Boolean);
+
+  if (!productos.length) {
+    document.getElementById('modal-contenido').innerHTML =
+      '<div style="color:var(--red);padding:1rem;">No se encontraron productos válidos en el archivo. Verificá que el formato sea correcto.</div>';
+    return;
+  }
+
+  // Detectar errores
+  const errores = productos.filter(p => !p.nombre || !p.categoria || !p.unidad || !p.precio_sin_iva);
+  const validos  = productos.filter(p => p.nombre && p.categoria && p.unidad && p.precio_sin_iva);
+
+  const filas = productos.map(p => {
+    const ok = p.nombre && p.categoria && p.unidad && p.precio_sin_iva;
+    return `<tr style="background:${ok?'':'var(--red-bg)'}">
+      <td style="padding:6px 8px;font-size:12px;border-bottom:1px solid var(--border);">${p.nombre||'—'}</td>
+      <td style="padding:6px 8px;font-size:12px;border-bottom:1px solid var(--border);">${p.categoria||'—'}</td>
+      <td style="padding:6px 8px;font-size:12px;border-bottom:1px solid var(--border);">${p.area||'—'}</td>
+      <td style="padding:6px 8px;font-size:12px;border-bottom:1px solid var(--border);">${p.unidad||'—'}</td>
+      <td style="padding:6px 8px;font-size:12px;border-bottom:1px solid var(--border);text-align:right;">₡${Number(p.precio_sin_iva).toLocaleString('es-CR')}</td>
+      <td style="padding:6px 8px;font-size:11px;border-bottom:1px solid var(--border);">${ok ? '✓' : '⚠ Faltan datos'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('modal-contenido').innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;">
+      <span style="color:var(--green);font-weight:600;">✓ ${validos.length} producto${validos.length!==1?'s':''} válido${validos.length!==1?'s':''}</span>
+      ${errores.length ? `&nbsp;·&nbsp;<span style="color:var(--red);">⚠ ${errores.length} con datos incompletos</span>` : ''}
+    </div>
+    <div style="overflow-x:auto;max-height:300px;overflow-y:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--surface);">
+          <th style="padding:6px 8px;text-align:left;font-size:11px;">Nombre</th>
+          <th style="padding:6px 8px;text-align:left;font-size:11px;">Categoría</th>
+          <th style="padding:6px 8px;text-align:left;font-size:11px;">Área</th>
+          <th style="padding:6px 8px;text-align:left;font-size:11px;">Unidad</th>
+          <th style="padding:6px 8px;text-align:right;font-size:11px;">Precio s/IVA</th>
+          <th style="padding:6px 8px;font-size:11px;">Estado</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+    ${errores.length ? '<div style="font-size:11px;color:var(--muted);margin-top:8px;">Las filas en rojo no se importarán.</div>' : ''}
+  `;
+
+  // Guardar para usar al confirmar
+  window._cargaPendiente = validos;
+
+  document.getElementById('modal-acciones').innerHTML = `
+    <button onclick="cerrarModal()" style="padding:10px 16px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;">Cancelar</button>
+    <button onclick="confirmarCarga()" style="flex:1;padding:10px 16px;border-radius:9px;background:var(--purple);color:#fff;border:none;font-family:var(--font-d);font-size:14px;font-weight:700;cursor:pointer;">
+      Importar ${validos.length} producto${validos.length!==1?'s':''}
+    </button>
+  `;
+}
+
+async function confirmarCarga() {
+  const nuevos  = window._cargaPendiente || [];
+  if (!nuevos.length) return;
+
+  document.getElementById('modal-contenido').innerHTML =
+    '<div class="empty"><span class="spinner"></span> Guardando productos…</div>';
+  document.getElementById('modal-acciones').innerHTML = '';
+
+  // Guardar en localStorage
+  const lista = getProductos();
+  let guardados = 0;
+  for (const p of nuevos) {
+    lista.push(p);
+    guardados++;
+    // Sincronizar con Sheet si está configurado
+    if (APPS_SCRIPT_COSTOS) {
+      try {
+        await fetch(APPS_SCRIPT_COSTOS, {
+          method: 'POST',
+          body: new URLSearchParams({ data: JSON.stringify({ modulo: 'producto', ...p }) })
+        });
+      } catch(e) {}
+    }
+  }
+  saveProductos(lista);
+
+  document.getElementById('modal-contenido').innerHTML = `
+    <div style="text-align:center;padding:1.5rem;">
+      <div style="font-size:40px;margin-bottom:12px;">✓</div>
+      <div style="font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--green);">${guardados} productos importados</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;">Los datos ya están disponibles en la lista.</div>
+    </div>`;
+  document.getElementById('modal-acciones').innerHTML =
+    '<button onclick="cerrarModal();renderLista();" style="flex:1;padding:10px 16px;border-radius:9px;background:var(--green);color:#fff;border:none;font-family:var(--font-d);font-size:14px;font-weight:700;cursor:pointer;">Ver productos</button>';
+
+  renderLista();
+}
+
+// ── CONFIGURACIÓN ─────────────────────────────────────────────────
+const CFG_DEFAULTS = {
+  cat: ['Carnes','Mariscos','Aves','Lácteos','Frutas y Verduras','Granos y Cereales',
+        'Bebidas','Condimentos y Especias','Aceites y Grasas','Panadería','Limpieza','Otros'],
+  uni: ['kg','g','lb','L','ml','unidad','paquete','caja','lata','botella','galón','saco'],
+  pre: ['Caja','Bolsa','Bandeja','Botella','Lata','Paquete','Frasco','Balde','Galón','Saco','Unidad','Rollo'],
+  area: ['Cocina','Bar','Consumible','Otro']
+};
+
+function getCfg(tipo) {
+  try {
+    const stored = JSON.parse(localStorage.getItem('cfg_productos_' + tipo) || 'null');
+    return stored || CFG_DEFAULTS[tipo];
+  } catch { return CFG_DEFAULTS[tipo]; }
+}
+
+function saveCfg(tipo, lista) {
+  localStorage.setItem('cfg_productos_' + tipo, JSON.stringify(lista));
+}
+
+function renderCfgLista(tipo) {
+  const lista = getCfg(tipo);
+  const cont  = document.getElementById('cfg-' + tipo + '-lista');
+  cont.innerHTML = lista.map((item, i) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:7px;background:var(--surface);margin-bottom:4px;font-size:13px;">
+      <span>${item}</span>
+      <button onclick="removeItem('${tipo}',${i})" style="background:none;border:none;color:var(--subtle);cursor:pointer;font-size:16px;line-height:1;padding:0 4px;" title="Eliminar">×</button>
+    </div>`).join('');
+}
+
+function addItem(tipo) {
+  const input = document.getElementById('cfg-' + tipo + '-nueva');
+  const val   = input.value.trim();
+  if (!val) return;
+  const lista = getCfg(tipo);
+  if (lista.includes(val)) { showToast('Ya existe en la lista.', 'error'); return; }
+  lista.push(val);
+  saveCfg(tipo, lista);
+  input.value = '';
+  renderCfgLista(tipo);
+  aplicarConfiguracion();
+  showToast(`"${val}" agregado`, 'success');
+}
+
+function removeItem(tipo, idx) {
+  const lista = getCfg(tipo);
+  lista.splice(idx, 1);
+  saveCfg(tipo, lista);
+  renderCfgLista(tipo);
+  aplicarConfiguracion();
+}
+
+function aplicarConfiguracion() {
+  // Actualizar select de categorías
+  const cats = getCfg('cat');
+  const selCat = document.getElementById('p-categoria');
+  if (selCat) {
+    const valActual = selCat.value;
+    selCat.innerHTML = '<option value="" disabled selected>Seleccioná…</option>' +
+      cats.map(c => `<option${c===valActual?' selected':''}>${c}</option>`).join('');
+  }
+
+  // Actualizar select de unidades
+  const unis = getCfg('uni');
+  const selUni = document.getElementById('p-unidad');
+  if (selUni) {
+    const valActual = selUni.value;
+    selUni.innerHTML = '<option value="" disabled selected>Seleccioná…</option>' +
+      unis.map(u => `<option${u===valActual?' selected':''}>${u}</option>`).join('');
+  }
+
+  // Actualizar select de área de negocio
+  const areas = getCfg('area');
+  const selArea = document.getElementById('p-area');
+  if (selArea) {
+    const valActual = selArea.value;
+    selArea.innerHTML = '<option value="" disabled selected>Seleccioná…</option>' +
+      areas.map(a => `<option${a===valActual?' selected':''}>${a}</option>`).join('');
+  }
+
+  // Actualizar datalist de presentaciones
+  const pres = getCfg('pre');
+  const dlPre = document.getElementById('presentacion-opciones');
+  if (dlPre) {
+    dlPre.innerHTML = pres.map(p => `<option value="${p}">`).join('');
+  }
+
+  // Actualizar filtro de categorías en la lista
+  const filtCat = document.getElementById('f-cat');
+  if (filtCat) {
+    const valActual = filtCat.value;
+    filtCat.innerHTML = '<option value="">Todas las categorías</option>' +
+      cats.map(c => `<option${c===valActual?' selected':''}>${c}</option>`).join('');
+  }
+}
+
+function initConfig() {
+  renderCfgLista('cat');
+  renderCfgLista('uni');
+  renderCfgLista('pre');
+  renderCfgLista('area');
+  aplicarConfiguracion();
+  // Llenar datalist de nombres normalizados
+  const dl = document.getElementById('sugerencias-productos');
+  if (dl) {
+    const NOMBRES = ["Aceite de Ajonjolí","Aceite de Oliva","Aceite para Freír","Agua Tónica","Aguacate Hass","Apio Verde","Arrachera","Bandeja desechable 9x9","Camarón Cultivo PYD 26/30","Camote","Carne Molida de Res Angus","Cas","Cebolla Morada","Cebolla Seca","Chile Dulce","Chile jalapeño mitades","Cloro Duty 1 Galón","Coca-Cola 350ml Vidrio","Coca-Cola Sin Azúcar 350ml Vidrio","Culantro Castilla","Desengrasante Duty 1 Galón","Empanizador Panko","Frijol Tierno","Garbanzos","Ginger Beer","Hielo en bolsa 10kg","Hierba Buena","Hongo Champiñón","Harina Nacarina","Huevo","Jugo natural de limón","Jugo natural de naranja","Ketchup","Lechuga Americana","Lechuga Romana","Limón Mandarino","Limón Mesino","Lomito de Res Fresco","Maíz Dulce","Mango Tommy","Maracuyá","Mejillón Media Concha","Mora","Nachos","Naranja Nacional","On top vainilla","Pan Hamburguesa Brioche","Pan Mediterráneo","Papa Amarilla","Papa Corte Recto","Paprika","Pechuga de pollo","Perejil","Piña Jumbo","Plátano Maduro","Posta de cerdo","Puerro","Queso Crema","Queso Mozzarella Rallado","Queso Parmesano","Romero","Sal fina","Sal molida","Salchicha Frankfurt","Salsa Barbacoa","Salsa Búfalo","Sandía","Tallarín","Tamarindo","Tocineta Ahumada Rebanada","Tomate","Tomate Cherry","Tomate Grande","Tomillo","Tortilla sal","Vinagre","Zanahoria","Zucchini"];
+    dl.innerHTML = NOMBRES.map(n => `<option value="${n}">`).join('');
+  }
 }
 
 // Storage
@@ -411,8 +741,9 @@ const CAT_COLORS = {
   'Panadería':'#854F0B','Limpieza':'#4a5568','Otros':'#5a8a6a'
 };
 function catBadge(cat) {
-  const col = CAT_COLORS[cat] || '#5a8a6a';
-  return `<span class="badge" style="background:${col}20;color:${col};">${cat}</span>`;
+  const col = (cat && CAT_COLORS[cat]) ? CAT_COLORS[cat] : '#5a8a6a';
+  const label = cat || '—';
+  return `<span class="badge" style="background:${col}20;color:${col};">${label}</span>`;
 }
 
 // Render lista
@@ -435,17 +766,20 @@ function renderLista() {
   }
 
   const filas = lista.map(p => {
-    const costoReal = p.costo / (p.rendimiento / 100);
+    const costoRaw = parseFloat(p.costo) || 0;
+    const rendRaw  = parseFloat(p.rendimiento) || 100;
+    const costoReal = rendRaw > 0 ? costoRaw / (rendRaw / 100) : costoRaw;
     return `<tr>
       <td style="font-weight:500;">${p.nombre}</td>
       <td>${catBadge(p.categoria)}</td>
       <td style="color:var(--muted);">${p.unidad}</td>
-      <td class="num">${fmt(p.precio_sin_iva || p.costo)}</td>
+      <td class="num">${fmt(parseFloat(p.precio_sin_iva||p.costo)||0)}</td>
       <td class="num" style="color:var(--muted);">${p.iva || 0}%</td>
       <td class="num">${p.cantidad_presentacion || 1} ${p.unidad}</td>
       <td class="num" style="font-weight:600;color:var(--purple);">${fmt(p.costo)}</td>
       <td class="num" style="color:var(--muted);">${p.rendimiento}%</td>
       <td class="num" style="font-weight:700;color:var(--green);">${fmt(costoReal)}</td>
+      <td style="color:var(--muted);font-size:12px;">${p.area||'—'}</td>
       <td style="color:var(--muted);font-size:12px;">${p.proveedor||'—'}</td>
       <td style="color:var(--muted);font-size:12px;">${p.presentacion ? p.presentacion + (p.tamano ? ' · ' + p.tamano : '') : '—'}</td>
       <td>
@@ -467,7 +801,7 @@ function renderLista() {
         <th style="text-align:right;">Costo/u</th>
         <th style="text-align:right;">Rendimiento</th>
         <th style="text-align:right;">Costo real/u</th>
-        <th>Proveedor</th><th>Presentación</th><th></th>
+        <th>Área</th><th>Proveedor</th><th>Presentación</th><th></th>
       </tr></thead>
       <tbody>${filas}</tbody>
     </table>`;
@@ -486,12 +820,14 @@ async function guardar() {
   const proveedor            = document.getElementById('p-proveedor').value.trim();
   const presentacion         = document.getElementById('p-presentacion').value.trim();
   const tamano               = document.getElementById('p-tamano').value.trim();
+  const area                 = document.getElementById('p-area').value;
   const editId               = document.getElementById('edit-id').value;
 
   if (!nombre)      { showToast('Ingresá el nombre.', 'error'); return; }
   if (!categoria)   { showToast('Seleccioná una categoría.', 'error'); return; }
   if (!unidad)      { showToast('Seleccioná la unidad.', 'error'); return; }
   if (!precioSinIva){ showToast('Ingresá el precio de compra.', 'error'); return; }
+  if (!area)        { showToast('Seleccioná el área de negocio.', 'error'); return; }
 
   const id = editId || 'PRD-' + Date.now();
   const registro = {
@@ -499,9 +835,12 @@ async function guardar() {
     precio_sin_iva: precioSinIva,
     iva,
     cantidad_presentacion: cantidadPresentacion,
-    costo,   // costo por unidad de medida (precio sin iva / cantidad presentación)
+    costo,
     rendimiento,
-    proveedor
+    proveedor,
+    presentacion,
+    tamano,
+    area
   };
 
   const lista = getProductos();
@@ -541,6 +880,7 @@ function editar(id) {
   document.getElementById('p-cantidad-presentacion').value  = p.cantidad_presentacion || 1;
   document.getElementById('p-rendimiento').value            = p.rendimiento || 100;
   document.getElementById('p-proveedor').value              = p.proveedor || '';
+  document.getElementById('p-area').value                   = p.area || '';
   document.getElementById('p-presentacion').value           = p.presentacion || '';
   document.getElementById('p-tamano').value                 = p.tamano || '';
   document.getElementById('form-title').textContent         = 'Editar producto';
@@ -554,7 +894,10 @@ async function eliminar(id) {
     try { await fetch(APPS_SCRIPT_COSTOS, { method:'POST', body: new URLSearchParams({ data: JSON.stringify({ modulo:'eliminar', tipo:'productos', id }) }) }); }
     catch(e) {}
   }
+  document.addEventListener("DOMContentLoaded", () => {
+  initConfig();
   renderLista();
+});
   showToast('Producto eliminado', 'success');
 }
 
@@ -569,6 +912,7 @@ function limpiarForm() {
   document.getElementById('p-costo').value                  = '';
   document.getElementById('p-rendimiento').value            = '100';
   document.getElementById('p-proveedor').value              = '';
+  document.getElementById('p-area').value                   = '';
   document.getElementById('p-presentacion').value           = '';
   document.getElementById('p-tamano').value                 = '';
   document.getElementById('p-costo-display').textContent    = '₡0.00';
@@ -577,10 +921,12 @@ function limpiarForm() {
 }
 
 function switchTab(tab, el) {
-  document.getElementById('tab-lista').style.display = tab==='lista' ? 'block':'none';
-  document.getElementById('tab-nuevo').style.display = tab==='nuevo' ? 'block':'none';
+  document.getElementById('tab-lista').style.display  = tab==='lista'  ? 'block':'none';
+  document.getElementById('tab-nuevo').style.display  = tab==='nuevo'  ? 'block':'none';
+  document.getElementById('tab-config').style.display = tab==='config' ? 'block':'none';
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
+  if (tab==='config') { renderCfgLista('cat'); renderCfgLista('uni'); renderCfgLista('pre'); renderCfgLista('area'); }
 }
 
 function showToast(msg, type='success') {
@@ -594,7 +940,10 @@ function showToast(msg, type='success') {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-renderLista();
+document.addEventListener("DOMContentLoaded", () => {
+  initConfig();
+  renderLista();
+});
 </script>
 </body>
 </html>
