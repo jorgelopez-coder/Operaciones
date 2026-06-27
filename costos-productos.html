@@ -136,6 +136,11 @@
         <select class="filter-sel" id="f-cat" onchange="renderLista()">
           <option value="">Todas las categorías</option>
         </select>
+        <select class="filter-sel" id="f-en-uso" onchange="renderLista()">
+          <option value="">Todos los estados</option>
+          <option value="true">En uso</option>
+          <option value="false">Sin uso</option>
+        </select>
         <select class="filter-sel" id="f-agrupar" onchange="renderLista()">
           <option value="">Sin agrupar</option>
           <option value="area">Agrupar por área</option>
@@ -173,6 +178,20 @@
             <option value="" disabled selected>Seleccioná…</option>
           </select>
         </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <label style="font-size:13px;font-weight:500;margin-bottom:8px;display:block;">En uso</label>
+        <div style="display:flex;gap:8px;">
+          <button type="button" id="toggle-activo" onclick="setEnUso(true)"
+            style="padding:8px 20px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+            ✓ Sí
+          </button>
+          <button type="button" id="toggle-inactivo" onclick="setEnUso(false)"
+            style="padding:8px 20px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;">
+            ✕ No
+          </button>
+        </div>
+        <input type="hidden" id="p-en-uso" value="true">
       </div>
     </div>
 
@@ -343,6 +362,20 @@ document.getElementById('date-chip').textContent =
 const fmt = n => '₡' + Number(n).toLocaleString('es-CR', {minimumFractionDigits:2});
 
 
+
+// ── EN USO ────────────────────────────────────────────────────────
+function setEnUso(activo) {
+  document.getElementById('p-en-uso').value = activo ? 'true' : 'false';
+  const btnSi = document.getElementById('toggle-activo');
+  const btnNo = document.getElementById('toggle-inactivo');
+  if (activo) {
+    btnSi.style.cssText = 'padding:8px 20px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-size:13px;font-weight:600;cursor:pointer;';
+    btnNo.style.cssText = 'padding:8px 20px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;';
+  } else {
+    btnSi.style.cssText = 'padding:8px 20px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;';
+    btnNo.style.cssText = 'padding:8px 20px;border-radius:8px;border:2px solid var(--red);background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;';
+  }
+}
 // ── CONVERSIÓN AUTOMÁTICA DE UNIDADES ────────────────────────────
 // Mapa de conversiones: presentación → unidad de receta → cantidad
 const CONVERSIONES = {
@@ -801,8 +834,12 @@ function buildFila(p) {
   const costoRaw  = parseFloat(p.costo) || 0;
   const rendRaw   = parseFloat(p.rendimiento) || 100;
   const costoReal = rendRaw > 0 ? costoRaw / (rendRaw / 100) : costoRaw;
-  return `<tr>
-    <td style="font-weight:500;">${p.nombre}</td>
+  const enUsoVal = p.en_uso === false || p.en_uso === 'false' ? false : true;
+  const enUsoBadge = enUsoVal
+    ? '<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--green-bg);color:var(--green);font-weight:500;">En uso</span>'
+    : '<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--surface);color:var(--subtle);font-weight:500;">Sin uso</span>';
+  return `<tr style="opacity:${enUsoVal ? 1 : 0.5}">
+    <td style="font-weight:500;">${p.nombre} ${enUsoBadge}</td>
     <td>${catBadge(p.categoria)}</td>
     <td style="color:var(--muted);font-size:12px;">${p.area||'—'}</td>
     <td style="color:var(--muted);">${p.unidad}</td>
@@ -826,11 +863,13 @@ function renderLista() {
   const cat     = document.getElementById('f-cat').value;
   const area    = document.getElementById('f-area').value;
   const agrupar = document.getElementById('f-agrupar').value;
+  const enUso   = document.getElementById('f-en-uso').value;
 
   let lista = getProductos().filter(p =>
     (!busq || (p.nombre||'').toLowerCase().includes(busq))
  && (!cat  || p.categoria === cat)
  && (!area || p.area === area)
+ && (enUso === '' || String(p.en_uso ?? true) === enUso)
   );
 
   document.getElementById('status-msg').textContent =
@@ -925,7 +964,8 @@ async function guardar() {
     proveedor,
     presentacion,
     tamano,
-    area
+    area,
+    en_uso: document.getElementById('p-en-uso').value === 'true'
   };
 
   const lista = getProductos();
@@ -965,7 +1005,8 @@ function editar(id) {
   document.getElementById('p-cantidad-presentacion').value  = p.cantidad_presentacion || 1;
   document.getElementById('p-rendimiento').value            = p.rendimiento || 100;
   document.getElementById('p-proveedor').value              = p.proveedor || '';
-  document.getElementById('p-area').value                   = p.area || '';
+  document.getElementById('p-area').value = p.area || '';
+  setEnUso(p.en_uso === false || p.en_uso === 'false' ? false : true);
   document.getElementById('p-presentacion').value           = p.presentacion || '';
   document.getElementById('p-tamano').value                 = p.tamano || '';
   document.getElementById('form-title').textContent         = 'Editar producto';
@@ -997,7 +1038,8 @@ function limpiarForm() {
   document.getElementById('p-costo').value                  = '';
   document.getElementById('p-rendimiento').value            = '100';
   document.getElementById('p-proveedor').value              = '';
-  document.getElementById('p-area').value                   = '';
+  document.getElementById('p-area').value = '';
+  setEnUso(true);
   document.getElementById('p-presentacion').value           = '';
   document.getElementById('p-tamano').value                 = '';
   document.getElementById('p-costo-display').textContent    = '₡0.00';
