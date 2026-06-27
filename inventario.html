@@ -224,8 +224,9 @@
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────
-const EMAIL_GERENCIA   = 'gerencia@batangacr.com';
-const APPS_SCRIPT_RRHH = 'https://script.google.com/macros/s/AKfycbzCj8GRj4rcvRgbSa6zulIP8tqULzh-i-uyCfu-FSSMI_ZZhPi6GYeBz_CKnlvzfOtAvA/exec';
+const EMAIL_GERENCIA     = 'gerencia@batangacr.com';
+const APPS_SCRIPT_RRHH   = 'https://script.google.com/macros/s/AKfycbzCj8GRj4rcvRgbSa6zulIP8tqULzh-i-uyCfu-FSSMI_ZZhPi6GYeBz_CKnlvzfOtAvA/exec';
+const APPS_SCRIPT_COSTOS = 'https://script.google.com/macros/s/AKfycbz8JM1PBa9kmbQ40t1A0rByT2MckYadlEzO-81BSJH5DIQehjIU21LrS1mM071y2ouKaw/exec';
 // ─────────────────────────────────────────────────────────────────
 
 const hoy = new Date();
@@ -242,15 +243,79 @@ let tomas    = [];  // todas las tomas
 let tomaActual = null;
 let productos  = [];
 
-function getTomas()    { try { return JSON.parse(localStorage.getItem('inv_tomas')||'[]'); } catch { return []; } }
-function saveTomas(t)  { localStorage.setItem('inv_tomas', JSON.stringify(t)); }
-function getProductos(){ return JSON.parse(localStorage.getItem('costos_productos')||'[]').filter(p => p.en_uso !== false && p.en_uso !== 'false'); }
-function genId()       { return 'INV-' + hoy.getFullYear() + pad(hoy.getMonth()+1) + pad(hoy.getDate()) + '-' + Math.floor(Math.random()*9000+1000); }
+function getTomas()   { try { return JSON.parse(localStorage.getItem('inv_tomas')||'[]'); } catch { return []; } }
+function saveTomas(t) { localStorage.setItem('inv_tomas', JSON.stringify(t)); }
+function genId()      { return 'INV-' + hoy.getFullYear() + pad(hoy.getMonth()+1) + pad(hoy.getDate()) + '-' + Math.floor(Math.random()*9000+1000); }
+
+// Mapear encabezados del Sheet a campos internos
+function normalizarProducto(r) {
+  return {
+    id:                   r['ID']                   || '',
+    nombre:               r['Nombre']               || '',
+    en_uso:               (r['En uso']||'Sí') !== 'No',
+    categoria:            r['Categoría']            || '',
+    area:                 r['Área de negocio']      || '',
+    unidad:               r['Unidad']               || '',
+    presentacion:         r['Presentación']         || '',
+    tamano:               r['Tamaño']               || '',
+    precio_sin_iva:       parseFloat(r['Precio sin IVA'])          || 0,
+    iva:                  parseFloat(r['IVA (%)'])                  || 0,
+    cantidad_presentacion:parseFloat(r['Cantidad presentación'])   || 1,
+    costo:                parseFloat(r['Costo/u'])                  || 0,
+    rendimiento:          parseFloat(r['Rendimiento (%)'])          || 100,
+    costo_real:           parseFloat(r['Costo real/u'])             || 0,
+    proveedor:            r['Proveedor']            || '',
+  };
+}
+
+// ID del Sheet de costos y nombre exacto de la hoja
+const COSTOS_SHEET_ID  = '1XOrZ1O2k3u054bw6VxZulHpGwF5lciQRyRuQlcuF-PM';
+const COSTOS_HOJA_PROD = 'Productos';
+
+// Leer via API pública de Google Sheets (gviz) — no requiere auth ni Apps Script
+async function cargarProductosSheet() {
+  try {
+    const url  = `https://docs.google.com/spreadsheets/d/${COSTOS_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(COSTOS_HOJA_PROD)}`;
+    const resp = await fetch(url);
+    const text = await resp.text();
+    // gviz devuelve un JSON envuelto: /*O_o*/\ngoogle.visualization.Query.setResponse({...})
+    const json = JSON.parse(text.replace(/^[^{]*/, '').replace(/[^}]*$/, ''));
+    const cols = json.table.cols.map(c => c.label);
+    const rows = (json.table.rows || []).map(row => {
+      const obj = {};
+      cols.forEach((col, i) => {
+        const cell = row.c ? row.c[i] : null;
+        obj[col] = cell ? (cell.f ?? cell.v ?? '') : '';
+      });
+      return obj;
+    });
+
+    const normalizados = rows.map(normalizarProducto).filter(p => p.en_uso && p.nombre);
+    localStorage.setItem('costos_productos', JSON.stringify(normalizados));
+    document.getElementById('status-msg').textContent =
+      `${normalizados.length} productos cargados desde Google Sheets · ${tomas.length} toma${tomas.length!==1?'s':''}`;
+    return normalizados;
+
+  } catch(e) {
+    console.warn('gviz falló, usando caché local:', e);
+    document.getElementById('status-msg').textContent =
+      'Sin conexión — usando datos en caché local';
+  }
+
+  // Fallback: caché local
+  return JSON.parse(localStorage.getItem('costos_productos')||'[]')
+    .filter(p => p.en_uso !== false && p.en_uso !== 'false');
+}
 
 // ── INIT ──────────────────────────────────────────────────────────
-function init() {
+async function init() {
   tomas    = getTomas();
-  productos = getProductos();
+
+  // Mostrar spinner mientras carga
+  document.getElementById('lista-tomas').innerHTML = '<div class="empty"><span class="spinner"></span> Cargando productos del Sheet…</div>';
+  document.getElementById('status-msg').textContent = 'Cargando productos desde Google Sheets…';
+
+  productos = await cargarProductosSheet();
 
   // Poblar filtro de áreas
   const areas = [...new Set(productos.map(p=>p.area).filter(Boolean))].sort();
@@ -266,8 +331,9 @@ function init() {
 
   renderListaTomas();
   renderHistorial();
+  const fuente = navigator.onLine ? 'Google Sheets' : 'caché local';
   document.getElementById('status-msg').textContent =
-    `${productos.length} productos · ${tomas.length} toma${tomas.length!==1?'s':''}`;
+    `${productos.length} productos cargados desde ${fuente} · ${tomas.length} toma${tomas.length!==1?'s':''}`;
 }
 
 // ── NUEVA TOMA ────────────────────────────────────────────────────
