@@ -284,28 +284,44 @@ function init() {
 }
 
 // ── CARGAR LISTA DE TOMAS DEL SHEET ──────────────────────────────
+// Cache del historial para no cargarlo dos veces
+var historialCache = null;
+
+async function cargarHistorial() {
+  if (historialCache) return historialCache;
+  historialCache = await gvizLoad('Historial_Inventario');
+  return historialCache;
+}
+
 async function cargarListaInventarios() {
   var sel = document.getElementById('sel-inventario');
   try {
-    var rows = await gvizLoad('Inventarios');
-    var finalizadas = rows.filter(function(r){
-      return String(r['Estado']||'').trim().toLowerCase() === 'finalizada';
-    });
-    sel.innerHTML = '<option value="">— Seleccioná un inventario —</option>';
-    finalizadas.forEach(function(r){
-      var id    = String(r['ID']||'').trim();
+    var rows = await cargarHistorial();
+
+    // Extraer IDs únicos de toma desde el detalle
+    var ids = [], fechas = {};
+    rows.forEach(function(r){
+      var id    = String(r['Toma ID']||'').trim();
       var fecha = String(r['Fecha toma']||'').trim();
-      if (!id) return;
+      if (id && ids.indexOf(id) === -1) {
+        ids.push(id);
+        fechas[id] = fecha;
+      }
+    });
+    ids.sort(function(a,b){ return b.localeCompare(a); }); // más reciente primero
+
+    sel.innerHTML = '<option value="">— Seleccioná un inventario —</option>';
+    ids.forEach(function(id){
       var opt = document.createElement('option');
       opt.value = id;
-      opt.textContent = id + ' · ' + fecha;
+      opt.textContent = id + ' · ' + (fechas[id]||'');
       sel.appendChild(opt);
     });
-    if (!finalizadas.length)
-      sel.innerHTML = '<option value="">Sin inventarios finalizados en el Sheet</option>';
+    if (!ids.length)
+      sel.innerHTML = '<option value="">Sin inventarios en el Sheet</option>';
   } catch(e) {
     console.warn('Error cargando inventarios:', e.message);
-    sel.innerHTML = '<option value="">Error al cargar — verificar Sheet</option>';
+    sel.innerHTML = '<option value="">Error al cargar</option>';
   }
 }
 
@@ -320,10 +336,10 @@ async function cargarInventarioSeleccionado() {
   if (!tomaId) { renderOrden(); return; }
 
   document.getElementById('contenido-orden').innerHTML =
-    '<div class="empty"><span class="spinner"></span> Cargando stock del inventario ' + tomaId + '...</div>';
+    '<div class="empty"><span class="spinner"></span> Cargando stock de ' + tomaId + '...</div>';
 
   try {
-    var rows = await gvizLoad('Inventarios detalle');
+    var rows = await cargarHistorial();
     rows.filter(function(r){ return String(r['Toma ID']||'').trim() === tomaId; })
       .forEach(function(r){
         var nombre = String(r['Producto']||'').trim().toLowerCase();
@@ -333,6 +349,7 @@ async function cargarInventarioSeleccionado() {
           abierto: parseFloat(r['Cant. en uso'])    || 0,
         };
       });
+    console.log('[OC] Stock cargado:', Object.keys(stockActual));
   } catch(e) {
     console.warn('Error cargando detalle:', e.message);
   }
