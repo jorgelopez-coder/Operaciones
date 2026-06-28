@@ -593,10 +593,27 @@ function renderOrdenAprobada(orden) {
     var waMsg    = buildWA(prov, orden, items);
     var emailData = buildEmail(prov, orden, items);
 
-    html += '<div class="prov-card">'
-      + '<div class="prov-card-head">'
-      + '<div><span>' + prov + '</span><span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:10px;">'
-      + items.length + ' producto' + (items.length!==1?'s':'') + ' · ' + fmt(total) + '</span></div>'
+    var provKey  = orden.id + '_' + prov.replace(/\W/g,'_');
+    var enviado  = (orden.enviados || {})[provKey] || false;
+    var cardBg   = enviado ? 'background:var(--green-bg);border-color:var(--green-lt);' : '';
+
+    html += '<div class="prov-card" id="pcard-' + provKey + '" style="' + cardBg + '">'
+      + '<div class="prov-card-head" style="flex-wrap:wrap;gap:10px;">'
+      + '<div style="display:flex;align-items:center;gap:10px;flex:1;">'
+      + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">'
+      + '<input type="checkbox"'
+      + (enviado ? ' checked' : '')
+      + ' onchange="toggleEnviado(\'' + orden.id + '\',\'' + prov.replace(/'/g,"\\'") + '\',\'' + provKey + '\',this)"'
+      + ' style="width:17px;height:17px;cursor:pointer;accent-color:var(--green);">'
+      + '<span style="font-size:14px;font-weight:600;">' + prov + '</span>'
+      + '</label>'
+      + (enviado
+        ? '<span class="badge b-ok">&#10003; Enviado</span>'
+        : '<span style="font-size:12px;color:var(--muted);" id="lbl-' + provKey + '">Pendiente de envío</span>')
+      + '<span style="font-size:12px;color:var(--muted);">'
+      + items.length + ' producto' + (items.length!==1?'s':'') + ' · ' + fmt(total)
+      + '</span>'
+      + '</div>'
       + '<div class="send-btns">'
       + '<button class="btn-email" onclick="abrirEmail(\'' + encodeURIComponent(emailData.asunto) + '\',\'' + encodeURIComponent(emailData.cuerpo) + '\')">&#9993; Correo</button>'
       + '<button class="btn-wa" onclick="abrirWA(\'' + encodeURIComponent(waMsg) + '\')">&#128172; WhatsApp</button>'
@@ -617,6 +634,49 @@ function renderOrdenAprobada(orden) {
   document.getElementById('contenido-orden').innerHTML = html;
   document.getElementById('total-valor').textContent = fmt(orden.total||0);
   document.getElementById('total-general').style.display = 'flex';
+}
+
+function toggleEnviado(ordenId, prov, provKey, checkbox) {
+  // Buscar la orden en el storage
+  var todas = getOrdenes();
+  var orden  = todas.find(function(o){ return o.id === ordenId; });
+  if (!orden) return;
+
+  if (!orden.enviados) orden.enviados = {};
+  orden.enviados[provKey] = checkbox.checked;
+  saveOrdenes(todas);
+
+  // Actualizar visual de la card sin re-renderizar todo
+  var card = document.getElementById('pcard-' + provKey);
+  if (card) {
+    if (checkbox.checked) {
+      card.style.background   = 'var(--green-bg)';
+      card.style.borderColor  = 'var(--green-lt)';
+    } else {
+      card.style.background   = 'var(--card)';
+      card.style.borderColor  = '';
+    }
+  }
+  // Actualizar el badge de estado junto al checkbox
+  var label = checkbox.parentElement;
+  // Quitar badge anterior
+  var oldBadge = label.querySelector('span.badge, span.muted-estado');
+  if (oldBadge) oldBadge.remove();
+  // Insertar nuevo badge
+  var span = document.createElement('span');
+  if (checkbox.checked) {
+    span.className   = 'badge b-ok';
+    span.style.fontSize = '11px';
+    span.textContent = '✓ Enviado';
+  } else {
+    span.style.fontSize = '12px';
+    span.style.color    = 'var(--muted)';
+    span.className      = 'muted-estado';
+    span.textContent    = 'Pendiente de envío';
+  }
+  label.appendChild(span);
+
+  showToast(checkbox.checked ? 'Pedido a ' + prov + ' marcado como enviado' : 'Marcado como pendiente', 'success');
 }
 
 function buildEmail(prov, orden, items) {
