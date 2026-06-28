@@ -233,6 +233,17 @@
           <input type="text" id="p-proveedor" placeholder="Nombre del proveedor">
         </div>
       </div>
+      <div class="field-row" style="margin-top:1rem;">
+        <div class="field">
+          <label for="p-stock-minimo">Stock mínimo esperado</label>
+          <input type="number" id="p-stock-minimo" min="0" step="1" placeholder="0" oninput="actualizarHintStock()">
+          <div id="p-stock-minimo-hint" style="font-size:11px;color:var(--muted);margin-top:4px;">En unidades de presentación de compra</div>
+        </div>
+        <div class="field" style="display:flex;flex-direction:column;justify-content:flex-end;">
+          <div id="p-stock-minimo-equiv" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--muted);min-height:39px;"></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Equivalente en unidad de receta</div>
+        </div>
+      </div>
     </div>
 
     <!-- SECCIÓN 4: Información para recetas -->
@@ -376,6 +387,33 @@ function setEnUso(activo) {
     btnNo.style.cssText = 'padding:8px 20px;border-radius:8px;border:2px solid var(--red);background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;';
   }
 }
+// ── HINT STOCK MÍNIMO ─────────────────────────────────────────────
+function actualizarHintStock() {
+  const stockMin  = parseFloat(document.getElementById('p-stock-minimo').value) || 0;
+  const cantidad  = parseFloat(document.getElementById('p-cantidad-presentacion').value) || 1;
+  const unidad    = document.getElementById('p-unidad').value;
+  const presentacion = document.getElementById('p-presentacion').value;
+  const tamano    = document.getElementById('p-tamano').value;
+  const hintEl   = document.getElementById('p-stock-minimo-hint');
+  const equivEl  = document.getElementById('p-stock-minimo-equiv');
+
+  // Actualizar hint del campo
+  const pres = [presentacion, tamano].filter(Boolean).join(' ');
+  hintEl.textContent = pres
+    ? `Unidades de presentación (${pres})`
+    : 'En unidades de presentación de compra';
+
+  // Equivalente en unidad de receta
+  if (stockMin > 0 && cantidad > 0 && unidad) {
+    const equiv = stockMin * cantidad;
+    equivEl.textContent = `${stockMin} presentaciones = ${equiv} ${unidad}`;
+    equivEl.style.color = 'var(--purple)';
+    equivEl.style.fontWeight = '600';
+  } else {
+    equivEl.textContent = '';
+  }
+}
+
 // ── CONVERSIÓN AUTOMÁTICA DE UNIDADES ────────────────────────────
 // Mapa de conversiones: presentación → unidad de receta → cantidad
 const CONVERSIONES = {
@@ -445,6 +483,7 @@ function calcularCostos() {
   document.getElementById('p-costo').value = costoU.toFixed(4);
   document.getElementById('p-costo-display').textContent     = fmt(costoU);
   document.getElementById('p-costo-real-display').textContent = fmt(costoReal);
+  actualizarHintStock();
 }
 
 
@@ -965,7 +1004,8 @@ async function guardar() {
     presentacion,
     tamano,
     area,
-    en_uso: document.getElementById('p-en-uso').value === 'true'
+    en_uso: document.getElementById('p-en-uso').value === 'true',
+    stock_minimo: parseFloat(document.getElementById('p-stock-minimo').value) || 0
   };
 
   const lista = getProductos();
@@ -1007,6 +1047,8 @@ function editar(id) {
   document.getElementById('p-proveedor').value              = p.proveedor || '';
   document.getElementById('p-area').value = p.area || '';
   setEnUso(p.en_uso === false || p.en_uso === 'false' ? false : true);
+  document.getElementById('p-stock-minimo').value = p.stock_minimo || '';
+  actualizarHintStock();
   document.getElementById('p-presentacion').value           = p.presentacion || '';
   document.getElementById('p-tamano').value                 = p.tamano || '';
   document.getElementById('form-title').textContent         = 'Editar producto';
@@ -1040,6 +1082,8 @@ function limpiarForm() {
   document.getElementById('p-proveedor').value              = '';
   document.getElementById('p-area').value = '';
   setEnUso(true);
+  document.getElementById('p-stock-minimo').value = '';
+  document.getElementById('p-stock-minimo-equiv').textContent = '';
   document.getElementById('p-presentacion').value           = '';
   document.getElementById('p-tamano').value                 = '';
   document.getElementById('p-costo-display').textContent    = '₡0.00';
