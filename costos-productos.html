@@ -846,7 +846,8 @@ function renderListaAgrupada(lista, campo) {
     <th style="text-align:right;">Costo/u</th>
     <th style="text-align:right;">Rendimiento</th>
     <th style="text-align:right;">Costo real/u</th>
-    <th>Proveedor</th><th></th>
+    <th style="text-align:right;">Stock mín.</th>
+    <th>Proveedor</th><th>Presentación</th><th></th>
   </tr></thead>`;
 
   const bloques = Object.keys(grupos).sort().map(clave => {
@@ -887,7 +888,8 @@ function buildFila(p) {
     <td class="num" style="font-weight:600;color:var(--purple);">${fmt(parseFloat(p.costo)||0)}</td>
     <td class="num" style="color:var(--muted);">${p.rendimiento||100}%</td>
     <td class="num" style="font-weight:700;color:var(--green);">${fmt(costoReal)}</td>
-    <td style="color:var(--muted);font-size:12px;">${p.area||'—'}</td>
+    <td class="num" style="color:var(--muted);">${p.stock_minimo > 0 ? p.stock_minimo + ' pres.' : '—'}</td>
+    <td style="color:var(--muted);font-size:12px;">${p.proveedor||'—'}</td>
     <td style="color:var(--muted);font-size:12px;">${p.presentacion ? p.presentacion + (p.tamano ? ' · ' + p.tamano : '') : '—'}</td>
     <td><div style="display:flex;gap:4px;">
       <button class="btn-edit" onclick="editar('${p.id}')">Editar</button>
@@ -961,11 +963,11 @@ function renderLista() {
         <th>Producto</th><th>Categoría</th><th>Unidad</th>
         <th style="text-align:right;">Precio sin IVA</th>
         <th style="text-align:right;">IVA</th>
-        <th style="text-align:right;">Presentación</th>
         <th style="text-align:right;">Costo/u</th>
         <th style="text-align:right;">Rendimiento</th>
         <th style="text-align:right;">Costo real/u</th>
-        <th style="text-align:right;">Stock mín.</th><th>Área</th><th>Proveedor</th><th>Presentación</th><th></th>
+        <th style="text-align:right;">Stock mín.</th>
+        <th>Proveedor</th><th>Presentación</th><th></th>
       </tr></thead>
       <tbody>${filas}</tbody>
     </table>`;
