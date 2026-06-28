@@ -943,6 +943,7 @@ function renderLista() {
       <td class="num" style="color:var(--muted);">${p.rendimiento}%</td>
       <td class="num" style="font-weight:700;color:var(--green);">${fmt(costoReal)}</td>
       <td style="color:var(--muted);font-size:12px;">${p.area||'—'}</td>
+      <td class="num" style="color:var(--muted);">${p.stock_minimo > 0 ? p.stock_minimo + ' pres.' : '—'}</td>
       <td style="color:var(--muted);font-size:12px;">${p.proveedor||'—'}</td>
       <td style="color:var(--muted);font-size:12px;">${p.presentacion ? p.presentacion + (p.tamano ? ' · ' + p.tamano : '') : '—'}</td>
       <td>
@@ -964,7 +965,7 @@ function renderLista() {
         <th style="text-align:right;">Costo/u</th>
         <th style="text-align:right;">Rendimiento</th>
         <th style="text-align:right;">Costo real/u</th>
-        <th>Área</th><th>Proveedor</th><th>Presentación</th><th></th>
+        <th style="text-align:right;">Stock mín.</th><th>Área</th><th>Proveedor</th><th>Presentación</th><th></th>
       </tr></thead>
       <tbody>${filas}</tbody>
     </table>`;
