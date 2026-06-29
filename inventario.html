@@ -273,6 +273,7 @@ function normalizarProducto(r) {
     rendimiento:          parseFloat(r['Rendimiento (%)'])          || 100,
     costo_real:           parseFloat(r['Costo real/u'])             || 0,
     proveedor:            r['Proveedor']            || '',
+    stock_minimo:         parseFloat(r['Stock mínimo (presentaciones)']) || 0,
   };
 }
 
@@ -796,26 +797,92 @@ function abrirToma() {
 }
 
 // ── RENDER HISTORIAL ──────────────────────────────────────────────
-function renderHistorial() {
+async function renderHistorial() {
   const cont = document.getElementById('lista-historial');
-  const finalizadas = getTomas().filter(t=>t.estado==='finalizada');
-  if (!finalizadas.length) { cont.innerHTML = '<div class="empty">Sin tomas finalizadas.</div>'; return; }
+  cont.innerHTML = '<div class="empty"><span class="spinner"></span> Cargando historial del Sheet…</div>';
 
-  cont.innerHTML = finalizadas.slice().reverse().map(t => {
-    const areas = [...new Set(productos.filter(p=>t.lineas[p.id]).map(p=>p.area||'Sin área'))];
+  // Leer tomas del Sheet via gviz
+  let tomasSheet = [];
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/1XOrZ1O2k3u054bw6VxZulHpGwF5lciQRyRuQlcuF-PM/gviz/tq?tqx=responseHandler:_invHist&sheet=${encodeURIComponent('HISTORIAL_inventario')}`;
+    const rows = await new Promise((resolve, reject) => {
+      const cb = '_invHist';
+      const s  = document.createElement('script');
+      const t  = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 12000);
+      function cleanup() { clearTimeout(t); try{delete window[cb];}catch(e){} try{if(s.parentNode)document.body.removeChild(s);}catch(e){} }
+      window[cb] = (data) => {
+        cleanup();
+        const cols = (data.table.cols||[]).map(c=>c.label||c.id||'');
+        const rows = (data.table.rows||[]).filter(r=>r&&r.c).map(row=>{
+          const obj={};
+          cols.forEach((col,i)=>{ const cell=row.c[i]; obj[col]=cell?(cell.f!=null?cell.f:(cell.v!=null?cell.v:'')):'' });
+          return obj;
+        });
+        resolve(rows);
+      };
+      s.onerror = ()=>{ cleanup(); reject(new Error('script error')); };
+      s.src = url;
+      document.body.appendChild(s);
+    });
+
+    // Agrupar líneas por Toma ID
+    const tomasMap = {};
+    rows.forEach(r => {
+      const id = String(r['Toma ID']||'').trim();
+      if (!id) return;
+      if (!tomasMap[id]) tomasMap[id] = { id, fecha: String(r['Fecha toma']||'').trim(), lineas: [] };
+      tomasMap[id].lineas.push(r);
+    });
+    tomasSheet = Object.values(tomasMap).sort((a,b) => b.id.localeCompare(a.id));
+  } catch(e) {
+    console.warn('No se pudo cargar historial del Sheet:', e.message);
+    // Fallback a localStorage
+    tomasSheet = getTomas().filter(t=>t.estado==='finalizada').reverse().map(t => ({
+      id: t.id,
+      fecha: t.fecha_toma,
+      lineas: []
+    }));
+  }
+
+  if (!tomasSheet.length) {
+    cont.innerHTML = '<div class="empty">Sin tomas finalizadas.</div>';
+    return;
+  }
+
+  cont.innerHTML = tomasSheet.map(t => {
+    const areas  = [...new Set(t.lineas.map(l=>l['Área']||'Sin área'))].filter(Boolean);
+    const total  = t.lineas.reduce((a,l) => a + (parseFloat(l['Valor total línea'])||0), 0);
+    const filas  = t.lineas.map(l => `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:5px 8px;font-size:12px;">${l['Producto']||'—'}</td>
+        <td style="padding:5px 8px;font-size:12px;color:var(--muted);">${l['Área']||'—'}</td>
+        <td style="padding:5px 8px;text-align:right;font-size:12px;">${l['Cant. completos']||0}</td>
+        <td style="padding:5px 8px;text-align:right;font-size:12px;">${l['Cant. en uso']||0} ${l['Unidad']||''}</td>
+        <td style="padding:5px 8px;text-align:right;font-size:12px;font-weight:600;color:var(--teal);">${fmt(parseFloat(l['Valor total línea'])||0)}</td>
+      </tr>`).join('');
+
     return `<div style="border-bottom:1px solid var(--border);">
       <div class="hist-item" onclick="toggleDetalleHist('det-${t.id}')">
         <div>
           <div style="font-weight:600;">${t.id}</div>
-          <div style="font-size:12px;color:var(--muted);">${t.fecha_toma} · ${t.lineas_contadas} productos · ${areas.join(', ')}</div>
+          <div style="font-size:12px;color:var(--muted);">${t.fecha} · ${t.lineas.length} líneas · ${areas.join(', ')}</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;">
           <span class="status-fin">Finalizada</span>
-          <div style="font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--teal);">${fmt(t.valor_total||0)}</div>
+          <div style="font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--teal);">${fmt(total)}</div>
         </div>
       </div>
       <div id="det-${t.id}" style="display:none;padding:0 1.25rem 1rem;">
-        ${buildDetalleHistorial(t)}
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;">
+          <thead><tr style="background:var(--surface);">
+            <th style="padding:5px 8px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);">Producto</th>
+            <th style="padding:5px 8px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);">Área</th>
+            <th style="padding:5px 8px;text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);">Completos</th>
+            <th style="padding:5px 8px;text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);">En uso</th>
+            <th style="padding:5px 8px;text-align:right;font-size:10px;text-transform:uppercase;color:var(--muted);">Valorización</th>
+          </tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
       </div>
     </div>`;
   }).join('');
