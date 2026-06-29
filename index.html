@@ -3,805 +3,553 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal · Grupo del Sol</title>
+  <title>Portal · Batanga Gastro Garden</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
-      --bg:         #faf7f0;
-      --surface:    #f2ede2;
-      --card:       #ffffff;
-      --card-h:     #f5f9f6;
-      --border:     #c8ddd0;
-      --border-h:   #8ab89e;
-      --text:       #1c3a28;
-      --muted:      #5a8a6a;
-      --subtle:     #a0c8b0;
-
-      /* área colors */
-      --fin:        #1a7a4a;
-      --fin-bg:     #e8f5ee;
-      --fin-border: #b0dcc0;
-
-      --ops:        #1a7a4a;
-      --ops-bg:     #eef8f2;
-      --ops-border: #a8d8bc;
-
-      --rrhh:       #c84a20;
-      --rrhh-bg:    #fdf0eb;
-      --rrhh-border:#f0c0a8;
-
-      --mkt:        #e8a020;
-      --mkt-bg:     #fdf6e3;
-      --mkt-border: #f0d890;
-
-
-      --costos:        #0e7a7a;
-      --costos-bg:     #eaf6f6;
-      --costos-border: #a8d8d8;
-
-      --radius-sm:  8px;
-      --radius-md:  12px;
-      --radius-lg:  16px;
-      --font-d: 'Inter Tight', sans-serif;
-      --font-b: 'Inter', sans-serif;
+      --bg:#faf7f0; --surface:#f2ede2; --card:#fff;
+      --border:#c8ddd0; --border-h:#8ab89e;
+      --text:#1c3a28; --muted:#5a8a6a; --subtle:#a0c8b0;
+      --green:#1a7a4a; --green-bg:#eef8f2; --green-lt:#d0eedd;
+      --red:#c84a20; --red-bg:#fdf0eb; --red-lt:#f0c0a8;
+      --amber:#c87820; --amber-bg:#fdf6e3; --amber-lt:#f0d890;
+      --blue:#185fa5; --blue-bg:#eef4fb; --blue-lt:#b8d0f0;
+      --teal:#0e7a7a; --teal-bg:#eaf6f6; --teal-lt:#a8d8d8;
+      --purple:#6a3a9a; --purple-bg:#f3eefb; --purple-lt:#d4b8f0;
+      --radius:12px; --font-d:'Inter Tight',sans-serif; --font-b:'Inter',sans-serif;
     }
+    body { background:var(--bg); color:var(--text); font-family:var(--font-b); font-size:14px; line-height:1.6; min-height:100vh; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-b);
-      font-size: 14px;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    /* ── HEADER ── */
+    /* ── HEADER ─────────────────────────────────────────────── */
     header {
-      height: 56px;
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      z-index: 20;
-      box-shadow: 0 1px 0 var(--border);
+      height:60px; border-bottom:1px solid var(--border);
+      padding:0 2rem; display:flex; align-items:center;
+      justify-content:space-between; background:var(--bg);
+      position:sticky; top:0; z-index:20;
     }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .logo { display:flex; align-items:center; gap:10px; }
     .logo-mark {
-      width: 26px;
-      height: 26px;
-      background: #1c4a2e;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width:32px; height:32px; border-radius:8px;
+      background:var(--text); display:flex; align-items:center;
+      justify-content:center;
     }
+    .logo-mark svg { width:18px; height:18px; stroke:#fff; fill:none; }
+    .logo-name { font-family:var(--font-d); font-size:15px; font-weight:700; }
+    .logo-sub  { font-size:11px; color:var(--muted); margin-left:4px; }
+    .header-right { display:flex; align-items:center; gap:8px; }
+    .date-chip { font-size:11px; color:var(--muted); background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:4px 12px; }
+    .sync-btn { font-size:12px; color:var(--muted); background:transparent; border:1px solid var(--border); border-radius:8px; padding:5px 10px; cursor:pointer; display:flex; align-items:center; gap:5px; }
+    .sync-btn:hover { border-color:var(--border-h); color:var(--text); }
+    .sync-btn svg { width:12px; height:12px; }
 
-    .logo-mark svg {
-      width: 14px;
-      height: 14px;
-      fill: #0b0d14;
-    }
+    /* ── MAIN ───────────────────────────────────────────────── */
+    main { max-width:1080px; margin:0 auto; padding:2rem 2rem 4rem; }
 
-    .logo-name {
-      font-family: var(--font-d);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
+    /* ── SALUDO ─────────────────────────────────────────────── */
+    .greeting { margin-bottom:1.75rem; }
+    .greeting h1 { font-family:var(--font-d); font-size:26px; font-weight:700; letter-spacing:-.02em; margin-bottom:3px; }
+    .greeting p  { font-size:13px; color:var(--muted); }
 
-    .logo-sep { color: var(--subtle); margin: 0 4px; }
+    /* ── KPI STRIP ──────────────────────────────────────────── */
+    .kpi-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.5rem; }
+    .kpi { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.25rem; position:relative; overflow:hidden; }
+    .kpi-accent { position:absolute; top:0; left:0; width:3px; height:100%; border-radius:3px 0 0 3px; }
+    .kpi-val { font-family:var(--font-d); font-size:22px; font-weight:700; letter-spacing:-.02em; margin-bottom:3px; }
+    .kpi-lbl { font-size:11px; color:var(--muted); }
+    .kpi-sub { font-size:11px; margin-top:4px; font-weight:500; }
 
+    /* ── GRID PRINCIPAL ─────────────────────────────────────── */
+    .main-grid { display:grid; grid-template-columns:1fr 320px; gap:14px; margin-bottom:1.5rem; }
 
-    .logo-sub {
-      font-size: 12px;
-      color: var(--muted);
-    }
+    /* ── SECCIÓN ────────────────────────────────────────────── */
+    .section-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .section-head { padding:.9rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .section-title { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+    .section-link { font-size:12px; color:var(--blue); text-decoration:none; font-weight:500; }
+    .section-link:hover { text-decoration:underline; }
 
-    .header-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    /* ── ACCIONES RÁPIDAS ───────────────────────────────────── */
+    .quick-action { display:flex; align-items:center; gap:12px; padding:.85rem 1.25rem; border-bottom:1px solid var(--border); text-decoration:none; color:var(--text); transition:background .12s; cursor:pointer; }
+    .quick-action:last-child { border-bottom:none; }
+    .quick-action:hover { background:var(--surface); }
+    .qa-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .qa-icon svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+    .qa-text { flex:1; }
+    .qa-name { font-size:13px; font-weight:500; }
+    .qa-sub  { font-size:11px; color:var(--muted); }
+    .qa-arrow { color:var(--subtle); }
+    .qa-arrow svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+    .qa-badge { font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; }
 
-    .date-chip {
-      font-size: 11px;
-      color: var(--muted);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
-    }
+    /* ── ALERTAS ────────────────────────────────────────────── */
+    .alert-item { display:flex; align-items:flex-start; gap:10px; padding:.85rem 1.25rem; border-bottom:1px solid var(--border); }
+    .alert-item:last-child { border-bottom:none; }
+    .alert-dot { width:7px; height:7px; border-radius:50%; margin-top:6px; flex-shrink:0; }
+    .alert-text { font-size:12px; line-height:1.5; color:var(--text); }
+    .alert-meta { font-size:11px; color:var(--muted); margin-top:1px; }
+    .no-alerts { padding:1.5rem 1.25rem; text-align:center; font-size:12px; color:var(--subtle); }
 
-    /* ── MAIN ── */
-    main {
-      max-width: 1040px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem 5rem;
-    }
+    /* ── MÓDULOS GRID ───────────────────────────────────────── */
+    .modules-section { margin-bottom:1.5rem; }
+    .modules-section-title { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; padding:0 2px; }
+    .modules-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(155px,1fr)); gap:8px; }
+    .mod-tile { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; text-decoration:none; color:var(--text); display:flex; flex-direction:column; gap:8px; transition:border-color .12s, background .12s; }
+    .mod-tile:hover { border-color:var(--border-h); background:var(--surface); }
+    .mod-tile.disabled { opacity:.45; pointer-events:none; }
+    .mod-tile-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; }
+    .mod-tile-icon svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+    .mod-tile-name { font-size:13px; font-weight:500; }
+    .mod-tile-area { font-size:11px; color:var(--muted); }
+    .mod-tile-badge { font-size:10px; font-weight:600; padding:2px 6px; border-radius:20px; width:fit-content; }
 
-    /* ── GREETING ── */
-    .greeting {
-      margin-bottom: 2.5rem;
-    }
+    /* colores de iconos */
+    .ic-green  { background:var(--green-bg); color:var(--green); }
+    .ic-teal   { background:var(--teal-bg);  color:var(--teal);  }
+    .ic-blue   { background:var(--blue-bg);  color:var(--blue);  }
+    .ic-amber  { background:var(--amber-bg); color:var(--amber); }
+    .ic-red    { background:var(--red-bg);   color:var(--red);   }
+    .ic-purple { background:var(--purple-bg);color:var(--purple);}
 
-    .greeting h1 {
-      font-family: var(--font-d);
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      margin-bottom: 6px;
-    }
+    /* ── STATUS ─────────────────────────────────────────────── */
+    .status-bar { display:flex; align-items:center; gap:12px; font-size:11px; color:var(--muted); border-top:1px solid var(--border); padding-top:1rem; margin-top:.5rem; }
+    .sdot { width:6px; height:6px; border-radius:50%; background:var(--green); }
+    .sdot.off { background:var(--subtle); }
+    .spinner { display:inline-block; width:10px; height:10px; border:1.5px solid var(--border); border-top-color:var(--teal); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
-    .greeting p {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    /* ── AREA SECTIONS ── */
-    .areas {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .area {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-    }
-
-    /* area header strip */
-    .area-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .area-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .area-icon svg {
-      width: 17px;
-      height: 17px;
-    }
-
-    .area-name {
-      font-family: var(--font-d);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .area-desc {
-      font-size: 12px;
-      color: var(--muted);
-      margin-left: auto;
-    }
-
-    /* modules grid inside area */
-    .area-modules {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 1px;
-      background: var(--border);
-    }
-
-    .mod {
-      background: var(--card);
-      padding: 1.1rem 1.25rem;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: background 0.12s;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .mod:hover {
-      background: var(--card-h);
-    }
-
-    .mod.soon {
-      opacity: 0.45;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    .mod-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .mod-info { flex: 1; min-width: 0; }
-
-    .mod-name {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .mod-tag {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 1px;
-    }
-
-    .mod-arrow {
-      color: var(--subtle);
-      flex-shrink: 0;
-      transition: color 0.12s, transform 0.12s;
-    }
-
-    .mod:hover .mod-arrow {
-      color: var(--text);
-      transform: translateX(2px);
-    }
-
-    .mod-arrow svg {
-      width: 14px;
-      height: 14px;
-      display: block;
-    }
-
-    /* soon badge */
-    .soon-badge {
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      background: #f2ede2;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2px 5px;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    /* area color theming */
-    .area--fin  { background: var(--fin-bg);  border-color: var(--fin-border); }
-    .area--ops  { background: var(--ops-bg);  border-color: var(--ops-border); }
-    .area--rrhh { background: var(--rrhh-bg); border-color: var(--rrhh-border); }
-    .area--mkt  { background: var(--mkt-bg);  border-color: var(--mkt-border); }
-
-    .area--fin  .area-header { border-color: var(--fin-border);  }
-    .area--ops  .area-header { border-color: var(--ops-border);  }
-    .area--rrhh .area-header { border-color: var(--rrhh-border); }
-    .area--mkt  .area-header { border-color: var(--mkt-border);  }
-
-    .area--fin  .area-icon { background: #d0eedd; }
-    .area--ops  .area-icon { background: #d0eedd; }
-    .area--rrhh .area-icon { background: #fde0d0; }
-    .area--mkt  .area-icon { background: #fdefc0; }
-
-    .area--fin  .area-name { color: var(--fin);  }
-    .area--ops  .area-name { color: var(--ops);  }
-    .area--rrhh .area-name { color: var(--rrhh); }
-    .area--mkt  .area-name { color: var(--mkt);  }
-
-    .area--fin  .mod-dot { background: var(--fin);  }
-    .area--ops  .mod-dot { background: var(--ops);  }
-    .area--rrhh .mod-dot { background: var(--rrhh); }
-    .area--mkt  .mod-dot { background: var(--mkt);  }
-
-    .area--fin  .area-modules { background: var(--fin-border);  }
-    .area--ops  .area-modules { background: var(--ops-border);  }
-    .area--rrhh .area-modules { background: var(--rrhh-border); }
-    .area--mkt  .area-modules { background: var(--mkt-border);  }
-
-    .area--costos { background: var(--costos-bg); border-color: var(--costos-border); }
-    .area--costos .area-header { border-color: var(--costos-border); }
-    .area--costos .area-icon { background: #c0e8e8; }
-    .area--costos .area-name { color: var(--costos); }
-    .area--costos .mod-dot { background: var(--costos); }
-    .area--costos .area-modules { background: var(--costos-border); }
-
-    /* ── STATUS BAR ── */
-    .status-bar {
-      margin-top: 2.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 0.75rem 1.25rem;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #1a7a4a;
-      flex-shrink: 0;
-    }
-
-    .dot.off { background: var(--muted); }
-
-    .status-sep {
-      width: 1px;
-      height: 14px;
-      background: var(--border);
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
-      header { padding: 0 1rem; }
-      main   { padding: 1.5rem 1rem 3rem; }
-      .greeting h1 { font-size: 22px; }
-      .area-modules { grid-template-columns: 1fr 1fr; }
-      .area-desc { display: none; }
-      .status-sep { display: none; }
-    }
-
-    @media (max-width: 400px) {
-      .area-modules { grid-template-columns: 1fr; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .mod, .mod-arrow { transition: none; }
+    @media (max-width:720px) {
+      main { padding:1.25rem 1rem 3rem; }
+      .kpi-strip { grid-template-columns:1fr 1fr; }
+      .main-grid { grid-template-columns:1fr; }
+      .modules-grid { grid-template-columns:repeat(2,1fr); }
     }
   </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
-    <span class="logo-name">Batanga Gastro Garden</span>
-    <span class="logo-sep">/</span>
-    <span class="logo-sub">Portal interno · Grupo del Sol</span>
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    <div>
+      <span class="logo-name">Batanga</span>
+      <span class="logo-sub">Portal de Operaciones</span>
+    </div>
   </div>
-  <div class="header-meta">
-    <span class="date-chip" id="date-chip"></span>
+  <div class="header-right">
+    <span class="date-chip" id="fecha-hoy"></span>
+    <button class="sync-btn" onclick="cargarKPIs()" title="Actualizar datos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Actualizar
+    </button>
   </div>
 </header>
 
 <main>
 
+  <!-- Saludo -->
   <div class="greeting">
-    <h1 id="greeting-h1">Bienvenido</h1>
-    <p>Seleccioná el área y el módulo con el que vas a trabajar.</p>
+    <h1 id="saludo">Buen día</h1>
+    <p id="status-general">Cargando datos del sistema…</p>
   </div>
 
-  <div class="areas">
+  <!-- KPIs -->
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--teal);"></div>
+      <div class="kpi-val" id="kpi-inv" style="color:var(--teal);">—</div>
+      <div class="kpi-lbl">Último inventario</div>
+      <div class="kpi-sub" id="kpi-inv-sub" style="color:var(--muted);"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--amber);"></div>
+      <div class="kpi-val" id="kpi-oc" style="color:var(--text);">—</div>
+      <div class="kpi-lbl">Órdenes de compra</div>
+      <div class="kpi-sub" id="kpi-oc-sub" style="color:var(--muted);"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--green);"></div>
+      <div class="kpi-val" id="kpi-prod" style="color:var(--text);">—</div>
+      <div class="kpi-lbl">Productos en base</div>
+      <div class="kpi-sub" id="kpi-prod-sub" style="color:var(--muted);"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--red);"></div>
+      <div class="kpi-val" id="kpi-alertas" style="color:var(--text);">—</div>
+      <div class="kpi-lbl">Alertas activas</div>
+      <div class="kpi-sub" id="kpi-alertas-sub" style="color:var(--muted);"></div>
+    </div>
+  </div>
 
-    <!-- ── FINANZAS ── -->
-    <div class="area area--fin">
-      <div class="area-header">
-        <div class="area-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f8ef7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="3" width="20" height="14" rx="2"/>
-            <line x1="8" y1="21" x2="16" y2="21"/>
-            <line x1="12" y1="17" x2="12" y2="21"/>
-          </svg>
+  <!-- Grid principal -->
+  <div class="main-grid">
+
+    <!-- Acciones rápidas -->
+    <div class="section-card">
+      <div class="section-head">
+        <span class="section-title">Acciones rápidas</span>
+      </div>
+
+      <a href="inventario.html" class="quick-action">
+        <div class="qa-icon ic-teal">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
-        <span class="area-name">Finanzas</span>
-        <span class="area-desc">Reportes · EEFF · Análisis</span>
-      </div>
-      <div class="area-modules">
+        <div class="qa-text">
+          <div class="qa-name">Nueva toma de inventario</div>
+          <div class="qa-sub">Conteo físico · valorización automática</div>
+        </div>
+        <div class="qa-arrow"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div>
+      </a>
 
-        <a href="fin-reportes.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Reportes</div>
-            <div class="mod-tag">Estados financieros</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
+      <a href="ordenes-compra.html" class="quick-action">
+        <div class="qa-icon ic-blue">
+          <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <div class="qa-text">
+          <div class="qa-name">Nueva orden de compra</div>
+          <div class="qa-sub">Pedido a proveedor · análisis de stock</div>
+        </div>
+        <div id="oc-badge-qa"></div>
+        <div class="qa-arrow"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div>
+      </a>
 
-        <a href="fin-eeff.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">EEFF</div>
-            <div class="mod-tag">Balance y P&amp;G</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
+      <a href="rrhh-acciones.html" class="quick-action">
+        <div class="qa-icon ic-red">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="qa-text">
+          <div class="qa-name">Acción de personal</div>
+          <div class="qa-sub">Ingreso · vacaciones · amonestaciones</div>
+        </div>
+        <div class="qa-arrow"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div>
+      </a>
 
-        <a href="fin-analisis.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Análisis</div>
-            <div class="mod-tag">Indicadores y tendencias</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
+      <a href="costos-productos.html" class="quick-action">
+        <div class="qa-icon ic-purple">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <div class="qa-text">
+          <div class="qa-name">Agregar producto</div>
+          <div class="qa-sub">Base de productos · costos · presentación</div>
+        </div>
+        <div class="qa-arrow"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div>
+      </a>
 
-      </div>
+      <a href="compras.html" class="quick-action">
+        <div class="qa-icon ic-green">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div class="qa-text">
+          <div class="qa-name">Ver datos de compras</div>
+          <div class="qa-sub">Facturas · proveedores · análisis</div>
+        </div>
+        <div class="qa-arrow"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div>
+      </a>
     </div>
 
-    <!-- ── OPERACIONES ── -->
-    <div class="area area--ops">
-      <div class="area-header">
-        <div class="area-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#2ecb8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            <path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>
-          </svg>
+    <!-- Alertas -->
+    <div>
+      <div class="section-card">
+        <div class="section-head">
+          <span class="section-title">Alertas</span>
+          <span id="alertas-count" style="font-size:11px;font-weight:600;color:var(--muted);"></span>
         </div>
-        <span class="area-name">Operaciones</span>
-        <span class="area-desc">Control diario del negocio</span>
-      </div>
-      <div class="area-modules">
-
-        <a href="cierres.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Cierres de caja</div>
-            <div class="mod-tag">Lectura y escritura</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="mermas.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Mermas de cerveza</div>
-            <div class="mod-tag">Lectura y escritura</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="depositos.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Depósitos bancarios</div>
-            <div class="mod-tag">Lectura y escritura</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="ventas.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Datos de ventas</div>
-            <div class="mod-tag">Solo consulta</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="compras.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Datos de compras</div>
-            <div class="mod-tag">Solo consulta</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="ordenes-compra.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Órdenes de compra</div>
-            <div class="mod-tag">Lectura y escritura</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
-
-        <a href="inventarios.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Inventarios</div>
-            <div class="mod-tag">Lectura y escritura</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
-
+        <div id="lista-alertas">
+          <div class="no-alerts"><span class="spinner"></span></div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- ── RRHH ── -->
-    <div class="area area--rrhh">
-      <div class="area-header">
-        <div class="area-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#c97cf4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
+  <!-- ── TODOS LOS MÓDULOS ── -->
+  <div class="modules-section">
+    <div class="modules-section-title">Operaciones</div>
+    <div class="modules-grid">
+      <a href="inventario.html" class="mod-tile">
+        <div class="mod-tile-icon ic-teal"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Inventario</div>
+          <div class="mod-tile-area">Toma de stock · valorización</div>
         </div>
-        <span class="area-name">Recursos Humanos</span>
-        <span class="area-desc">Personal · Planillas · Vacaciones</span>
-      </div>
-      <div class="area-modules">
-
-        <a href="rrhh-personal.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Base de personal</div>
-            <div class="mod-tag">Expedientes y datos</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="rrhh-planillas.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Planillas</div>
-            <div class="mod-tag">Cálculo y registro</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
-
-        <a href="rrhh-liquidaciones.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Control de liquidaciones</div>
-            <div class="mod-tag">Cálculo y confirmación de pago</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="rrhh-acciones.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Acciones de personal</div>
-            <div class="mod-tag">Amonestaciones, cambios</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="rrhh-control-vacaciones.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Control de vacaciones</div>
-            <div class="mod-tag">Saldos y solicitudes</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-      </div>
-    </div>
-
-    <!-- ── MERCADEO ── -->
-    <div class="area area--mkt">
-      <div class="area-header">
-        <div class="area-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#f5a52a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
-            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
-            <line x1="6" y1="1" x2="6" y2="4"/>
-            <line x1="10" y1="1" x2="10" y2="4"/>
-            <line x1="14" y1="1" x2="14" y2="4"/>
-          </svg>
+      </a>
+      <a href="ordenes-compra.html" class="mod-tile">
+        <div class="mod-tile-icon ic-blue"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Órdenes de compra</div>
+          <div class="mod-tile-area">Pedidos · análisis stock</div>
         </div>
-        <span class="area-name">Mercadeo</span>
-        <span class="area-desc">RRSS · Reputación · Media</span>
-      </div>
-      <div class="area-modules">
-
-        <a href="mkt-rrss.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Redes sociales</div>
-            <div class="mod-tag">Publicaciones y métricas</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
-
-        <a href="mkt-reputacion.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Reputación digital</div>
-            <div class="mod-tag">Reseñas y respuestas</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
-
-        <a href="mkt-media.html" class="mod soon">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Media</div>
-            <div class="mod-tag">Fotos, videos, activos</div>
-          </div>
-          <span class="soon-badge">Próximo</span>
-        </a>
-
-      </div>
-    </div>
-
-
-    <!-- ── COSTOS Y RECETAS ── -->
-    <div class="area area--costos">
-      <div class="area-header">
-        <div class="area-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#0e7a7a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 11l3 3L22 4"/>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
+      </a>
+      <a href="compras.html" class="mod-tile">
+        <div class="mod-tile-icon ic-green"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Datos de compras</div>
+          <div class="mod-tile-area">Facturas · proveedores</div>
         </div>
-        <span class="area-name">Costos y Recetas</span>
-        <span class="area-desc">Ingredientes · Menú · Recetas</span>
-      </div>
-      <div class="area-modules">
-
-        <a href="costos-productos.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Base de productos</div>
-            <div class="mod-tag">Ingredientes y costos</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="costos-menu.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Menú</div>
-            <div class="mod-tag">Platos y categorías</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="costos-recetas.html" class="mod">
-          <span class="mod-dot"></span>
-          <div class="mod-info">
-            <div class="mod-name">Recetas</div>
-            <div class="mod-tag">Costos y subrecetas</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-      </div>
-    </div>
-
-
-    <!-- ── COSTOS Y RECETAS ── -->
-    <div class="area" style="background:#f5f0fa;border-color:#d4b8f0;">
-      <div class="area-header" style="border-color:#d4b8f0;">
-        <div class="area-icon" style="background:#e8d8f8;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#6a3a9a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
+      </a>
+      <a href="cierres.html" class="mod-tile">
+        <div class="mod-tile-icon ic-green"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Cierres de caja</div>
+          <div class="mod-tile-area">Registros diarios</div>
         </div>
-        <span class="area-name" style="color:#6a3a9a;">Costos y Recetas</span>
-        <span class="area-desc">Ingredientes · Menú · Recetas</span>
-      </div>
-      <div class="area-modules" style="background:#d4b8f0;">
-
-        <a href="costos-productos.html" class="mod">
-          <span class="mod-dot" style="background:#6a3a9a;"></span>
-          <div class="mod-info">
-            <div class="mod-name">Base de productos</div>
-            <div class="mod-tag">Ingredientes y costos</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="costos-menu.html" class="mod">
-          <span class="mod-dot" style="background:#6a3a9a;"></span>
-          <div class="mod-info">
-            <div class="mod-name">Menú</div>
-            <div class="mod-tag">Platos y categorías</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-        <a href="costos-recetas.html" class="mod">
-          <span class="mod-dot" style="background:#6a3a9a;"></span>
-          <div class="mod-info">
-            <div class="mod-name">Recetas</div>
-            <div class="mod-tag">Recetas y subrecetas</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-      </div>
-    </div>
-
-
-    <!-- ── INVENTARIO ── -->
-    <div class="area" style="background:#eaf6f6;border-color:#a8d8d8;">
-      <div class="area-header" style="border-color:#a8d8d8;">
-        <div class="area-icon" style="background:#c0eeee;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#0e7a7a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/>
-          </svg>
+      </a>
+      <a href="mermas.html" class="mod-tile">
+        <div class="mod-tile-icon ic-amber"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Mermas</div>
+          <div class="mod-tile-area">Control de pérdidas</div>
         </div>
-        <span class="area-name" style="color:#0e7a7a;">Inventario</span>
-        <span class="area-desc">Conteo físico · Valorización</span>
-      </div>
-      <div class="area-modules" style="background:#a8d8d8;">
-
-        <a href="inventario.html" class="mod">
-          <span class="mod-dot" style="background:#0e7a7a;"></span>
-          <div class="mod-info">
-            <div class="mod-name">Control de inventario</div>
-            <div class="mod-tag">Conteo periódico y valorización</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-
-      </div>
-    </div>
-
-
-    <!-- ── COMPRAS ── -->
-    <div class="area" style="background:#eef4fb;border-color:#b8d0f0;">
-      <div class="area-header" style="border-color:#b8d0f0;">
-        <div class="area-icon" style="background:#d0e4f8;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#185fa5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
+      </a>
+      <a href="depositos.html" class="mod-tile">
+        <div class="mod-tile-icon ic-teal"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Depósitos</div>
+          <div class="mod-tile-area">Depósitos bancarios</div>
         </div>
-        <span class="area-name" style="color:#185fa5;">Compras</span>
-        <span class="area-desc">Órdenes · Proveedores</span>
-      </div>
-      <div class="area-modules" style="background:#b8d0f0;">
-        <a href="ordenes-compra.html" class="mod">
-          <span class="mod-dot" style="background:#185fa5;"></span>
-          <div class="mod-info">
-            <div class="mod-name">Órdenes de compra</div>
-            <div class="mod-tag">Análisis de inventario · Pedidos</div>
-          </div>
-          <span class="mod-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
-        </a>
-      </div>
+      </a>
     </div>
+  </div>
 
-  </div><!-- /areas -->
+  <div class="modules-section">
+    <div class="modules-section-title">Costos y recetas</div>
+    <div class="modules-grid">
+      <a href="costos-productos.html" class="mod-tile">
+        <div class="mod-tile-icon ic-purple"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Base de productos</div>
+          <div class="mod-tile-area">Costos · presentaciones</div>
+        </div>
+      </a>
+      <a href="costos-recetas.html" class="mod-tile">
+        <div class="mod-tile-icon ic-purple"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 8v4l3 3"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Recetas</div>
+          <div class="mod-tile-area">Recetas · subrecetas · FC</div>
+        </div>
+      </a>
+      <a href="costos-menu.html" class="mod-tile">
+        <div class="mod-tile-icon ic-purple"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Menú</div>
+          <div class="mod-tile-area">Platos · precios · FC</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="modules-section">
+    <div class="modules-section-title">Recursos Humanos</div>
+    <div class="modules-grid">
+      <a href="rrhh-personal.html" class="mod-tile">
+        <div class="mod-tile-icon ic-red"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Personal</div>
+          <div class="mod-tile-area">Expedientes · estado</div>
+        </div>
+      </a>
+      <a href="rrhh-acciones.html" class="mod-tile">
+        <div class="mod-tile-icon ic-red"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Acciones RRHH</div>
+          <div class="mod-tile-area">Ingresos · vacaciones</div>
+        </div>
+      </a>
+      <a href="rrhh-control-vacaciones.html" class="mod-tile">
+        <div class="mod-tile-icon ic-red"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Vacaciones</div>
+          <div class="mod-tile-area">Saldos · solicitudes</div>
+        </div>
+      </a>
+      <a href="rrhh-liquidaciones.html" class="mod-tile">
+        <div class="mod-tile-icon ic-amber"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Liquidaciones</div>
+          <div class="mod-tile-area">Cálculo y pago de CT</div>
+        </div>
+      </a>
+      <a href="rrhh-amonestaciones.html" class="mod-tile">
+        <div class="mod-tile-icon ic-amber"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div>
+          <div class="mod-tile-name">Amonestaciones</div>
+          <div class="mod-tile-area">Historial disciplinario</div>
+        </div>
+      </a>
+    </div>
+  </div>
 
   <div class="status-bar">
-    <div class="status-item"><span class="dot"></span>Google Sheets conectado</div>
-    <span class="status-sep"></span>
-    <div class="status-item"><span class="dot off"></span>Banco sin conexión</div>
-    <span class="status-sep"></span>
-    <div class="status-item">5 módulos activos · 12 próximamente</div>
-    <span class="status-sep"></span>
-    <div class="status-item" style="margin-left:auto;">v2.0 · Grupo del Sol</div>
+    <span class="sdot" id="status-dot"></span>
+    <span id="status-texto">Cargando…</span>
+    <span style="margin-left:auto;color:var(--subtle);">v2.0 · Batanga Gastro Garden</span>
   </div>
 
 </main>
 
 <script>
-  const now = new Date();
-  const h = now.getHours();
-  const greet = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
-  document.getElementById('greeting-h1').textContent = greet;
-  document.getElementById('date-chip').textContent =
-    now.toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long' });
-</script>
+// ── INIT ──────────────────────────────────────────────────────
+const hoy   = new Date();
+const pad   = n => String(n).padStart(2,'0');
+const fmt   = n => '₡' + Number(n||0).toLocaleString('es-CR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const SHEET_COSTOS = '1XOrZ1O2k3u054bw6VxZulHpGwF5lciQRyRuQlcuF-PM';
 
+// Saludo según hora
+const hora = hoy.getHours();
+const saludo = hora < 12 ? 'Buenos días' : hora < 18 ? 'Buenas tardes' : 'Buenas noches';
+document.getElementById('saludo').textContent = saludo;
+document.getElementById('fecha-hoy').textContent =
+  hoy.toLocaleDateString('es-CR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+// ── GVIZ helper ───────────────────────────────────────────────
+function gvizLoad(sheetId, hoja) {
+  return new Promise((resolve, reject) => {
+    const cb  = '_idx_' + Math.random().toString(36).slice(2,9);
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=responseHandler:${cb}&sheet=${encodeURIComponent(hoja)}`;
+    const t   = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 12000);
+    function cleanup() { clearTimeout(t); try{delete window[cb];}catch(e){} try{if(s&&s.parentNode)s.parentNode.removeChild(s);}catch(e){} }
+    window[cb] = data => {
+      cleanup();
+      const cols = (data.table.cols||[]).map(c => c.label||c.id||'');
+      const rows = (data.table.rows||[]).filter(r=>r&&r.c).map(row => {
+        const obj={};
+        cols.forEach((col,i)=>{ const cell=row.c[i]; obj[col]=cell?(cell.f!=null?cell.f:(cell.v!=null?cell.v:'')):''; });
+        return obj;
+      });
+      resolve(rows);
+    };
+    var s = document.createElement('script');
+    s.onerror = () => { cleanup(); reject(new Error('scripterror')); };
+    s.src = url;
+    document.body.appendChild(s);
+  });
+}
+
+// ── CARGAR KPIs ───────────────────────────────────────────────
+async function cargarKPIs() {
+  document.getElementById('status-texto').innerHTML = '<span class="spinner"></span> Actualizando datos…';
+  let alertas = [];
+
+  // 1. PRODUCTOS (localStorage)
+  const productos = JSON.parse(localStorage.getItem('costos_productos')||'[]');
+  const enUso     = productos.filter(p => p.en_uso !== false && p.en_uso !== 'false');
+  document.getElementById('kpi-prod').textContent = enUso.length || '—';
+  document.getElementById('kpi-prod-sub').textContent = enUso.length
+    ? `${enUso.length} habilitados en base`
+    : 'Sin productos en base local';
+
+  // 2. ÓRDENES DE COMPRA (localStorage)
+  const ordenes     = JSON.parse(localStorage.getItem('ordenes_compra')||'[]');
+  const enProceso   = ordenes.filter(o => o.estado === 'en_proceso');
+  const aprobadas   = ordenes.filter(o => o.estado === 'aprobada');
+  const totalOC     = ordenes.filter(o => o.estado !== 'cancelada').length;
+
+  if (enProceso.length) {
+    document.getElementById('kpi-oc').textContent       = enProceso.length + ' en proceso';
+    document.getElementById('kpi-oc').style.color       = 'var(--amber)';
+    document.getElementById('kpi-oc-sub').textContent   = `${aprobadas.length} aprobada${aprobadas.length!==1?'s':''} · ${totalOC} total`;
+    document.getElementById('oc-badge-qa').innerHTML    = `<span class="qa-badge" style="background:var(--amber-bg);color:var(--amber);">${enProceso.length} activa${enProceso.length!==1?'s':''}</span>`;
+    alertas.push({ tipo:'amber', texto:`${enProceso.length} orden${enProceso.length!==1?'es':''} de compra en proceso sin aprobar.`, meta:'Órdenes de compra' });
+  } else {
+    document.getElementById('kpi-oc').textContent     = totalOC + ' orden' + (totalOC!==1?'es':'');
+    document.getElementById('kpi-oc').style.color     = 'var(--text)';
+    document.getElementById('kpi-oc-sub').textContent = `${aprobadas.length} aprobada${aprobadas.length!==1?'s':''}`;
+  }
+
+  // 3. INVENTARIO (Sheet via gviz)
+  try {
+    const filasHist = await gvizLoad(SHEET_COSTOS, 'Inventarios');
+    if (filasHist.length) {
+      // Última toma
+      const ultima = filasHist[filasHist.length - 1];
+      const valor  = parseFloat(String(ultima['Valor total']||'0').replace(/[₡,\s]/g,'')) || 0;
+      const id     = String(ultima['ID']||'').trim();
+      const fecha  = String(ultima['Fecha toma']||'').trim();
+      document.getElementById('kpi-inv').textContent     = valor > 0 ? fmt(valor) : id || '—';
+      document.getElementById('kpi-inv-sub').textContent = fecha ? `${id} · ${fecha}` : id;
+
+      // Alertas de stock bajo mínimo
+      if (enUso.length) {
+        const detalle = await gvizLoad(SHEET_COSTOS, 'HISTORIAL_inventario');
+        const lineasUltima = detalle.filter(l => String(l['Toma ID']||'').trim() === id);
+        const stockMap = {};
+        lineasUltima.forEach(l => {
+          const nombre = String(l['Producto']||'').trim().toLowerCase();
+          const p      = enUso.find(x => (x.nombre||'').toLowerCase() === nombre);
+          if (!p) return;
+          const cantPres = parseFloat(p.cantidad_presentacion)||1;
+          const cerrado  = parseFloat(l['Cant. completos'])||0;
+          const abierto  = parseFloat(l['Cant. en uso'])||0;
+          stockMap[p.id] = cerrado + abierto / cantPres;
+        });
+        const bajos = enUso.filter(p => {
+          const min   = parseFloat(p.stock_minimo)||0;
+          const stock = stockMap[p.id];
+          return min > 0 && stock !== undefined && stock < min;
+        });
+        bajos.forEach(p => {
+          const s   = stockMap[p.id].toFixed(1);
+          const min = p.stock_minimo;
+          alertas.push({ tipo:'red', texto:`${p.nombre}: stock ${s} pres. (mín. ${min}).`, meta:'Inventario · bajo mínimo' });
+        });
+      }
+    } else {
+      document.getElementById('kpi-inv').textContent     = 'Sin datos';
+      document.getElementById('kpi-inv-sub').textContent = 'Finalizá una toma de inventario';
+    }
+  } catch(e) {
+    document.getElementById('kpi-inv').textContent     = 'Sin conexión';
+    document.getElementById('kpi-inv-sub').textContent = 'Sheet no accesible';
+    alertas.push({ tipo:'amber', texto:'No se pudo conectar con el Sheet de inventarios.', meta:'Verificá que el Sheet sea público' });
+  }
+
+  // 4. PERSONAL
+  const personal = JSON.parse(localStorage.getItem('rrhh_personal')||'[]');
+  const enLiq    = personal.filter(p => p.estado === 'LIQUIDACIÓN').length;
+  if (enLiq > 0) alertas.push({ tipo:'amber', texto:`${enLiq} colaborador${enLiq!==1?'es':''} en estado Liquidación pendiente de procesar.`, meta:'RRHH · Liquidaciones' });
+
+  // 5. KPI alertas
+  document.getElementById('kpi-alertas').textContent     = alertas.length || '0';
+  document.getElementById('kpi-alertas').style.color     = alertas.length ? 'var(--red)' : 'var(--green)';
+  document.getElementById('kpi-alertas-sub').textContent = alertas.length
+    ? `Revisá el panel de alertas`
+    : 'Todo en orden';
+
+  // 6. Renderizar alertas
+  const cont = document.getElementById('lista-alertas');
+  document.getElementById('alertas-count').textContent = alertas.length ? alertas.length : '';
+  if (!alertas.length) {
+    cont.innerHTML = `<div class="no-alerts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;margin:0 auto 8px;display:block;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Sin alertas activas</div>`;
+  } else {
+    cont.innerHTML = alertas.map(a => `
+      <div class="alert-item">
+        <div class="alert-dot" style="background:var(--${a.tipo});"></div>
+        <div>
+          <div class="alert-text">${a.texto}</div>
+          <div class="alert-meta">${a.meta}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // 7. Status bar
+  const nAlerts = alertas.filter(a=>a.tipo==='red').length;
+  document.getElementById('status-dot').className = 'sdot' + (nAlerts ? ' off' : '');
+  document.getElementById('status-texto').textContent =
+    `${enUso.length} productos · ${totalOC} órdenes · actualizado ${new Date().toLocaleTimeString('es-CR')}`;
+  document.getElementById('status-general').textContent =
+    alertas.length
+      ? `${alertas.length} alerta${alertas.length!==1?'s':''} activa${alertas.length!==1?'s':''} · revisá el panel`
+      : `Todo en orden · ${enUso.length} productos cargados`;
+}
+
+document.addEventListener('DOMContentLoaded', cargarKPIs);
+</script>
 </body>
 </html>
