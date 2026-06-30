@@ -229,7 +229,10 @@
           <input type="text" id="p-tamano" placeholder="Ej. 1 kg, 500 ml, 12 u…" oninput="sugerirConversion()">
         </div>
         <div class="field">
-          <label for="p-proveedor">Proveedor habitual</label>
+          <label for="p-proveedor" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span>Proveedor habitual</span>
+            <a href="proveedores.html?nuevo=1" target="_blank" rel="noopener" style="font-size:11px;font-weight:500;color:var(--purple);text-decoration:none;white-space:nowrap;">+ Nuevo proveedor</a>
+          </label>
           <select id="p-proveedor">
             <option value="">Seleccioná…</option>
           </select>
@@ -838,6 +841,43 @@ function getProveedores() {
   catch { return []; }
 }
 
+// Trae la lista de proveedores desde el Sheet (hoja "Proveedores") vía JSONP
+// y la deja en localStorage con el mismo formato que usa proveedores.html.
+function cargarProveedoresDesdeSheet() {
+  if (!APPS_SCRIPT_COSTOS) return;
+  const cbName = 'cbProveedores_' + Date.now();
+  const script = document.createElement('script');
+
+  window[cbName] = function(resp) {
+    if (resp && resp.ok && Array.isArray(resp.registros)) {
+      const proveedores = resp.registros.map(r => ({
+        id:                r['ID'] || '',
+        nombre_juridico:   r['Nombre jurídico'] || '',
+        nombre_comercial:  r['Nombre comercial'] || '',
+        categoria:         r['Categoría'] || '',
+        contacto:          r['Contacto'] || '',
+        telefono:          r['Teléfono'] || '',
+        correo:            r['Correo'] || '',
+        dia_pedido:        r['Días de pedido'] || '',
+        dias_pedido:       (r['Días de pedido'] || '').split(',').map(s=>s.trim()).filter(Boolean),
+        notas_contacto:    r['Notas contacto'] || '',
+        cuenta:            r['Cuenta/IBAN'] || '',
+        condicion_pago:    r['Condición de pago (días)'] || 0,
+        notas_pago:        r['Notas pago'] || '',
+        actualizado:       r['Actualizado'] || ''
+      }));
+      localStorage.setItem('proveedores', JSON.stringify(proveedores));
+      aplicarConfiguracion();
+    }
+    delete window[cbName];
+    script.remove();
+  };
+
+  script.src = `${APPS_SCRIPT_COSTOS}?modulo=proveedores&callback=${cbName}`;
+  script.onerror = () => { delete window[cbName]; script.remove(); };
+  document.body.appendChild(script);
+}
+
 // Exponer globalmente para recetas
 window.getProductos = getProductos;
 
@@ -1142,6 +1182,7 @@ function showToast(msg, type='success') {
 document.addEventListener("DOMContentLoaded", () => {
   initConfig();
   renderLista();
+  cargarProveedoresDesdeSheet();
 });
 </script>
 </body>

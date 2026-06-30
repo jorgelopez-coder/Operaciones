@@ -558,6 +558,7 @@ document.getElementById('modal-prov').addEventListener('click', e => {
 document.addEventListener('DOMContentLoaded', () => {
   actualizarFiltros();
   renderLista();
+  if (new URLSearchParams(location.search).get('nuevo') === '1') abrirNuevo();
 });
 </script>
 </body>
