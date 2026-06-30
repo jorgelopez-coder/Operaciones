@@ -37,6 +37,10 @@ main{max-width:1280px;margin:0 auto;padding:24px 20px}
 .btn-sm{font-size:12px;padding:4px 10px}
 .btn-import{background:var(--vac-bg);color:var(--vac-text);border-color:var(--vac-border)}.btn-import:hover{opacity:.85}
 .btn-danger{color:var(--danger);border-color:transparent;background:transparent;font-size:11px;padding:2px 6px}.btn-danger:hover{background:var(--danger-bg)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:disabled:hover{background:var(--surface)}
+.lock-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--inc-bg);color:var(--inc-text);border:1px solid var(--inc-border)}
+select:disabled,input:disabled,textarea:disabled{opacity:.55;cursor:not-allowed;background:var(--surface2)}
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
 .tab{font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s}
 .tab:hover{background:var(--surface2);color:var(--text)}.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -142,6 +146,12 @@ tbody tr:last-child td{border-bottom:none}
     <div class="week-label" id="week-label">&mdash;</div>
     <input type="date" id="week-start" style="width:140px" onchange="onWeekChange()"/>
     <button class="btn btn-ghost btn-sm" onclick="goToday()">Hoy</button>
+    <span id="semana-cerrada-badge" class="lock-badge" style="display:none">&#128274; Semana cerrada</span>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+      <a href="horarios-historial.html" class="btn btn-ghost btn-sm">&#128193; Historial</a>
+      <button class="btn btn-sm" id="btn-cerrar-semana" onclick="cerrarSemana()" style="display:none">&#128274; Cerrar horario</button>
+      <button class="btn btn-sm" id="btn-reabrir-semana" onclick="reabrirSemana()" style="display:none">&#128275; Reabrir (código admin)</button>
+    </div>
   </div>
 
   <div id="status-bar" class="status-bar" style="display:none"></div>
@@ -155,7 +165,8 @@ tbody tr:last-child td{border-bottom:none}
     <label style="margin:0;font-size:13px;color:var(--text2)">Departamento:</label>
     <select id="filter-area" onchange="renderSched()"><option value="">Todos los departamentos</option></select>
     <div class="toolbar-right">
-      <button class="btn btn-sm" onclick="toggleAddPanel()">+ Empleado extra</button>
+      <button class="btn btn-sm" id="btn-add-extra" onclick="toggleAddPanel()">+ Empleado extra</button>
+      <button class="btn btn-sm btn-primary" id="btn-guardar-semana" onclick="guardarSemana()">&#128190; Guardar semana</button>
       <button class="btn btn-sm" onclick="window.print()">&#9113; Imprimir</button>
     </div>
   </div>
@@ -184,8 +195,8 @@ tbody tr:last-child td{border-bottom:none}
   <div class="metrics" id="metrics" style="display:none"></div>
 
   <div class="export-row" id="export-row" style="display:none">
-    <button class="btn" onclick="descargarPDF()">&darr; Descargar PDF</button>
-    <button class="btn btn-import" onclick="enviarWhatsApp()">&#128172; Enviar por WhatsApp</button>
+    <button class="btn" id="btn-pdf" onclick="descargarPDF()" disabled title="Cerrá el horario para habilitar la exportación">&darr; Descargar PDF</button>
+    <button class="btn btn-import" id="btn-whatsapp" onclick="enviarWhatsApp()" disabled title="Cerrá el horario para habilitar el envío">&#128172; Enviar por WhatsApp</button>
   </div>
 </main>
 <div class="toast" id="toast"></div>
@@ -214,6 +225,10 @@ const HORAS_VACACIONES = 8;
 let extraTarget = null;
 
 let restos=[], employees=[], schedule={}, activeResto=null, vacaciones=[];
+let semanaCerrada=false;
+// Código de administrador para reabrir/editar una semana cerrada.
+// Cambialo acá si querés otro código.
+const ADMIN_CODE='admin';
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000)}
@@ -223,13 +238,24 @@ function esc(s){return(s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt
 function getMondayOf(d){const day=d.getDay(),diff=day===0?-6:1-day;const m=new Date(d);m.setDate(d.getDate()+diff);return m}
 function fmt(d){return d.toISOString().slice(0,10)}
 function fmtShort(d){return d.toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit'})}
-function initWeek(){const el=document.getElementById('week-start');if(!el.value)el.value=fmt(getMondayOf(new Date()));updateWeekLabel()}
+function initWeek(){
+  const el=document.getElementById('week-start');
+  const qsSemana=new URLSearchParams(location.search).get('semana');
+  if(!el.value) el.value = qsSemana || fmt(getMondayOf(new Date()));
+  updateWeekLabel();
+}
 function updateWeekLabel(){
   const base=document.getElementById('week-start').value;if(!base)return;
   const s=new Date(base+'T00:00:00'),e=new Date(s);e.setDate(s.getDate()+6);
   document.getElementById('week-label').textContent=fmtShort(s)+' – '+fmtShort(e)+' · '+s.getFullYear();
 }
-function onWeekChange(){updateWeekLabel();aplicarVacaciones();renderSched()}
+async function onWeekChange(){
+  updateWeekLabel();
+  resetWeekCells();
+  await cargarHorarioGuardado();
+  aplicarVacaciones();
+  await cargarEstadoSemana();
+}
 function shiftWeek(dir){const el=document.getElementById('week-start');const d=new Date(el.value+'T00:00:00');d.setDate(d.getDate()+dir*7);el.value=fmt(d);onWeekChange()}
 function goToday(){document.getElementById('week-start').value=fmt(getMondayOf(new Date()));onWeekChange()}
 function getWeekDates(){
@@ -263,8 +289,10 @@ async function loadSheet(){
 
     buildFromPersonal(dP.registros||[]);
     vacaciones = normalizarVacaciones(dV.ok?dV.registros:[]);
+    await cargarHorarioGuardado();
     aplicarVacaciones();
     renderAll();
+    await cargarEstadoSemana();
 
     document.getElementById('header-status').textContent='Planilla actualizada ✓';
     toast('Planilla y vacaciones actualizadas');
@@ -281,6 +309,158 @@ function initSchedule(emp){
     schedule[emp.id]={};
     DAYS.forEach((_,i)=>{schedule[emp.id][i]={status:'trabajo',in:'',out:'',note:'',autoVac:false,otroLabel:''}});
   }
+}
+
+// Limpia las celdas de la semana visible antes de cargar otra semana, ya que
+// schedule[empId][i] se indexa por día-de-semana (0-6), no por fecha real.
+function resetWeekCells(){
+  employees.forEach(emp=>{
+    if(!schedule[emp.id]) initSchedule(emp);
+    DAYS.forEach((_,i)=>{ schedule[emp.id][i]={status:'trabajo',in:'',out:'',note:'',autoVac:false,otroLabel:''}; });
+  });
+}
+
+/* ── Guardar / cargar historial de horarios (hoja "Horarios" en RRHH) ── */
+async function cargarHorarioGuardado(){
+  try{
+    const resp=await fetch(APPS_SCRIPT_URL+'?modulo=horarios');
+    if(!resp.ok)return;
+    const data=await resp.json();
+    if(!data.ok||!Array.isArray(data.registros))return;
+
+    const semana=document.getElementById('week-start').value;
+    const dates=getWeekDatesISO();
+    const registros=data.registros.filter(r=>(r['Semana inicio']||'')===semana);
+    if(!registros.length)return;
+
+    registros.forEach(r=>{
+      const nombre=(r['Colaborador']||'').toString().trim().toLowerCase();
+      const fecha=r['Fecha']||'';
+      const dayIdx=dates.indexOf(fecha);
+      if(dayIdx<0)return;
+      const emp=employees.find(e=>e.name.trim().toLowerCase()===nombre);
+      if(!emp)return;
+      if(!schedule[emp.id])initSchedule(emp);
+      schedule[emp.id][dayIdx]={
+        status: r['Estado']||'trabajo',
+        in:     r['Hora entrada']||'',
+        out:    r['Hora salida']||'',
+        note:   r['Nota']||'',
+        autoVac:false,
+        otroLabel: r['Detalle']||''
+      };
+    });
+  }catch(e){
+    console.warn('No se pudo cargar el horario guardado:',e);
+  }
+}
+
+async function guardarSemana(){
+  if(!employees.length){toast('No hay colaboradores cargados');return}
+  const dates=getWeekDatesISO();
+  const semana=document.getElementById('week-start').value;
+  const dias=[];
+  employees.forEach(emp=>{
+    dates.forEach((fecha,i)=>{
+      const s=schedule[emp.id]?.[i];
+      if(!s)return;
+      dias.push({
+        fecha, colaborador:emp.name, departamento:emp.area||'', puesto:emp.puesto||'',
+        estado:s.status||'trabajo', entrada:s.in||'', salida:s.out||'',
+        horas:calcH(emp.id,i), nota:s.note||'',
+        detalle:(s.status==='otro'?(s.otroLabel||''):'')
+      });
+    });
+  });
+
+  const btn=document.getElementById('btn-guardar-semana');
+  if(btn){btn.disabled=true;btn.textContent='Guardando…';}
+  try{
+    const resp=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      body:new URLSearchParams({data:JSON.stringify({modulo:'horario_semana',semana_inicio:semana,dias})})
+    });
+    const out=await resp.json();
+    if(out.ok) toast('Semana guardada ✓ ('+dias.length+' registros)');
+    else toast('Error al guardar: '+(out.error||'desconocido'));
+  }catch(e){
+    toast('Sin conexión — no se pudo guardar');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='&#128190; Guardar semana';}
+  }
+}
+
+/* ── Cerrar / reabrir semana ──
+   Una semana cerrada bloquea toda edición y habilita exportar/enviar.
+   Reabrir requiere el código de administrador. */
+async function cargarEstadoSemana(){
+  const semana=document.getElementById('week-start').value;
+  try{
+    const resp=await fetch(APPS_SCRIPT_URL+'?modulo=horarios_estado');
+    const data=await resp.json();
+    const reg=(data.ok?data.registros:[]).find(r=>(r['Semana inicio']||'')===semana);
+    semanaCerrada=!!(reg && (reg['Cerrado']||'').toString().trim().toLowerCase()==='sí');
+  }catch(e){
+    semanaCerrada=false;
+  }
+  aplicarEstadoUI();
+}
+
+async function cerrarSemana(){
+  if(!confirm('¿Cerrar el horario de esta semana?\n\nNo se podrán hacer más cambios hasta reabrirlo con el código de administrador.'))return;
+  const semana=document.getElementById('week-start').value;
+  try{
+    const resp=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      body:new URLSearchParams({data:JSON.stringify({modulo:'cerrar_horario',semana_inicio:semana})})
+    });
+    const out=await resp.json();
+    if(!out.ok){toast('Error al cerrar: '+(out.error||'desconocido'));return}
+    semanaCerrada=true;
+    aplicarEstadoUI();
+    toast('Horario cerrado 🔒');
+  }catch(e){
+    toast('Sin conexión — no se pudo cerrar');
+  }
+}
+
+async function reabrirSemana(){
+  const code=prompt('Código de administrador para reabrir esta semana:');
+  if(code===null)return;
+  if(code.trim().toLowerCase()!==ADMIN_CODE){toast('Código incorrecto');return}
+  const semana=document.getElementById('week-start').value;
+  try{
+    const resp=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      body:new URLSearchParams({data:JSON.stringify({modulo:'reabrir_horario',semana_inicio:semana})})
+    });
+    const out=await resp.json();
+    if(!out.ok){toast('Error al reabrir: '+(out.error||'desconocido'));return}
+    semanaCerrada=false;
+    aplicarEstadoUI();
+    toast('Horario reabierto 🔓');
+  }catch(e){
+    toast('Sin conexión — no se pudo reabrir');
+  }
+}
+
+function aplicarEstadoUI(){
+  const badge=document.getElementById('semana-cerrada-badge');
+  const btnCerrar=document.getElementById('btn-cerrar-semana');
+  const btnReabrir=document.getElementById('btn-reabrir-semana');
+  const btnGuardar=document.getElementById('btn-guardar-semana');
+  const btnPDF=document.getElementById('btn-pdf');
+  const btnWA=document.getElementById('btn-whatsapp');
+
+  if(badge) badge.style.display=semanaCerrada?'inline-flex':'none';
+  if(btnCerrar) btnCerrar.style.display=(employees.length&&!semanaCerrada)?'inline-flex':'none';
+  if(btnReabrir) btnReabrir.style.display=(employees.length&&semanaCerrada)?'inline-flex':'none';
+  if(btnGuardar) btnGuardar.disabled=semanaCerrada;
+  const btnAddExtra=document.getElementById('btn-add-extra');
+  if(btnAddExtra) btnAddExtra.disabled=semanaCerrada;
+  if(btnPDF) btnPDF.disabled=!semanaCerrada;
+  if(btnWA) btnWA.disabled=!semanaCerrada;
+  renderSched();
 }
 
 // Convierte el listado de "Personal" (RRHH) en empleados activos para el horario.
@@ -367,6 +547,7 @@ function calcH(empId,day){
   const diff=(oh*60+om)-(ih*60+im);return diff>0?diff/60:0;
 }
 function setStatus(empId,day,val){
+  if(semanaCerrada){toast('Semana cerrada — reabrila para editar');return}
   if(!schedule[empId])return;
   schedule[empId][day].status=val;
   schedule[empId][day].autoVac=false; // override manual rompe el auto-marcado
@@ -376,6 +557,7 @@ function setStatus(empId,day,val){
 
 /* ── Popover de incapacidad / permiso / otro (botón "+") ── */
 function abrirExtra(empId,day,btnEl){
+  if(semanaCerrada){toast('Semana cerrada — reabrila para editar');return}
   extraTarget={empId,day};
   const pop=document.getElementById('extra-popover');
   const r=btnEl.getBoundingClientRect();
@@ -408,6 +590,7 @@ document.addEventListener('click',e=>{
   if(pop.style.display==='flex' && !pop.contains(e.target) && !e.target.classList.contains('btn-extra')) cerrarExtra();
 });
 function setTimeField(empId,day,field,val){
+  if(semanaCerrada)return;
   if(!schedule[empId])return;
   schedule[empId][day][field]=val;
   const h=calcH(empId,day);
@@ -415,7 +598,7 @@ function setTimeField(empId,day,field,val){
   if(el)el.textContent=h>0?h.toFixed(1)+'h':'—';
   updateTotals();
 }
-function setNote(empId,day,val){if(schedule[empId])schedule[empId][day].note=val}
+function setNote(empId,day,val){if(!semanaCerrada&&schedule[empId])schedule[empId][day].note=val}
 
 function updateTotals(){
   const emps=employees.filter(e=>e.restoId===activeResto);
@@ -452,11 +635,12 @@ function renderFilterAreas(){
 function buildDayCell(empId,i){
   const s=schedule[empId]?.[i]||{status:'trabajo',in:'',out:'',note:'',autoVac:false,otroLabel:''};
   const st=s.status||'trabajo';
-  const noteEl='<textarea class="note-ta" placeholder="Nota…" onchange="setNote(\''+empId+'\','+i+',this.value)">'+esc(s.note||'')+'</textarea>'+(s.note?'<div class="note-print">'+esc(s.note)+'</div>':'');
-  const extraBtn='<button type="button" class="btn-extra" title="Incapacidad / permiso sin goce / otro" onclick="abrirExtra(\''+empId+'\','+i+',this)">+</button>';
+  const dis=semanaCerrada?' disabled':'';
+  const noteEl='<textarea class="note-ta" placeholder="Nota…" onchange="setNote(\''+empId+'\','+i+',this.value)"'+dis+'>'+esc(s.note||'')+'</textarea>'+(s.note?'<div class="note-print">'+esc(s.note)+'</div>':'');
+  const extraBtn=semanaCerrada?'':'<button type="button" class="btn-extra" title="Incapacidad / permiso sin goce / otro" onclick="abrirExtra(\''+empId+'\','+i+',this)">+</button>';
 
   if(st==='trabajo'||st==='libre'){
-    const selEl='<select class="st-sel" onchange="setStatus(\''+empId+'\','+i+',this.value)">'+
+    const selEl='<select class="st-sel" onchange="setStatus(\''+empId+'\','+i+',this.value)"'+dis+'>'+
       '<option value="trabajo"'+(st==='trabajo'?' selected':'')+'>Turno normal</option>'+
       '<option value="libre"'+(st==='libre'?' selected':'')+'>Día libre</option>'+
       '</select>';
@@ -466,8 +650,8 @@ function buildDayCell(empId,i){
     }
     const h=calcH(empId,i);
     return '<td><div class="day-cell">'+selEl+
-      '<input type="time" value="'+esc(s.in)+'" onchange="setTimeField(\''+empId+'\','+i+',\'in\',this.value)"/>'+
-      '<input type="time" value="'+esc(s.out)+'" onchange="setTimeField(\''+empId+'\','+i+',\'out\',this.value)"/>'+
+      '<input type="time" value="'+esc(s.in)+'" onchange="setTimeField(\''+empId+'\','+i+',\'in\',this.value)"'+dis+'/>'+
+      '<input type="time" value="'+esc(s.out)+'" onchange="setTimeField(\''+empId+'\','+i+',\'out\',this.value)"'+dis+'/>'+
       '<div class="hours-lbl" id="h-'+empId+'-'+i+'">'+(h>0?h.toFixed(1)+'h':'—')+'</div>'+
       extraBtn+noteEl+'</div></td>';
   }
@@ -477,7 +661,7 @@ function buildDayCell(empId,i){
   const autoTag=(st==='vacaciones'&&s.autoVac)?'<div class="auto-tag">desde solicitud</div>':'';
   const horasTag=(st==='vacaciones')?'<div class="hours-lbl" style="font-size:11px;">'+HORAS_VACACIONES.toFixed(1)+'h</div>':'';
   const lbl=info.label+(st==='otro'&&s.otroLabel?': '+esc(s.otroLabel):'');
-  const quitarBtn=(st==='vacaciones'&&s.autoVac)
+  const quitarBtn=(semanaCerrada||(st==='vacaciones'&&s.autoVac))
     ? ''
     : '<button type="button" class="btn-quitar" onclick="setStatus(\''+empId+'\','+i+',\'trabajo\')">Quitar</button>';
   return '<td class="'+info.bgCls+'"><div class="special-td"><div class="sp-icon">'+info.icon+'</div><div class="sp-lbl">'+lbl+'</div>'+autoTag+horasTag+quitarBtn+noteEl+'</div></td>';
@@ -503,7 +687,7 @@ function renderSched(){
 
   emps.forEach(emp=>{
     let tot=0;DAYS.forEach((_,i)=>{tot+=calcH(emp.id,i)});
-    html+='<tr><td class="ec"><div class="emp-name">'+esc(emp.name)+'</div><div class="emp-meta">'+esc([emp.area,emp.puesto].filter(Boolean).join(' · '))+'</div>'+(emp.extra?'<button class="btn btn-danger" onclick="removeEmployee(\''+emp.id+'\')">&#x2715; quitar</button>':'')+'</td>';
+    html+='<tr><td class="ec"><div class="emp-name">'+esc(emp.name)+'</div><div class="emp-meta">'+esc([emp.area,emp.puesto].filter(Boolean).join(' · '))+'</div>'+((emp.extra&&!semanaCerrada)?'<button class="btn btn-danger" onclick="removeEmployee(\''+emp.id+'\')">&#x2715; quitar</button>':'')+'</td>';
     DAYS.forEach((_,i)=>{html+=buildDayCell(emp.id,i)});
     html+='<td class="hours-lbl" id="tot-'+emp.id+'" style="font-size:13px;vertical-align:middle">'+tot.toFixed(1)+'h</td></tr>';
   });
@@ -538,6 +722,7 @@ function renderMetrics(){
 /* ── Extra employees (personal eventual / freelance que no está en RRHH) ── */
 function toggleAddPanel(){document.getElementById('add-panel').classList.toggle('open')}
 function addExtraEmp(){
+  if(semanaCerrada){toast('Semana cerrada — reabrila para editar');return}
   const name=document.getElementById('extra-name').value.trim();
   if(!name||!activeResto){toast('Escribí un nombre');return}
   const id=uid();
@@ -549,6 +734,7 @@ function addExtraEmp(){
   renderAll();toast(name+' agregado');
 }
 function removeEmployee(id){
+  if(semanaCerrada){toast('Semana cerrada — reabrila para editar');return}
   const emp=employees.find(e=>e.id===id);
   employees=employees.filter(e=>e.id!==id);delete schedule[id];
   renderAll();if(emp)toast(emp.name+' removido');
