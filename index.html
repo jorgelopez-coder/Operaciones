@@ -92,6 +92,27 @@
     .alert-meta { font-size:11px; color:var(--muted); margin-top:1px; }
     .no-alerts { padding:1.5rem 1.25rem; text-align:center; font-size:12px; color:var(--subtle); }
 
+    /* ── HORARIO RESUMEN ────────────────────────────────────── */
+    .horario-resumen { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:1.5rem; }
+    .horario-resumen table { width:100%; border-collapse:collapse; font-size:12px; min-width:620px; }
+    .horario-resumen thead th { font-size:10px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); padding:7px 8px; background:var(--surface); border-bottom:1px solid var(--border); text-align:center; white-space:nowrap; }
+    .horario-resumen thead th.th-emp { text-align:left; padding-left:14px; min-width:140px; }
+    .horario-resumen tbody td { padding:6px 8px; border-bottom:1px solid var(--border); text-align:center; vertical-align:middle; }
+    .horario-resumen tbody td.td-emp { text-align:left; padding-left:14px; font-weight:500; font-size:12px; }
+    .horario-resumen tbody td.td-dep { color:var(--muted); font-size:11px; text-align:left; }
+    .horario-resumen tbody tr:last-child td { border-bottom:none; }
+    .horario-resumen tbody tr:hover td { background:var(--surface); }
+    .hor-dot { display:inline-flex; align-items:center; justify-content:center; width:28px; height:22px; border-radius:5px; font-size:10px; font-weight:600; }
+    .hor-trabajo  { background:var(--green-bg); color:var(--green); }
+    .hor-libre    { background:var(--surface); color:var(--muted); border:1px solid var(--border); }
+    .hor-vac      { background:#dbeafe; color:#1e3a5f; }
+    .hor-inc      { background:#fef3c7; color:#78350f; }
+    .hor-perm     { background:#f3e8ff; color:#4c1d95; }
+    .hor-otro     { background:var(--surface); color:var(--muted); border:1px solid var(--border); }
+    .hor-vacio    { color:var(--subtle); font-size:14px; }
+    .hor-tot      { font-weight:600; color:var(--green); font-size:12px; }
+    .hor-overflow { overflow-x:auto; }
+
     /* ── MÓDULOS GRID ───────────────────────────────────────── */
     .modules-section { margin-bottom:1.5rem; }
     .modules-section-title { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; padding:0 2px; }
@@ -288,6 +309,22 @@
         <div style="padding:.6rem 1.25rem;border-top:1px solid var(--border);">
           <a href="proveedores.html" style="font-size:12px;color:var(--muted);text-decoration:none;">Ver todos los proveedores →</a>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESUMEN HORARIO SEMANA ── -->
+  <div class="horario-resumen" id="horario-resumen-panel">
+    <div class="section-head">
+      <span class="section-title">Horario — semana en curso</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="horario-semana-lbl" style="font-size:11px;color:var(--muted);"></span>
+        <a href="horarios.html" class="section-link">Ver horario completo →</a>
+      </div>
+    </div>
+    <div class="hor-overflow">
+      <div id="horario-resumen-body" style="padding:1.25rem;text-align:center;font-size:12px;color:var(--subtle);">
+        <span class="spinner"></span>
       </div>
     </div>
   </div>
@@ -696,12 +733,115 @@ function cerrarSesion() {
   window.location.href = 'login.html';
 }
 
+/* ── RESUMEN HORARIO SEMANA EN CURSO ── */
+const APPS_SCRIPT_RRHH = 'https://script.google.com/macros/s/AKfycbzCj8GRj4rcvRgbSa6zulIP8tqULzh-i-uyCfu-FSSMI_ZZhPi6GYeBz_CKnlvzfOtAvA/exec';
+const DIAS_SEMANA = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+function getMondayISO() {
+  const hoy = new Date();
+  const diff = hoy.getDay() === 0 ? -6 : 1 - hoy.getDay();
+  const lun = new Date(hoy);
+  lun.setDate(hoy.getDate() + diff);
+  return lun.toISOString().slice(0,10);
+}
+
+function getWeekDatesISO_idx(semanaInicio) {
+  const base = new Date(semanaInicio + 'T00:00:00');
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(base); d.setDate(base.getDate()+i);
+    return d.toISOString().slice(0,10);
+  });
+}
+
+function horDot(registro) {
+  const est = (registro && registro['Estado']) || '';
+  const entrada = registro && registro['Hora entrada'] || '';
+  const salida  = registro && registro['Hora salida']  || '';
+  const horas   = registro ? parseFloat(registro['Horas']||0) : 0;
+
+  if (!registro || est==='trabajo' && !entrada && !salida)
+    return '<span class="hor-dot hor-vacio" title="Sin datos">·</span>';
+
+  switch(est) {
+    case 'trabajo':
+      const lbl = entrada && salida ? entrada.slice(0,5)+'–'+salida.slice(0,5) : horas.toFixed(0)+'h';
+      return '<span class="hor-dot hor-trabajo" title="'+lbl+'">'+horas.toFixed(0)+'h</span>';
+    case 'libre':      return '<span class="hor-dot hor-libre"  title="Día libre">L</span>';
+    case 'vacaciones': return '<span class="hor-dot hor-vac"    title="Vacaciones">V</span>';
+    case 'incapacidad':return '<span class="hor-dot hor-inc"    title="Incapacidad">I</span>';
+    case 'permiso':    return '<span class="hor-dot hor-perm"   title="Permiso sin goce">P</span>';
+    default:           return '<span class="hor-dot hor-otro"   title="Otro">O</span>';
+  }
+}
+
+async function cargarResumenHorario() {
+  const semana = getMondayISO();
+  const fechas = getWeekDatesISO_idx(semana);
+  const lbl = new Date(semana+'T00:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'short'})
+    + ' – ' + new Date(fechas[6]+'T00:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('horario-semana-lbl').textContent = lbl;
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_RRHH + '?modulo=horarios');
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.error || 'Sin datos');
+
+    const registros = (data.registros || []).filter(r => (r['Semana inicio']||'') === semana);
+
+    if (!registros.length) {
+      document.getElementById('horario-resumen-body').innerHTML =
+        '<p style="padding:1rem;font-size:12px;color:var(--muted);">No hay horario guardado para esta semana. ' +
+        '<a href="horarios.html" style="color:var(--blue);">Ir a Horarios →</a></p>';
+      return;
+    }
+
+    // Agrupar por colaborador
+    const porColab = {};
+    registros.forEach(r => {
+      const nombre = (r['Colaborador']||'').trim();
+      const fecha  = r['Fecha'] || '';
+      if (!nombre || !fecha) return;
+      if (!porColab[nombre]) porColab[nombre] = { depto: r['Departamento']||'', dias: {}, horas: 0 };
+      porColab[nombre].dias[fecha] = r;
+      porColab[nombre].horas += parseFloat(r['Horas']||0) || 0;
+    });
+
+    const colaboradores = Object.keys(porColab).sort();
+
+    let html = '<table><thead><tr>'
+      + '<th class="th-emp">Colaborador</th>'
+      + '<th class="th-dep" style="text-align:left">Depto</th>'
+      + DIAS_SEMANA.map((d,i) => '<th>'+d+'<br><span style="font-weight:400;font-size:9px;color:var(--subtle);">'+
+          new Date(fechas[i]+'T00:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit'})+'</span></th>').join('')
+      + '<th>Total</th>'
+      + '</tr></thead><tbody>';
+
+    colaboradores.forEach(nombre => {
+      const c = porColab[nombre];
+      html += '<tr>'
+        + '<td class="td-emp">' + nombre + '</td>'
+        + '<td class="td-dep">' + (c.depto||'—') + '</td>'
+        + fechas.map(f => '<td>' + horDot(c.dias[f]) + '</td>').join('')
+        + '<td class="hor-tot">' + c.horas.toFixed(1) + 'h</td>'
+        + '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('horario-resumen-body').innerHTML = html;
+
+  } catch(e) {
+    document.getElementById('horario-resumen-body').innerHTML =
+      '<p style="padding:1rem;font-size:12px;color:var(--muted);">No se pudo cargar el horario de esta semana.</p>';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const sesion = verificarAcceso();
   if (!sesion) return;
   aplicarRol(sesion);
   cargarPedidosHoy();
   cargarKPIs();
+  cargarResumenHorario();
 });
 </script>
 </body>
