@@ -230,7 +230,9 @@
         </div>
         <div class="field">
           <label for="p-proveedor">Proveedor habitual</label>
-          <input type="text" id="p-proveedor" placeholder="Nombre del proveedor">
+          <select id="p-proveedor">
+            <option value="">Seleccioná…</option>
+          </select>
         </div>
       </div>
       <div class="field-row" style="margin-top:1rem;">
@@ -784,6 +786,22 @@ function aplicarConfiguracion() {
     dlPre.innerHTML = pres.map(p => `<option value="${p}">`).join('');
   }
 
+  // Actualizar select de proveedor habitual (base de datos de proveedores)
+  const selProv = document.getElementById('p-proveedor');
+  if (selProv) {
+    const valActual = selProv.value;
+    const nombres = getProveedores()
+      .map(p => p.nombre_comercial || p.nombre_juridico)
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+    selProv.innerHTML = '<option value="">Seleccioná…</option>' +
+      nombres.map(n => `<option${n===valActual?' selected':''}>${n}</option>`).join('');
+    // Si el producto tenía un proveedor guardado que ya no existe en la lista, conservarlo igual
+    if (valActual && !nombres.includes(valActual)) {
+      selProv.innerHTML += `<option selected>${valActual}</option>`;
+    }
+  }
+
   // Actualizar filtro de categorías en la lista
   const filtCat = document.getElementById('f-cat');
   if (filtCat) {
@@ -813,6 +831,12 @@ function getProductos() {
   catch { return []; }
 }
 function saveProductos(lista) { localStorage.setItem(STORAGE_KEY, JSON.stringify(lista)); }
+
+// Base de datos de proveedores (compartida con proveedores.html)
+function getProveedores() {
+  try { return JSON.parse(localStorage.getItem('proveedores') || '[]'); }
+  catch { return []; }
+}
 
 // Exponer globalmente para recetas
 window.getProductos = getProductos;
@@ -1101,6 +1125,7 @@ function switchTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   if (tab==='config') { renderCfgLista('cat'); renderCfgLista('uni'); renderCfgLista('pre'); renderCfgLista('area'); }
+  if (tab==='nuevo')  { aplicarConfiguracion(); }
 }
 
 function showToast(msg, type='success') {
