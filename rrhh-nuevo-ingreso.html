@@ -225,17 +225,6 @@
           <input type="text" id="cuenta" placeholder="CR00 0000 0000 0000 0000 00">
         </div>
       </div>
-      <div class="field">
-        <label for="tipo-cuenta">Tipo de cuenta</label>
-        <select id="tipo-cuenta">
-          <option value="" disabled selected>Seleccioná…</option>
-          <option>Cuenta corriente colones</option>
-          <option>Cuenta de ahorros colones</option>
-          <option>Cuenta corriente dólares</option>
-          <option>Cuenta de ahorros dólares</option>
-          <option>SINPE Móvil</option>
-        </select>
-      </div>
     </div>
 
     <!-- Documentos -->
@@ -407,7 +396,6 @@ document.getElementById('form-ingreso').addEventListener('submit', async e => {
   const email     = document.getElementById('email').value.trim();
   const banco     = document.getElementById('banco').value;
   const cuenta    = document.getElementById('cuenta').value.trim();
-  const tipoCta   = document.getElementById('tipo-cuenta').value;
 
   if (!cedula || !nombre || !apellidos || !fechaNac || !nac || !depto || !puesto || !salario || !fechaIng) {
     showToast('Completá todos los campos obligatorios.', 'error'); return;
@@ -436,7 +424,7 @@ document.getElementById('form-ingreso').addEventListener('submit', async e => {
     fecha_ingreso: fechaIng,
     antiguedad: antEl.textContent || '',
     telefono, email,
-    banco, cuenta, tipo_cuenta: tipoCta,
+    banco, cuenta,
     documentos: docs,
     registrado_en: new Date().toISOString(),
   };

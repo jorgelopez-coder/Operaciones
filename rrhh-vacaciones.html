@@ -144,6 +144,10 @@
         <select id="colaborador" onchange="cargarBalance()" required>
           <option value="" disabled selected>Seleccioná un colaborador…</option>
         </select>
+        <div id="colaborador-error" style="display:none;font-size:12px;color:var(--red);margin-top:6px;">
+          <span id="colaborador-error-msg"></span>
+          <a href="javascript:void(0)" onclick="cargarColaboradores()" style="color:var(--green);font-weight:600;text-decoration:none;margin-left:4px;">Reintentar</a>
+        </div>
       </div>
     </div>
 
@@ -220,11 +224,15 @@ document.getElementById('date-chip').textContent =
 
 // Cargar colaboradores desde Google Sheets
 async function cargarColaboradores() {
-  const sel = document.getElementById('colaborador');
+  const sel      = document.getElementById('colaborador');
+  const errBox   = document.getElementById('colaborador-error');
+  const errMsg   = document.getElementById('colaborador-error-msg');
+  errBox.style.display = 'none';
   sel.innerHTML = '<option value="" disabled selected>Cargando colaboradores…</option>';
 
   try {
     const resp = await fetch(APPS_SCRIPT_URL + '?modulo=personal');
+    if (!resp.ok) throw new Error(`El servidor respondió con error ${resp.status}`);
     const data = await resp.json();
 
     sel.innerHTML = '<option value="" disabled selected>Seleccioná un colaborador…</option>';
@@ -265,7 +273,9 @@ async function cargarColaboradores() {
     }
   } catch(err) {
     console.error('Error cargando colaboradores:', err);
-    sel.innerHTML = '<option value="" disabled selected>Error al cargar — verificá conexión</option>';
+    sel.innerHTML = '<option value="" disabled selected>Error al cargar colaboradores</option>';
+    errMsg.textContent = `No se pudo conectar con la base de datos (${err.message}).`;
+    errBox.style.display = 'block';
   }
 }
 cargarColaboradores();
