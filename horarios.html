@@ -156,7 +156,6 @@ tbody tr:last-child td{border-bottom:none}
     <select id="filter-area" onchange="renderSched()"><option value="">Todos los departamentos</option></select>
     <div class="toolbar-right">
       <button class="btn btn-sm" onclick="toggleAddPanel()">+ Empleado extra</button>
-      <button class="btn btn-sm" onclick="exportXLSX()">&darr; Excel</button>
       <button class="btn btn-sm" onclick="window.print()">&#9113; Imprimir</button>
     </div>
   </div>
@@ -185,8 +184,8 @@ tbody tr:last-child td{border-bottom:none}
   <div class="metrics" id="metrics" style="display:none"></div>
 
   <div class="export-row" id="export-row" style="display:none">
-    <button class="btn" onclick="exportXLSX()">&darr; Excel &mdash; horario (.xlsx)</button>
-    <button class="btn" onclick="exportHTMLFile()">&darr; PDF para imprimir (.html)</button>
+    <button class="btn" onclick="descargarPDF()">&darr; Descargar PDF</button>
+    <button class="btn btn-import" onclick="enviarWhatsApp()">&#128172; Enviar por WhatsApp</button>
   </div>
 </main>
 <div class="toast" id="toast"></div>
@@ -196,7 +195,8 @@ tbody tr:last-child td{border-bottom:none}
   <button type="button" onclick="aplicarExtra('otro')">📌 Otro</button>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 // Mismo Apps Script de RRHH que usan rrhh-vacaciones.html / rrhh-control-vacaciones.html / rrhh-personal.html
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCj8GRj4rcvRgbSa6zulIP8tqULzh-i-uyCfu-FSSMI_ZZhPi6GYeBz_CKnlvzfOtAvA/exec';
@@ -555,33 +555,6 @@ function removeEmployee(id){
 }
 
 /* ── Exports ── */
-function exportXLSX(){
-  if(!window.XLSX){toast('Librería cargando...');return}
-  const wb=XLSX.utils.book_new();
-  const dates=getWeekDates();
-  restos.forEach(resto=>{
-    const emps=employees.filter(e=>e.restoId===resto.id);if(!emps.length)return;
-    const rows=[['Horario — '+resto.name],[getWeekLabel()],[],
-      ['Empleado','Departamento','Puesto',...dates.map(d=>d.label+' '+d.date),'Notas']];
-    emps.forEach(emp=>{
-      const row=[emp.name,emp.area||'',emp.puesto||''],notes=[];
-      DAYS.forEach((_,i)=>{
-        const s=schedule[emp.id]?.[i];let cell='';
-        if(s?.status&&s.status!=='trabajo'){cell=(ST[s.status]?.label||s.status)+(s.status==='otro'&&s.otroLabel?': '+s.otroLabel:'')}
-        else if(s?.in&&s?.out){cell=s.in+'–'+s.out}
-        row.push(cell);
-        if(s?.note)notes.push(DAYS[i]+': '+s.note);
-      });
-      row.push(notes.join(' | '));rows.push(row);
-    });
-    const ws=XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols']=[{wch:24},{wch:16},{wch:14},...DAYS.map(()=>({wch:16})),{wch:35}];
-    XLSX.utils.book_append_sheet(wb,ws,resto.name.slice(0,31));
-  });
-  XLSX.writeFile(wb,'horario_'+document.getElementById('week-start').value+'.xlsx');
-  toast('Excel descargado');
-}
-
 function buildPDVHtml(resto,dates){
   const STINFO={
     vacaciones:{bg:'#dbeafe',text:'#1e3a5f',icon:'🌴',label:'Vacaciones'},
@@ -626,24 +599,84 @@ function buildPDVHtml(resto,dates){
     '</div>'+tbl+'</body></html>';
 }
 
-function exportHTMLFile(){
+/* ── Generación de PDF (html2canvas + jsPDF) ── */
+async function generarPDF(){
+  if(!window.html2canvas||!window.jspdf){toast('Cargando librería de PDF, esperá un segundo…');return null}
+  const resto=restos.find(r=>employees.some(e=>e.restoId===r.id));
+  if(!resto){toast('Sin datos para exportar');return null}
+
   const dates=getWeekDates();
-  const active=restos.filter(r=>employees.some(e=>e.restoId===r.id));
-  if(!active.length){toast('Sin datos para exportar');return}
-  let count=0;
-  active.forEach((resto,idx)=>{
-    setTimeout(()=>{
-      const html=buildPDVHtml(resto,dates);
-      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;
-      const safe=resto.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-      a.download='horario_'+safe+'_'+document.getElementById('week-start').value+'.html';
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url),500);
-      count++;if(count===active.length)toast(count+' archivos descargados');
-    },idx*400);
-  });
+  const html=buildPDVHtml(resto,dates);
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(html,'text/html');
+
+  const holder=document.createElement('div');
+  holder.style.position='fixed';holder.style.left='-99999px';holder.style.top='0';holder.style.width='1100px';
+  holder.innerHTML='<style>'+(doc.querySelector('style')?.textContent||'')+'</style>'+doc.body.innerHTML;
+  document.body.appendChild(holder);
+  await new Promise(r=>setTimeout(r,60));
+
+  let canvas;
+  try{
+    canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff'});
+  }finally{
+    document.body.removeChild(holder);
+  }
+
+  const { jsPDF }=window.jspdf;
+  const pdf=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
+  const pageW=pdf.internal.pageSize.getWidth();
+  const pageH=pdf.internal.pageSize.getHeight();
+  const imgW=pageW;
+  const imgH=canvas.height*imgW/canvas.width;
+  const imgData=canvas.toDataURL('image/png');
+
+  let heightLeft=imgH,position=0;
+  pdf.addImage(imgData,'PNG',0,position,imgW,imgH);
+  heightLeft-=pageH;
+  while(heightLeft>0){
+    position=heightLeft-imgH;
+    pdf.addPage();
+    pdf.addImage(imgData,'PNG',0,position,imgW,imgH);
+    heightLeft-=pageH;
+  }
+
+  const filename='horario_'+document.getElementById('week-start').value+'.pdf';
+  return {pdf,filename};
+}
+
+async function descargarPDF(){
+  const r=await generarPDF();
+  if(!r)return;
+  r.pdf.save(r.filename);
+  toast('PDF descargado');
+}
+
+/* ── Enviar por WhatsApp ──
+   En navegadores con Web Share API (Chrome/Safari en celular) se abre el
+   selector nativo y se puede elegir WhatsApp directamente con el PDF adjunto.
+   Si el navegador no lo soporta (la mayoría de escritorio), se descarga el
+   PDF y se abre WhatsApp con un mensaje para que el archivo se adjunte a mano. */
+async function enviarWhatsApp(){
+  const r=await generarPDF();
+  if(!r)return;
+  const blob=r.pdf.output('blob');
+  const file=new File([blob],r.filename,{type:'application/pdf'});
+  const texto='Horario de la semana '+getWeekLabel();
+
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file],title:'Horario',text:texto});
+      toast('Compartido ✓');
+      return;
+    }catch(e){
+      if(e && e.name==='AbortError')return; // el usuario canceló el share
+    }
+  }
+
+  r.pdf.save(r.filename);
+  window.open('https://wa.me/?text='+encodeURIComponent(texto+' — adjuntá el PDF que se acaba de descargar.'),'_blank');
+  toast('PDF descargado — adjuntalo en WhatsApp');
 }
 
 initWeek();
