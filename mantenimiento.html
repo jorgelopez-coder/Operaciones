@@ -63,9 +63,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .foto-upload{border:2px dashed var(--border);border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;color:var(--muted);font-size:13px;transition:border-color .15s;position:relative}
 .foto-upload:hover{border-color:var(--green);color:var(--green)}
 .foto-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.foto-preview{position:relative;display:inline-block;margin-top:10px}
-.foto-preview img{width:100%;max-height:220px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
-.foto-remove{position:absolute;top:6px;right:6px;background:var(--red);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
+.foto-preview-wrap{position:relative;margin-top:10px;width:100%}
+.foto-preview-wrap img{width:100%;max-height:320px;object-fit:contain;border-radius:10px;border:1px solid var(--border);display:block;background:var(--surface)}
+.foto-remove{position:absolute;top:8px;right:8px;background:var(--red);color:#fff;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 
 .submit-area{display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap}
 .btn-primary{flex:1;min-width:160px;background:var(--green);color:#fff;border:none;border-radius:9px;font-family:var(--font-d);font-size:15px;font-weight:700;padding:12px 24px;cursor:pointer;transition:opacity .15s}
@@ -234,10 +234,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div>Tocá para tomar foto o seleccionar de galería</div>
           <div style="font-size:11px;margin-top:4px;color:var(--subtle)">JPG, PNG, HEIC · máx. 5 MB</div>
         </div>
-        <div id="foto-preview-wrap" style="display:none">
-          <img id="foto-preview-img" src="" alt="Vista previa"/>
-          <button class="foto-remove" onclick="quitarFoto(event)">×</button>
-        </div>
+      </div>
+      <div class="foto-preview-wrap" id="foto-preview-wrap" style="display:none">
+        <img id="foto-preview-img" src="" alt="Vista previa"/>
+        <button class="foto-remove" onclick="quitarFoto(event)">×</button>
       </div>
     </div>
   </div>
