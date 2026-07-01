@@ -54,7 +54,7 @@
     .greeting p  { font-size:13px; color:var(--muted); }
 
     /* ── KPI STRIP ──────────────────────────────────────────── */
-    .kpi-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.5rem; }
+    .kpi-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.5rem; }
     .kpi { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.25rem; position:relative; overflow:hidden; }
     .kpi-accent { position:absolute; top:0; left:0; width:3px; height:100%; border-radius:3px 0 0 3px; }
     .kpi-val { font-family:var(--font-d); font-size:22px; font-weight:700; letter-spacing:-.02em; margin-bottom:3px; }
@@ -62,7 +62,7 @@
     .kpi-sub { font-size:11px; margin-top:4px; font-weight:500; }
 
     /* ── GRID PRINCIPAL ─────────────────────────────────────── */
-    .main-grid { display:grid; grid-template-columns:1fr 280px 240px; gap:14px; margin-bottom:1.5rem; }
+    .main-grid { display:grid; grid-template-columns:1fr 240px 220px; gap:14px; margin-bottom:1.5rem; }
 
     /* ── SECCIÓN ────────────────────────────────────────────── */
     .section-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
@@ -84,12 +84,6 @@
     .qa-arrow svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
     .qa-badge { font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; }
 
-    /* ── ALERTAS ────────────────────────────────────────────── */
-    .alert-item { display:flex; align-items:flex-start; gap:10px; padding:.85rem 1.25rem; border-bottom:1px solid var(--border); }
-    .alert-item:last-child { border-bottom:none; }
-    .alert-dot { width:7px; height:7px; border-radius:50%; margin-top:6px; flex-shrink:0; }
-    .alert-text { font-size:12px; line-height:1.5; color:var(--text); }
-    .alert-meta { font-size:11px; color:var(--muted); margin-top:1px; }
     .no-alerts { padding:1.5rem 1.25rem; text-align:center; font-size:12px; color:var(--subtle); }
 
     /* ── HORARIO RESUMEN ────────────────────────────────────── */
@@ -221,12 +215,6 @@
       <div class="kpi-lbl">Productos en base</div>
       <div class="kpi-sub" id="kpi-prod-sub" style="color:var(--muted);"></div>
     </div>
-    <div class="kpi">
-      <div class="kpi-accent" style="background:var(--red);"></div>
-      <div class="kpi-val" id="kpi-alertas" style="color:var(--text);">—</div>
-      <div class="kpi-lbl">Alertas activas</div>
-      <div class="kpi-sub" id="kpi-alertas-sub" style="color:var(--muted);"></div>
-    </div>
   </div>
 
   <!-- Grid principal -->
@@ -295,15 +283,18 @@
       </a>
     </div>
 
-    <!-- Alertas -->
+    <!-- Mantenimiento pendiente -->
     <div>
       <div class="section-card">
         <div class="section-head">
-          <span class="section-title">Alertas</span>
-          <span id="alertas-count" style="font-size:11px;font-weight:600;color:var(--muted);"></span>
+          <span class="section-title">🔧 Mantenimiento</span>
+          <a href="mantenimiento.html" class="section-link">Ver todos →</a>
         </div>
-        <div id="lista-alertas">
+        <div id="mant-grid-body">
           <div class="no-alerts"><span class="spinner"></span></div>
+        </div>
+        <div style="padding:.6rem 1.25rem;border-top:1px solid var(--border);">
+          <a href="mantenimiento.html" style="font-size:12px;color:var(--muted);text-decoration:none;">Nuevo reporte →</a>
         </div>
       </div>
     </div>
@@ -340,20 +331,6 @@
       <div id="horario-resumen-body" style="padding:1.25rem;text-align:center;font-size:12px;color:var(--subtle);">
         <span class="spinner"></span>
       </div>
-    </div>
-  </div>
-
-  <!-- ── RESUMEN MANTENIMIENTO PENDIENTE ── -->
-  <div class="mant-resumen" id="mant-resumen-panel">
-    <div class="section-head">
-      <span class="section-title">🔧 Mantenimiento pendiente</span>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span id="mant-resumen-count" style="font-size:11px;color:var(--muted);"></span>
-        <a href="mantenimiento.html#seguimiento" class="section-link">Ver todos →</a>
-      </div>
-    </div>
-    <div id="mant-resumen-body" style="padding:1.25rem;text-align:center;font-size:12px;color:var(--subtle);">
-      <span class="spinner"></span>
     </div>
   </div>
 
@@ -559,7 +536,6 @@ function gvizLoad(sheetId, hoja) {
 // ── CARGAR KPIs ───────────────────────────────────────────────
 async function cargarKPIs() {
   document.getElementById('status-texto').innerHTML = '<span class="spinner"></span> Actualizando datos…';
-  let alertas = [];
 
   // 1. PRODUCTOS (localStorage)
   const productos = JSON.parse(localStorage.getItem('costos_productos')||'[]');
@@ -580,7 +556,6 @@ async function cargarKPIs() {
     document.getElementById('kpi-oc').style.color       = 'var(--amber)';
     document.getElementById('kpi-oc-sub').textContent   = `${aprobadas.length} aprobada${aprobadas.length!==1?'s':''} · ${totalOC} total`;
     document.getElementById('oc-badge-qa').innerHTML    = `<span class="qa-badge" style="background:var(--amber-bg);color:var(--amber);">${enProceso.length} activa${enProceso.length!==1?'s':''}</span>`;
-    alertas.push({ tipo:'amber', texto:`${enProceso.length} orden${enProceso.length!==1?'es':''} de compra en proceso sin aprobar.`, meta:'Órdenes de compra' });
   } else {
     document.getElementById('kpi-oc').textContent     = totalOC + ' orden' + (totalOC!==1?'es':'');
     document.getElementById('kpi-oc').style.color     = 'var(--text)';
@@ -618,11 +593,7 @@ async function cargarKPIs() {
           const stock = stockMap[p.id];
           return min > 0 && stock !== undefined && stock < min;
         });
-        bajos.forEach(p => {
-          const s   = stockMap[p.id].toFixed(1);
-          const min = p.stock_minimo;
-          alertas.push({ tipo:'red', texto:`${p.nombre}: stock ${s} pres. (mín. ${min}).`, meta:'Inventario · bajo mínimo' });
-        });
+        // bajos disponibles para uso futuro si se requiere
       }
     } else {
       document.getElementById('kpi-inv').textContent     = 'Sin datos';
@@ -631,42 +602,10 @@ async function cargarKPIs() {
   } catch(e) {
     document.getElementById('kpi-inv').textContent     = 'Sin conexión';
     document.getElementById('kpi-inv-sub').textContent = 'Sheet no accesible';
-    alertas.push({ tipo:'amber', texto:'No se pudo conectar con el Sheet de inventarios.', meta:'Verificá que el Sheet sea público' });
   }
 
-  // 4. PERSONAL
-  const personal = JSON.parse(localStorage.getItem('rrhh_personal')||'[]');
-  const enLiq    = personal.filter(p => p.estado === 'LIQUIDACIÓN').length;
-  if (enLiq > 0) alertas.push({ tipo:'amber', texto:`${enLiq} colaborador${enLiq!==1?'es':''} en estado Liquidación pendiente de procesar.`, meta:'RRHH · Liquidaciones' });
-
-  // 5. KPI alertas
-  document.getElementById('kpi-alertas').textContent     = alertas.length || '0';
-  document.getElementById('kpi-alertas').style.color     = alertas.length ? 'var(--red)' : 'var(--green)';
-  document.getElementById('kpi-alertas-sub').textContent = alertas.length
-    ? `Revisá el panel de alertas`
-    : 'Todo en orden';
-
-  // 6. Renderizar alertas
-  const cont = document.getElementById('lista-alertas');
-  document.getElementById('alertas-count').textContent = alertas.length ? alertas.length : '';
-  if (!alertas.length) {
-    cont.innerHTML = `<div class="no-alerts">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;margin:0 auto 8px;display:block;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      Sin alertas activas</div>`;
-  } else {
-    cont.innerHTML = alertas.map(a => `
-      <div class="alert-item">
-        <div class="alert-dot" style="background:var(--${a.tipo});"></div>
-        <div>
-          <div class="alert-text">${a.texto}</div>
-          <div class="alert-meta">${a.meta}</div>
-        </div>
-      </div>`).join('');
-  }
-
-  // 7. Status bar
-  const nAlerts = alertas.filter(a=>a.tipo==='red').length;
-  document.getElementById('status-dot').className = 'sdot' + (nAlerts ? ' off' : '');
+  // 4. Status bar
+  document.getElementById('status-dot').className = 'sdot';
   document.getElementById('status-texto').textContent =
     `${enUso.length} productos · ${totalOC} órdenes · actualizado ${new Date().toLocaleTimeString('es-CR')}`;
   // Mostrar/ocultar botón admin
@@ -676,10 +615,7 @@ async function cargarKPIs() {
     btnAdmin.style.display = (s && (s.rol_id === 'admin' || s.modulos === 'todos' || (Array.isArray(s.modulos) && s.modulos.includes('admin-accesos')))) ? '' : 'none';
   }
 
-  document.getElementById('status-general').textContent =
-    alertas.length
-      ? `${alertas.length} alerta${alertas.length!==1?'s':''} activa${alertas.length!==1?'s':''} · revisá el panel`
-      : `Todo en orden · ${enUso.length} productos cargados`;
+  document.getElementById('status-general').textContent = `Todo en orden · ${enUso.length} productos cargados`;
 }
 
 // ── CONTROL DE ACCESO ────────────────────────────────────────
@@ -880,6 +816,7 @@ const MANT_TIPO_ICONS = {
 };
 
 async function cargarResumenMantenimiento() {
+  const body = document.getElementById('mant-grid-body');
   try {
     const resp = await fetch(MANT_URL);
     const data = await resp.json();
@@ -889,53 +826,39 @@ async function cargarResumenMantenimiento() {
     const activos = (data.registros || [])
       .filter(r => r['Estado'] !== 'Resuelto')
       .map(r => ({
-        id:      String(r['ID'] || ''),
-        tipo:    r['Tipo'] || '',
-        detalle: r['Detalle'] || '',
-        estado:  r['Estado'] || 'Pendiente',
-        fecha:   String(r['Fecha'] || '').slice(0,10),
+        id:     String(r['ID'] || ''),
+        tipo:   r['Tipo'] || '',
+        estado: r['Estado'] || 'Pendiente',
+        fecha:  String(r['Fecha'] || '').slice(0,10),
         encargado: r['Encargado'] || '',
         fechaResolucion: String(r['Fecha Resolución'] || '').slice(0,10)
       }))
       .sort((a,b) => Number(b.id) - Number(a.id));
 
-    const countEl = document.getElementById('mant-resumen-count');
-    const body    = document.getElementById('mant-resumen-body');
-
     if (!activos.length) {
-      countEl.textContent = '';
-      body.innerHTML = `<div style="padding:.75rem 1.25rem;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Sin reportes de mantenimiento pendientes</div>`;
+      body.innerHTML = `<div style="padding:1rem 1.25rem;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Sin pendientes</div>`;
       return;
     }
 
-    countEl.textContent = activos.length + ' activo' + (activos.length !== 1 ? 's' : '');
-
-    const mostrar = activos.slice(0, 5);
-    body.innerHTML = mostrar.map(r => {
-      const icon    = MANT_TIPO_ICONS[r.tipo] || '📋';
-      const vencido = r.fechaResolucion && r.fechaResolucion < hoyStr;
+    body.innerHTML = activos.slice(0, 6).map(r => {
+      const icon     = MANT_TIPO_ICONS[r.tipo] || '📋';
+      const vencido  = r.fechaResolucion && r.fechaResolucion < hoyStr;
       const badgeCls = r.estado === 'En proceso' ? 'mb-proceso' : 'mb-pendiente';
       const fechaFmt = r.fecha ? new Date(r.fecha+'T12:00:00').toLocaleDateString('es-CR',{day:'2-digit',month:'short'}) : '';
       return `<a href="mantenimiento.html" class="mant-item">
         <span class="mant-icon">${icon}</span>
         <div class="mant-info">
           <div class="mant-tipo">${r.tipo}</div>
-          <div class="mant-meta">${fechaFmt}${r.encargado ? ' · ' + r.encargado : ''}${vencido ? ' <span class="mant-vencido">⚠ Vencido</span>' : ''}</div>
+          <div class="mant-meta">${fechaFmt}${vencido ? ' · <span class="mant-vencido">⚠ Vencido</span>' : ''}</div>
         </div>
         <span class="mant-badge ${badgeCls}">${r.estado}</span>
       </a>`;
     }).join('');
 
-    if (activos.length > 5) {
-      body.innerHTML += `<div style="padding:.6rem 1.25rem;border-top:1px solid var(--border);font-size:12px;">
-        <a href="mantenimiento.html" style="color:var(--muted);text-decoration:none;">Ver ${activos.length - 5} más →</a></div>`;
-    }
-
   } catch(e) {
-    document.getElementById('mant-resumen-body').innerHTML =
-      '<p style="padding:1rem;font-size:12px;color:var(--muted);">No se pudo cargar el estado de mantenimiento.</p>';
+    body.innerHTML = '<div class="no-alerts">Sin conexión</div>';
   }
 }
 
